@@ -9,22 +9,24 @@ import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, 
 
 // ---------- Vmc Factor Table (from your handwritten notes) ----------
 const VMC_TABLE = [
-  { factor: "Critical engine inop (windmilling)",   perf: "↓",  perfNote: "+ drag",            ctrl: "↓",  ctrlNote: "− rudder effectiveness", vmc: "↑",
-    examinerAnswer: "Critical engine inop — performance drops because of added drag, controllability drops because of reduced rudder effectiveness, so Vmc rises." },
-  { factor: "Operating engine at max power",        perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑",
-    examinerAnswer: "Operating engine at max power — performance improves because of higher rate of climb, controllability drops because more PAST loads the rudder, so Vmc rises." },
-  { factor: "Max gross weight",                     perf: "↓",  perfNote: "− rate of climb",   ctrl: "↑",  ctrlNote: "+ inertia",              vmc: "↓",
-    examinerAnswer: "Max gross weight — performance drops because of a slower rate of climb, controllability improves because of greater inertia resisting yaw, so Vmc drops." },
-  { factor: "Bank up to 5° (ball ½ split)",         perf: "↑",  perfNote: "− sideslip / drag", ctrl: "↑",  ctrlNote: "+ horizontal lift",      vmc: "↓",
-    examinerAnswer: "Bank up to 5° (ball ½ split) — performance improves because of reduced sideslip drag, controllability improves because horizontal lift counteracts the yaw, so Vmc drops." },
-  { factor: "Aft CG",                               perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "less rudder authority",  vmc: "↑",
-    examinerAnswer: "Aft CG — performance improves slightly because of a higher rate of climb, controllability drops because of a shorter rudder arm, so Vmc rises." },
-  { factor: "Takeoff config (gear up / flaps up)",  perf: "↑",  perfNote: "clean",             ctrl: "↓",  ctrlNote: "less keel / flaps",      vmc: "↑",
-    examinerAnswer: "Takeoff config (gear up / flaps up) — performance improves because the airplane is clean, controllability drops because of less keel and flap area, so Vmc rises." },
-  { factor: "Standard day — Low DA",                perf: "↑",  perfNote: "",                  ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑",
-    examinerAnswer: "Standard day — Low DA — performance improves because the engine makes full rated power, controllability drops because more PAST is being generated, so Vmc rises." },
-  { factor: "High DA",                              perf: "↓",  perfNote: "",                  ctrl: "↑",  ctrlNote: "− P-A-S-T",              vmc: "↓",
-    examinerAnswer: "High DA — performance drops because thinner air reduces power, controllability improves because less PAST is being generated, so Vmc drops." },
+  { factor: "Critical engine inop (windmilling)",   perf: "↓",  perfNote: "+ Drag",                ctrl: "↓",  ctrlNote: "− Rudder",            vmc: "↑" },
+  { factor: "Operating engine at max power",        perf: "↑",  perfNote: "+ Rate of Climb",       ctrl: "↓",  ctrlNote: "+ PAST",              vmc: "↑" },
+  { factor: "Max gross weight",                     perf: "↓",  perfNote: "− Rate of Climb",       ctrl: "↑",  ctrlNote: "+ Inertia",           vmc: "↓",
+    deeper: {
+      title: "Why 'inertia' and not 'horizontal lift' for weight?",
+      body: "These are TWO different effects of weight, and the distinction matters:\n\n• Weight ALONE → inertia. A heavier airplane resists changing direction in any axis — including the yaw asymmetric thrust is trying to create. More mass = more resistance to being yawed off heading.\n\n• Weight WHEN BANKED → horizontal lift component. Once you bank toward the operating engine (the zero-sideslip technique), a heavier airplane generates a larger horizontal lift component, which physically opposes the asymmetric-thrust yaw.\n\nBoth effects lower Vmc. The CFI's table calls out 'inertia' under controllability because that's the cleaner framing for weight as a STANDALONE factor — bank gets its own row in the table for the horizontal-lift effect.\n\nCROSS-CONCEPT: Same physics drives why MANEUVERING SPEED (Va) DECREASES at lighter weight. Lighter airplane = less inertia = changes direction more aggressively for the same control input = stresses the airframe more = lower Va to compensate. If the examiner asks 'why does Va decrease with weight reduction?' — same answer.",
+    },
+  },
+  { factor: "Bank up to 5° (ball ½ split toward op engine)", perf: "↑", perfNote: "− Reducing Sideslip", ctrl: "↑", ctrlNote: "Horizontal Lift", vmc: "↓",
+    deeper: {
+      title: "Why bank gets its own row even though it's just 'more horizontal lift'",
+      body: "Banking toward the operating engine produces a horizontal lift component that opposes the asymmetric-thrust yaw — true at any weight. The reason it gets its own row in the table is that it's the ONE factor that helps BOTH performance and Vmc simultaneously:\n\n• Performance ↑ because reducing sideslip lowers drag\n• Controllability ↑ because horizontal lift opposes yaw\n• Vmc ↓ because controllability improved\n\nThis is why 'raise the dead, ½ ball toward the live engine, ~2° bank' is the muscle memory after every engine failure. It's the only single-input action that helps everything at once.",
+    },
+  },
+  { factor: "Aft CG",                               perf: "↑",  perfNote: "+ Rate of Climb",       ctrl: "↓",  ctrlNote: "Less Rudder Authority", vmc: "↑" },
+  { factor: "Takeoff config (gear up / flaps up)",  perf: "↑",  perfNote: "Clean",                 ctrl: "↓",  ctrlNote: "Keel / Flaps",        vmc: "↑" },
+  { factor: "Standard day — Low DA",                perf: "↑",  perfNote: "",                      ctrl: "↓",  ctrlNote: "+ PAST",              vmc: "↑" },
+  { factor: "High DA",                              perf: "↓",  perfNote: "",                      ctrl: "↑",  ctrlNote: "− PAST",              vmc: "↓" },
 ];
 
 // ---------- V-Speeds (PA-30 reference, verify against POH) ----------
@@ -1057,6 +1059,47 @@ function VSpeedsView({ onBack }) {
   );
 }
 
+function ArrowNote({ arrow, note }) {
+  const cls = arrow === "↑" ? "me-arrow-up" : "me-arrow-down";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span className={cls} style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{arrow}</span>
+      {note && <span style={{ color: TEXT_DIM, fontSize: 11.5, lineHeight: 1.4 }}>{note}</span>}
+    </div>
+  );
+}
+
+function DeeperPanel({ deeper }) {
+  const paragraphs = deeper.body.split(/\n\n+/);
+  return (
+    <div style={{
+      padding: "14px 16px",
+      borderLeft: `3px solid ${CYAN}`,
+      color: TEXT,
+    }}>
+      <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 8, textTransform: "uppercase" }}>
+        {deeper.title}
+      </div>
+      {paragraphs.map((p, i) => (
+        <p
+          key={i}
+          style={{
+            fontSize: 13,
+            lineHeight: 1.7,
+            margin: 0,
+            marginBottom: i === paragraphs.length - 1 ? 0 : 10,
+            whiteSpace: "pre-wrap",
+            color: TEXT,
+            fontWeight: 500,
+          }}
+        >
+          {p}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function VmcTableView({ onBack }) {
   const [openRow, setOpenRow] = useState(null);
   return (
@@ -1094,66 +1137,62 @@ function VmcTableView({ onBack }) {
         </ul>
       </div>
 
-      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 8, letterSpacing: "0.12em" }}>
-        TAP A ROW FOR THE EXAMINER ANSWER
-      </div>
       <div style={{ overflowX: "auto" }}>
         <table className="me-table">
           <thead>
             <tr>
               <th>Factor</th>
-              <th style={{ textAlign: "center", width: 90 }}>Perf</th>
-              <th style={{ textAlign: "center", width: 90 }}>Ctrl</th>
+              <th style={{ width: 200 }}>Performance</th>
+              <th style={{ width: 220 }}>Controllability</th>
               <th style={{ textAlign: "center", width: 70 }}>Vmc</th>
             </tr>
           </thead>
           <tbody>
             {VMC_TABLE.map((row, i) => {
               const isOpen = openRow === i;
+              const hasDeeper = !!row.deeper;
               return (
                 <React.Fragment key={i}>
-                  <tr
-                    onClick={() => setOpenRow(isOpen ? null : i)}
-                    style={{ cursor: "pointer", background: isOpen ? "rgba(93,213,230,0.06)" : undefined }}
-                  >
+                  <tr>
                     <td style={{ fontWeight: 600 }}>
-                      <ChevronRight
-                        size={12}
-                        style={{
-                          display: "inline",
-                          marginRight: 6,
-                          verticalAlign: "-1px",
-                          color: TEXT_DIM,
-                          transform: isOpen ? "rotate(90deg)" : "rotate(0)",
-                          transition: "transform 0.15s",
-                        }}
-                      />
                       {row.factor}
+                      {hasDeeper && (
+                        <button
+                          onClick={() => setOpenRow(isOpen ? null : i)}
+                          aria-label="Show deeper explanation"
+                          style={{
+                            marginLeft: 8,
+                            background: "transparent",
+                            border: `1px solid ${CYAN}`,
+                            color: CYAN,
+                            cursor: "pointer",
+                            fontFamily: "JetBrains Mono, monospace",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: "1px 6px",
+                            borderRadius: 10,
+                            lineHeight: 1.4,
+                            verticalAlign: "1px",
+                          }}
+                        >
+                          ?
+                        </button>
+                      )}
                     </td>
-                    <td style={{ textAlign: "center" }}>
-                      <span className={row.perf === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 20 }}>{row.perf}</span>
+                    <td>
+                      <ArrowNote arrow={row.perf} note={row.perfNote} />
                     </td>
-                    <td style={{ textAlign: "center" }}>
-                      <span className={row.ctrl === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 20 }}>{row.ctrl}</span>
+                    <td>
+                      <ArrowNote arrow={row.ctrl} note={row.ctrlNote} />
                     </td>
                     <td style={{ textAlign: "center" }}>
                       <span className={row.vmc === "↑" ? "me-vmc-up" : "me-vmc-down"} style={{ fontSize: 22, fontWeight: 700 }}>{row.vmc}</span>
                     </td>
                   </tr>
-                  {isOpen && (
+                  {isOpen && hasDeeper && (
                     <tr>
                       <td colSpan={4} style={{ background: PANEL_2, padding: 0, borderBottom: `1px solid ${BORDER}` }}>
-                        <div style={{
-                          padding: "12px 16px",
-                          borderLeft: `3px solid ${CYAN}`,
-                          fontSize: 13.5,
-                          lineHeight: 1.7,
-                          color: TEXT,
-                          fontWeight: 500,
-                        }}>
-                          <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>EXAMINER ANSWER:</div>
-                          {row.examinerAnswer}
-                        </div>
+                        <DeeperPanel deeper={row.deeper} />
                       </td>
                     </tr>
                   )}
@@ -1417,6 +1456,7 @@ function TopicView({ topic, kind, mode, setMode, onBack, onMarkStudied, onQuizCo
 
 function LearnMode({ topic, onMarkStudied }) {
   const [expanded, setExpanded] = useState({});
+  const [openFactor, setOpenFactor] = useState(null);
   return (
     <div>
       {topic.isFactorTable && (
@@ -1425,28 +1465,65 @@ function LearnMode({ topic, onMarkStudied }) {
             <thead>
               <tr>
                 <th>Factor</th>
-                <th style={{ textAlign: "center" }}>Perf</th>
-                <th style={{ textAlign: "center" }}>Ctrl</th>
-                <th style={{ textAlign: "center" }}>Vmc</th>
+                <th>Perf</th>
+                <th>Ctrl</th>
+                <th style={{ textAlign: "center", width: 60 }}>Vmc</th>
               </tr>
             </thead>
             <tbody>
-              {VMC_TABLE.map((row, i) => (
-                <tr key={i}>
-                  <td style={{ fontSize: 11 }}>
-                    <div style={{ fontWeight: 600 }}>{row.factor}</div>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <span className={row.perf === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 16 }}>{row.perf}</span>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <span className={row.ctrl === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 16 }}>{row.ctrl}</span>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <span className={row.vmc === "↑" ? "me-vmc-up" : "me-vmc-down"} style={{ fontSize: 18, fontWeight: 700 }}>{row.vmc}</span>
-                  </td>
-                </tr>
-              ))}
+              {VMC_TABLE.map((row, i) => {
+                const isOpen = openFactor === i;
+                const hasDeeper = !!row.deeper;
+                return (
+                  <React.Fragment key={i}>
+                    <tr>
+                      <td style={{ fontSize: 11.5 }}>
+                        <div style={{ fontWeight: 600 }}>
+                          {row.factor}
+                          {hasDeeper && (
+                            <button
+                              onClick={() => setOpenFactor(isOpen ? null : i)}
+                              aria-label="Show deeper explanation"
+                              style={{
+                                marginLeft: 6,
+                                background: "transparent",
+                                border: `1px solid ${CYAN}`,
+                                color: CYAN,
+                                cursor: "pointer",
+                                fontFamily: "JetBrains Mono, monospace",
+                                fontSize: 9,
+                                fontWeight: 700,
+                                padding: "1px 5px",
+                                borderRadius: 10,
+                                lineHeight: 1.4,
+                                verticalAlign: "1px",
+                              }}
+                            >
+                              ?
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <ArrowNote arrow={row.perf} note={row.perfNote} />
+                      </td>
+                      <td>
+                        <ArrowNote arrow={row.ctrl} note={row.ctrlNote} />
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        <span className={row.vmc === "↑" ? "me-vmc-up" : "me-vmc-down"} style={{ fontSize: 18, fontWeight: 700 }}>{row.vmc}</span>
+                      </td>
+                    </tr>
+                    {isOpen && hasDeeper && (
+                      <tr>
+                        <td colSpan={4} style={{ background: PANEL_2, padding: 0, borderBottom: `1px solid ${BORDER}` }}>
+                          <DeeperPanel deeper={row.deeper} />
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
