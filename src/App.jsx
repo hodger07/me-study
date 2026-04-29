@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks } from "lucide-react";
+import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks, BarChart3 } from "lucide-react";
 
 // =====================================================================
 // MULTI-ENGINE STUDY APP — Private Pilot AMEL Add-On
@@ -142,6 +142,124 @@ const AIRCRAFT = {
     { q: "Both alternators showing 0.0 amps in flight indicates:", a: ["Normal cruise condition", "Both alternators have failed — battery is now the only source of electrical power, load-shed immediately", "Master switch failure only", "A G5 issue"], correct: 1, explain: "Dual alternator failure is rare but catastrophic on a long IFR flight. Battery alone gives you maybe 30 minutes of full panel before voltage drops below G5 sustaining levels (G5s have ~4 hr internal battery). LOAD SHED: unnecessary lights, second COM, DME, transponder to standby briefly, etc. Land at the nearest suitable airport. Both showing 0.0 with engines OFF (as in the parked photo) is normal." },
     { q: "Manual alternate air control on the PA-30:", a: ["Activates automatically when carb ice is detected", "Must be MANUALLY pulled full-on by the pilot when induction blockage is suspected", "Only works above 5000 ft", "Is connected to the cowl flap lever"], correct: 1, explain: "Placarded on the panel. Fuel-injected engines don't get carb ice (no carburetor), but they CAN get induction icing — ice forming in the air intake from impact icing or freezing rain. If you suspect induction blockage (loss of power, rising MP unexplained), pull the alt air control. Manual = you have to remember it. Brief it before flight in any visible-moisture conditions." },
     { q: "Throttle quadrant color code: BLUE handles control:", a: ["Mixture", "Throttles", "Propellers (constant-speed prop control)", "Cowl flaps"], correct: 2, explain: "Standard piston-twin convention: BLACK = throttles, BLUE = propellers, RED = mixtures. Memorize cold. Reaching for the wrong handle in an emergency = pulling mixture when you meant prop = engine shutdown when you wanted feather. Always verify by COLOR before moving anything." },
+  ],
+};
+
+// ---------- PERFORMANCE PLANNING (Lubbock, early May, PA-30) ----------
+const PERFORMANCE = {
+  context: {
+    location: "Lubbock area (KLBB and F49 Slaton)",
+    season: "Early May",
+    elevations: {
+      KLBB: 3282,
+      F49: 3124,
+    },
+    typicalWeather: {
+      highF: 85,
+      lowF: 57,
+      windKt: "10-20",
+      notes: "Lubbock is consistently windy. Plan for crosswind components every flight. Mornings cooler, afternoons can push DA into the danger zone for single-engine climb.",
+    },
+  },
+  daScenarios: [
+    {
+      label: "Cool morning (60°F at KLBB)",
+      tempF: 60, fieldElev: 3282,
+      pressureAlt: 3282, da: 3100,
+      verdict: "best", verdictText: "Easy day. Full single-engine performance available.",
+    },
+    {
+      label: "Mild midday (75°F at KLBB)",
+      tempF: 75, fieldElev: 3282,
+      pressureAlt: 3282, da: 4500,
+      verdict: "good", verdictText: "Normal. Single-engine climb still healthy at gross.",
+    },
+    {
+      label: "Warm afternoon (85°F at KLBB)",
+      tempF: 85, fieldElev: 3282,
+      pressureAlt: 3282, da: 5800,
+      verdict: "caution", verdictText: "Single-engine climb degraded ~30%. Consider weight reduction. Long runway preferred.",
+    },
+    {
+      label: "Hot day (95°F at KLBB)",
+      tempF: 95, fieldElev: 3282,
+      pressureAlt: 3282, da: 7200,
+      verdict: "danger", verdictText: "Approaching single-engine service ceiling at gross weight (~7,100 ft). Engine failure on departure = controlled descent into terrain. Either reduce weight significantly or scrub.",
+    },
+  ],
+  keyNumbers: [
+    { label: "PA-30 single-engine service ceiling (gross weight, std day)", value: "~7,100 ft", note: "Where single-engine climb = 50 fpm" },
+    { label: "Single-engine absolute ceiling", value: "~7,500 ft", note: "Where single-engine climb = 0 fpm" },
+    { label: "Approximate DA increase per 10°F above ISA", value: "+700 ft", note: "Rule of thumb. ISA at field elevation 3,300 ft = ~47°F." },
+    { label: "Approximate DA increase per 10°C above ISA", value: "+1,200 ft", note: "Same math, metric." },
+    { label: "KLBB field elevation", value: "3,282 ft MSL", note: "Pattern altitude 4,300 ft MSL" },
+    { label: "F49 (Slaton) field elevation", value: "3,124 ft MSL", note: "Home base for training" },
+  ],
+  chartUseGuide: [
+    {
+      chart: "Takeoff Distance (ground roll + over 50 ft obstacle)",
+      inputs: ["Pressure altitude", "OAT", "Aircraft weight", "Headwind/tailwind", "Runway slope (usually 0)", "Surface (paved/grass)"],
+      output: "Distance to clear 50 ft obstacle in feet",
+      whatToWatch: "Lubbock typically has long runways — KLBB has 11,500 ft runway, F49 has 4,600 ft. F49 is the one to math out carefully on hot days at gross.",
+    },
+    {
+      chart: "Accelerate-Stop Distance",
+      inputs: ["Same as takeoff distance"],
+      output: "Runway needed to accelerate to decision speed (Vr or Vmc per POH), lose an engine, and stop on remaining runway",
+      whatToWatch: "If accelerate-stop > runway available, you have no abort margin. F49's 4,600 ft is the constraint. On a hot day at gross, this gets tight.",
+    },
+    {
+      chart: "Single-Engine Climb (rate of climb, gear up, prop feathered)",
+      inputs: ["Pressure altitude", "OAT", "Aircraft weight"],
+      output: "fpm climb single-engine",
+      whatToWatch: "THE chart that determines whether engine failure on departure is survivable. If chart says 100 fpm at your DA and weight, engine failure means a slow climb to nearest airport. If it says 0 fpm, you're descending into whatever's ahead.",
+    },
+    {
+      chart: "Cruise Performance (TAS, fuel flow vs altitude/power)",
+      inputs: ["Pressure altitude", "OAT", "Power setting (% or MP/RPM)", "Mixture (best power vs best economy)"],
+      output: "TAS in mph/kt, fuel flow GPH per engine",
+      whatToWatch: "Less critical for checkride than departure performance, but examiner may ask for cruise calculation as a setup question.",
+    },
+    {
+      chart: "Landing Distance",
+      inputs: ["Pressure altitude", "OAT", "Aircraft weight", "Headwind/tailwind"],
+      output: "Distance to stop from 50 ft AGL",
+      whatToWatch: "Less of a factor in Lubbock with long runways, but include in calculation. Tailwind dramatically increases landing distance.",
+    },
+  ],
+  scenarios: [
+    {
+      setup: "It's early May, KLBB, 1500 local. OAT 85°F. Wind 220 at 18. You're at gross weight (3,600 lbs). Runway 17R (11,500 ft).",
+      question: "Density altitude?",
+      answer: "~5,800 ft DA. Field elev 3,282 + (85°F − 47°F ISA = 38°F above ISA) × 70 ft/°F ≈ +2,650 ft → DA ~5,930 ft. Round to 5,800-6,000 ft.",
+      examinerLooksFor: "Approximate DA reasoning. Don't need exact — need to recognize you're at 5,000-6,000 ft DA on an 85°F afternoon.",
+    },
+    {
+      setup: "Same day. You compute single-engine climb at 5,800 ft DA, 3,600 lbs from the chart: 130 fpm.",
+      question: "Engine fails 200 ft after liftoff. Discuss your options.",
+      answer: "Maintain control — pitch blue line. Climb available is 130 fpm best case. Option 1: long runway behind you (11,500 ft) — land straight ahead, gear down if just lifted off. Option 2: if past the runway, climb out at Vyse, declare, return to KLBB or divert to F49 (8 nm SE). With 130 fpm I can climb to pattern altitude in about 8 minutes — viable but not heroic. Single-engine missed approach NOT advisable at this DA — go missed early if needed.",
+      examinerLooksFor: "Recognition that Lubbock's long runways are a SAFETY ASSET — straight-ahead landing is the right answer if you're below pattern altitude. ALSO recognition that single-engine performance is degraded but not zero at this DA.",
+    },
+    {
+      setup: "Same conditions but at F49 (3,124 ft elev) with 4,600 ft runway. 85°F. Gross weight.",
+      question: "Go or no-go?",
+      answer: "Compute accelerate-stop distance. At 5,500 ft DA, gross weight, no wind: AS distance ~3,800-4,000 ft from typical PA-30 charts. With 4,600 ft runway available you have ~600-800 ft margin — tight but legal. Headwind extends margin. Tailwind kills it. PROBABLE: go with full headwind component, no tailwind, awareness that you're accepting a tight abort margin. ALTERNATIVE: reduce weight by 200 lbs (one less passenger or partial fuel), AS distance drops ~400 ft, much more comfortable margin.",
+      examinerLooksFor: "Understanding that go/no-go is a calculation, not a feeling. Willingness to articulate margin in feet, not vibes. Acknowledgment that 'reduce weight' is always an option.",
+    },
+    {
+      setup: "100°F day, KLBB, gross weight, runway 17R 11,500 ft, no wind.",
+      question: "Discuss whether you'd take off.",
+      answer: "DA = 3,282 + (100−47) × 70 = ~7,000 ft DA. That's AT or ABOVE single-engine service ceiling for PA-30 at gross. Engine failure after liftoff = airplane CANNOT MAINTAIN ALTITUDE single-engine. Runway length is irrelevant once airborne — terrain is the constraint. Decision: reduce weight (depart with min fuel + go fuel up at lower-DA destination), wait for cooler temps, or scrub. Long runway doesn't save you from the climb chart.",
+      examinerLooksFor: "Recognition that runway length is NOT the only constraint — single-engine ceiling is. Willingness to refuse a flight that's legally possible but operationally unsafe.",
+    },
+  ],
+  quiz: [
+    { q: "On an 85°F afternoon at KLBB (3,282 ft MSL), approximate DA is:", a: ["3,300 ft", "4,500 ft", "5,800 ft", "8,000 ft"], correct: 2, explain: "Field 3,282 + ISA deviation. ISA at 3,282 ft ≈ 47°F. 85°F is 38°F above ISA. DA increase ≈ 38 × 70 = ~2,650 ft. 3,282 + 2,650 ≈ 5,900 ft. The trap answer (3,300 ft) ignores temperature entirely." },
+    { q: "PA-30 single-engine service ceiling at gross weight, standard day, is approximately:", a: ["3,000 ft", "5,000 ft", "7,100 ft", "12,000 ft"], correct: 2, explain: "About 7,100 ft. That's where single-engine climb degrades to 50 fpm. Practical implication for Lubbock: a 95°F day puts your DA at ~7,200 ft — at or above this ceiling — meaning engine failure on departure leaves no climb capability." },
+    { q: "F49 (Slaton) runway length is 4,600 ft. On an 85°F day at gross weight, accelerate-stop distance is approximately:", a: ["2,000 ft", "3,800 ft", "5,500 ft", "Always less than runway available"], correct: 1, explain: "Roughly 3,800-4,000 ft from typical PA-30 POH charts at ~5,500 ft DA, gross weight, no wind. Margin against 4,600 ft runway is ~600-800 ft — legal but tight. Headwind helps; tailwind kills it." },
+    { q: "Engine failure 100 ft AGL after takeoff at KLBB on a hot day, runway 11,500 ft and majority remaining. Best action:", a: ["Climb out at Vyse, declare, return", "Land straight ahead on remaining runway, gear down if available", "Pitch up to clear obstacles", "Bank toward operating engine and try to circle back"], correct: 1, explain: "Lubbock's long runways are an asset. If you have runway remaining at 100 ft AGL, the SAFE answer is land straight ahead. Climbing out single-engine at high DA when you have a runway is taking the harder option for no reason. Pre-takeoff briefing: 'Runway remaining → land. No runway → blue line, identify-verify-feather, return.'" },
+    { q: "Why is the single-engine climb chart the most safety-critical performance chart for Lubbock operations in May?", a: ["It's required by FAA", "Lubbock's high field elevation (~3,300 ft) plus warm temps push DA to 5,000-6,000+ ft, where PA-30 single-engine climb capability degrades significantly", "It tells you cruise speed", "It's used for landing only"], correct: 1, explain: "Lubbock is high-elevation by piston-twin standards. Combine field elevation (~3,300 ft) with typical May afternoon temps (80-90°F) and DA quickly hits 5,000-6,000 ft. The PA-30 loses single-engine climb capability fast as DA increases. Knowing the climb-rate number for the day is what separates a safe go/no-go from a guess." },
+    { q: "Approximate rule of thumb: DA increase per 10°F above ISA?", a: ["+100 ft", "+700 ft", "+2,000 ft", "+10,000 ft"], correct: 1, explain: "About +700 ft per 10°F above ISA. So 30°F above ISA ≈ +2,100 ft DA. Useful for ramp math when you don't have charts handy. The metric version: +1,200 ft per 10°C above ISA." },
   ],
 };
 
@@ -995,6 +1113,9 @@ function Header({ progress, onReset, view, setView }) {
           <button className={`me-button ${view === "aircraft" || view === "aircraftquiz" ? "active" : ""}`} onClick={() => setView("aircraft")}>
             <Plane size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />N1100L
           </button>
+          <button className={`me-button ${view === "performance" || view === "performancequiz" ? "active" : ""}`} onClick={() => setView("performance")}>
+            <BarChart3 size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Perf
+          </button>
           <button className={`me-button cyan ${view === "drillall" ? "active" : ""}`} onClick={() => setView("drillall")}>
             <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Drill All
           </button>
@@ -1335,6 +1456,183 @@ function AircraftQuizView({ onBack }) {
       <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4 }}>N1100L · COCKPIT QUIZ</div>
       <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
         AIRCRAFT-SPECIFIC KNOWLEDGE · 1963 PA-30 · DUAL G5 + GNS 430W
+      </div>
+      <DrillMode topic={topic} onQuizComplete={() => {}} />
+    </div>
+  );
+}
+
+const VERDICT_COLORS = {
+  best: "#40dc8c",
+  good: CYAN,
+  caution: AMBER,
+  danger: RED,
+};
+
+function PerformanceView({ onBack, onStartQuiz }) {
+  const [openScenario, setOpenScenario] = useState(null);
+  const ctx = PERFORMANCE.context;
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>PERFORMANCE PLANNING</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        LUBBOCK · EARLY MAY · PA-30 · CHECKRIDE FOCUS
+      </div>
+
+      {/* CONTEXT BANNER */}
+      <div style={{ marginBottom: 22, padding: "14px 16px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 10 }}>OPERATING CONTEXT</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em", marginBottom: 2 }}>LOCATION</div>
+            <div style={{ fontSize: 13, color: TEXT, fontWeight: 500 }}>{ctx.location}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em", marginBottom: 2 }}>SEASON</div>
+            <div style={{ fontSize: 13, color: TEXT, fontWeight: 500 }}>{ctx.season}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em", marginBottom: 2 }}>FIELD ELEV</div>
+            <div style={{ fontSize: 13, color: TEXT, fontWeight: 500 }}>
+              KLBB <span className="me-glow-amber">{ctx.elevations.KLBB.toLocaleString()}'</span> · F49 <span className="me-glow-amber">{ctx.elevations.F49.toLocaleString()}'</span>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em", marginBottom: 2 }}>TYPICAL WX</div>
+            <div style={{ fontSize: 13, color: TEXT, fontWeight: 500 }}>
+              {ctx.typicalWeather.lowF}°F – {ctx.typicalWeather.highF}°F · Wind {ctx.typicalWeather.windKt} kt
+            </div>
+          </div>
+        </div>
+        <div style={{ fontSize: 12.5, color: TEXT, lineHeight: 1.6, fontStyle: "italic" }}>
+          {ctx.typicalWeather.notes}
+        </div>
+      </div>
+
+      {/* KEY NUMBERS BLOCK */}
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 10 }}>KEY NUMBERS</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10, marginBottom: 24 }}>
+        {PERFORMANCE.keyNumbers.map((kn, i) => (
+          <div key={i} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, padding: "10px 12px", borderRadius: 3 }}>
+            <div style={{ fontSize: 11, color: TEXT_DIM, lineHeight: 1.4, marginBottom: 4 }}>{kn.label}</div>
+            <div className="me-glow-amber me-display" style={{ fontSize: 22, letterSpacing: "0.04em", lineHeight: 1.1, marginBottom: 4 }}>
+              {kn.value}
+            </div>
+            <div style={{ fontSize: 10.5, color: TEXT_DIM, lineHeight: 1.4 }}>{kn.note}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* DA SCENARIOS */}
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 10 }}>DENSITY ALTITUDE BY CONDITIONS</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
+        {PERFORMANCE.daScenarios.map((sc, i) => {
+          const c = VERDICT_COLORS[sc.verdict] || TEXT_DIM;
+          return (
+            <div key={i} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `4px solid ${c}`, padding: "12px 14px", borderRadius: "0 3px 3px 0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
+                <div style={{ fontWeight: 600, fontSize: 13.5, color: TEXT }}>{sc.label}</div>
+                <div style={{ fontSize: 11, color: c, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>{sc.verdict}</div>
+              </div>
+              <div style={{ fontSize: 12.5, color: TEXT, marginBottom: 6, fontWeight: 500 }}>
+                Field Elev: <span className="me-glow-amber">{sc.fieldElev.toLocaleString()} ft</span> → DA: <span style={{ color: c, fontWeight: 700 }}>{sc.da.toLocaleString()} ft</span>
+              </div>
+              <div style={{ fontSize: 12, color: TEXT_DIM, fontStyle: "italic", lineHeight: 1.5 }}>
+                {sc.verdictText}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* CHART USE GUIDE */}
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 10 }}>WHICH CHARTS YOU'LL ACTUALLY USE</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+        {PERFORMANCE.chartUseGuide.map((c, i) => (
+          <div key={i} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, padding: "12px 14px", borderRadius: 3 }}>
+            <div className="me-glow-amber" style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}>{c.chart}</div>
+            <div style={{ fontSize: 12, color: TEXT, marginBottom: 4, lineHeight: 1.5 }}>
+              <span style={{ color: TEXT_DIM, letterSpacing: "0.08em", fontWeight: 700 }}>INPUTS: </span>
+              {c.inputs.join(", ")}
+            </div>
+            <div style={{ fontSize: 12, color: TEXT, marginBottom: 6, lineHeight: 1.5 }}>
+              <span style={{ color: TEXT_DIM, letterSpacing: "0.08em", fontWeight: 700 }}>OUTPUT: </span>
+              {c.output}
+            </div>
+            <div style={{ fontSize: 12, color: TEXT_DIM, fontStyle: "italic", lineHeight: 1.5 }}>
+              <span style={{ color: AMBER, letterSpacing: "0.08em", fontWeight: 700, fontStyle: "normal" }}>WATCH: </span>
+              {c.whatToWatch}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* SCENARIO DRILLS */}
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 10 }}>EXAMINER SCENARIOS — TAP TO REVEAL ANSWER</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+        {PERFORMANCE.scenarios.map((sc, i) => {
+          const isOpen = openScenario === i;
+          return (
+            <div key={i} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, padding: "12px 14px", borderRadius: 3 }}>
+              <div style={{ fontSize: 12.5, color: TEXT_DIM, fontStyle: "italic", lineHeight: 1.55, marginBottom: 8 }}>
+                {sc.setup}
+              </div>
+              <div style={{ fontSize: 14, color: TEXT, fontWeight: 600, lineHeight: 1.5, marginBottom: 10 }}>
+                {sc.question}
+              </div>
+              <button
+                className="me-button cyan"
+                onClick={() => setOpenScenario(isOpen ? null : i)}
+                style={{ fontSize: 10 }}
+              >
+                {isOpen ? "Hide answer" : "Show answer"}
+                <ChevronRight size={11} style={{ display: "inline", marginLeft: 4, verticalAlign: "-2px", transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s" }} />
+              </button>
+              {isOpen && (
+                <div style={{ marginTop: 10, padding: "12px 14px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0" }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>ANSWER:</div>
+                  <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.65, marginBottom: 12, fontWeight: 500 }}>
+                    {sc.answer}
+                  </div>
+                  <div style={{ fontSize: 10, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 6 }}>WHAT THE EXAMINER LOOKS FOR:</div>
+                  <div style={{ fontSize: 12.5, color: TEXT_DIM, lineHeight: 1.6, fontStyle: "italic" }}>
+                    {sc.examinerLooksFor}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="me-divider" style={{ margin: "8px 0 16px" }}></div>
+      <button className="me-button cyan" onClick={onStartQuiz}>
+        <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Drill These Scenarios
+      </button>
+    </div>
+  );
+}
+
+function PerformanceQuizView({ onBack }) {
+  const topic = useMemo(() => ({
+    id: "performance-quiz",
+    title: "Lubbock Performance Drill",
+    summary: "DA, single-engine ceiling, go/no-go scenarios",
+    quiz: PERFORMANCE.quiz,
+  }), []);
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4 }}>PERFORMANCE · DRILL</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
+        LUBBOCK · PA-30 · DA & CHART REASONING
       </div>
       <DrillMode topic={topic} onQuizComplete={() => {}} />
     </div>
@@ -1796,6 +2094,16 @@ function buildAllQuestions() {
       _kind: "aircraft",
     });
   });
+  // Include performance-planning questions
+  PERFORMANCE.quiz.forEach((q, qi) => {
+    all.push({
+      ...q,
+      _id: `performance__${qi}`,
+      _topic: "Lubbock Performance Planning",
+      _day: "Performance",
+      _kind: "performance",
+    });
+  });
   return all;
 }
 
@@ -2094,6 +2402,12 @@ export default function App() {
         )}
         {view === "aircraftquiz" && (
           <AircraftQuizView onBack={() => setView("aircraft")} />
+        )}
+        {view === "performance" && (
+          <PerformanceView onBack={() => setView("home")} onStartQuiz={() => setView("performancequiz")} />
+        )}
+        {view === "performancequiz" && (
+          <PerformanceQuizView onBack={() => setView("performance")} />
         )}
         {view === "drillall" && (
           <DrillAllView onBack={() => setView("home")} />
