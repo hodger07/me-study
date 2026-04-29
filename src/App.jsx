@@ -152,10 +152,22 @@ const CURRICULUM = [
               "**Definition:** The critical engine is the engine whose failure would most adversely affect the performance or handling qualities of the airplane.",
               "**On a conventional twin** (both props rotating clockwise from the pilot's view, like a standard PA-30): the **LEFT engine is critical**.",
               "**Why? Memorize P-A-S-T:**",
-              "**P — P-factor.** The descending propeller blade produces more thrust than the ascending blade. With both engines rotating clockwise, the descending blade of each engine is on its right side. That puts the right engine's effective thrust line *farther* from centerline than the left's. Lose the left engine and the surviving right engine creates a yawing moment on a longer arm — harder to control.",
-              "**A — Accelerated slipstream.** Same geometry: the right engine's high-velocity slipstream acts on a longer moment arm.",
-              "**S — Spiraling slipstream.** The left engine's slipstream wraps around the fuselage and strikes the left side of the vertical stabilizer, *helping* counteract left-yaw tendency. Lose the left engine and you lose that helpful airflow.",
-              "**T — Torque.** Both engines produce torque that rolls the airplane left. With the left engine out and right engine at high power, torque rolls you toward the dead engine — exactly the wrong direction.",
+              {
+                text: "**P — P-factor.** The descending propeller blade produces more thrust than the ascending blade. With both engines rotating clockwise, the descending blade of each engine is on its right side. That puts the right engine's effective thrust line *farther* from centerline than the left's. Lose the left engine and the surviving right engine creates a yawing moment on a longer arm — harder to control.",
+                eli16: "Imagine the propeller blade going DOWN on one side and UP on the other as it spins. The blade going DOWN bites into the air harder — like swimming. So one side of the prop pulls the airplane forward more than the other side. This off-center pull is called P-factor.",
+              },
+              {
+                text: "**A — Accelerated slipstream.** Same geometry: the right engine's high-velocity slipstream acts on a longer moment arm.",
+                eli16: "The propeller throws air backward really fast — like a fan. That fast air hits the wing behind it and creates extra lift on that side. The strongest part of the air-throwing happens off-center, not in the middle of the engine.",
+              },
+              {
+                text: "**S — Spiraling slipstream.** The left engine's slipstream wraps around the fuselage and strikes the left side of the vertical stabilizer, *helping* counteract left-yaw tendency. Lose the left engine and you lose that helpful airflow.",
+                eli16: "Picture the air coming off the prop like water swirling down a drain — it spins as it goes back. That spinning air hits the tail of the airplane and pushes it sideways. The LEFT engine's spinning air helps push the tail in a useful direction, so when the left engine quits, you lose that helpful push.",
+              },
+              {
+                text: "**T — Torque.** Both engines produce torque that rolls the airplane left. With the left engine out and right engine at high power, torque rolls you toward the dead engine — exactly the wrong direction.",
+                eli16: "When you spin a drill, your hand twists the OPPOSITE way. The propeller does the same thing to the airplane — it tries to roll the plane the other direction. Both engines roll the plane LEFT. With the left engine dead and the right engine at full power, you're getting rolled hard left — toward the dead engine — exactly the wrong direction.",
+              },
               "**PA-30 vs PA-39:** The standard PA-30 is *not* counter-rotating — left engine is critical. The PA-39 has counter-rotating props — neither engine is critical. Confirm which airframe you're flying.",
             ],
             quiz: [
@@ -773,12 +785,12 @@ const AMBER = "#ffb84a";
 const CYAN = "#5dd5e6";
 const RED = "#ff5252";
 const BLUE = "#4a9eff";
-const BG = "#0a0d12";
-const PANEL = "#11161e";
-const PANEL_2 = "#161c26";
-const BORDER = "#2a3340";
-const TEXT = "#d8dee9";
-const TEXT_DIM = "#7a8290";
+const BG = "#0f1419";
+const PANEL = "#1a2230";
+const PANEL_2 = "#222b3a";
+const BORDER = "#3a4658";
+const TEXT = "#e8eef7";
+const TEXT_DIM = "#a0aabb";
 
 function StyleSheet() {
   return (
@@ -853,6 +865,8 @@ function StyleSheet() {
         cursor: pointer;
         transition: all 0.15s ease;
         border-radius: 0 4px 4px 0;
+        font-size: 15px;
+        font-weight: 500;
       }
       .me-card:hover {
         background: ${PANEL_2};
@@ -1328,6 +1342,7 @@ function TopicView({ topic, kind, mode, setMode, onBack, onMarkStudied, onQuizCo
 }
 
 function LearnMode({ topic, onMarkStudied }) {
+  const [expanded, setExpanded] = useState({});
   return (
     <div>
       {topic.isFactorTable && (
@@ -1363,12 +1378,58 @@ function LearnMode({ topic, onMarkStudied }) {
         </div>
       )}
       <div className="me-scrollshadow" style={{ marginBottom: 20 }}>
-        {topic.teach.map((line, i) => (
-          <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, fontSize: 13.5, lineHeight: 1.65 }}>
-            <span className="me-bullet" style={{ flexShrink: 0, fontFamily: "monospace" }}>›</span>
-            <span><RichText line={line} /></span>
-          </div>
-        ))}
+        {topic.teach.map((entry, i) => {
+          const isObj = typeof entry === "object" && entry !== null;
+          const lineText = isObj ? entry.text : entry;
+          const eli16 = isObj ? entry.eli16 : null;
+          const isOpen = !!expanded[i];
+          return (
+            <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, fontSize: 15, lineHeight: 1.8, fontWeight: 500 }}>
+              <span className="me-bullet" style={{ flexShrink: 0, fontFamily: "monospace" }}>›</span>
+              <span style={{ flex: 1 }}>
+                <RichText line={lineText} />
+                {eli16 && (
+                  <>
+                    <div style={{ marginTop: 6 }}>
+                      <button
+                        onClick={() => setExpanded(prev => ({ ...prev, [i]: !prev[i] }))}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: CYAN,
+                          cursor: "pointer",
+                          fontFamily: "JetBrains Mono, monospace",
+                          fontSize: 12,
+                          padding: 0,
+                          letterSpacing: "0.05em",
+                          textDecoration: "underline",
+                          textUnderlineOffset: 2,
+                        }}
+                      >
+                        {isOpen ? "Hide simpler explanation ⓘ" : "Explain simpler ⓘ"}
+                      </button>
+                    </div>
+                    {isOpen && (
+                      <div style={{
+                        marginTop: 8,
+                        padding: "10px 14px",
+                        background: PANEL_2,
+                        borderLeft: `3px solid ${CYAN}`,
+                        borderRadius: "0 3px 3px 0",
+                        fontSize: 14,
+                        lineHeight: 1.7,
+                        fontWeight: 400,
+                        color: TEXT,
+                      }}>
+                        {eli16}
+                      </div>
+                    )}
+                  </>
+                )}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       <div className="me-divider" style={{ margin: "12px 0" }}></div>
@@ -1380,40 +1441,82 @@ function LearnMode({ topic, onMarkStudied }) {
 }
 
 function DrillMode({ topic, onQuizComplete }) {
-  const [idx, setIdx] = useState(0);
-  const [picked, setPicked] = useState(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
   const total = topic.quiz.length;
-  const q = topic.quiz[idx];
+  const [queue, setQueue] = useState(() => shuffle(topic.quiz.map((q, i) => ({ ...q, _origIdx: i }))));
+  const [picked, setPicked] = useState(null);
+  const [mastered, setMastered] = useState(() => new Set());
+  const [totalAnswers, setTotalAnswers] = useState(0);
+  const [firstTryCorrect, setFirstTryCorrect] = useState(0);
+  const [missedIds, setMissedIds] = useState(() => new Set());
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    setIdx(0); setPicked(null); setScore(0); setDone(false);
+    setQueue(shuffle(topic.quiz.map((q, i) => ({ ...q, _origIdx: i }))));
+    setPicked(null);
+    setMastered(new Set());
+    setTotalAnswers(0);
+    setFirstTryCorrect(0);
+    setMissedIds(new Set());
+    setDone(false);
   }, [topic.id]);
 
+  const q = queue[0];
+
   function pick(i) {
-    if (picked !== null) return;
+    if (picked !== null || !q) return;
     setPicked(i);
-    if (i === q.correct) setScore(score + 1);
+    setTotalAnswers(n => n + 1);
+    if (i === q.correct) {
+      if (!missedIds.has(q._origIdx) && !mastered.has(q._origIdx)) {
+        setFirstTryCorrect(n => n + 1);
+      }
+      setMastered(prev => {
+        const next = new Set(prev);
+        next.add(q._origIdx);
+        return next;
+      });
+    } else {
+      setMissedIds(prev => {
+        const next = new Set(prev);
+        next.add(q._origIdx);
+        return next;
+      });
+    }
   }
 
   function next() {
-    if (idx + 1 < total) {
-      setIdx(idx + 1);
-      setPicked(null);
+    if (!q) return;
+    const wasCorrect = picked === q.correct;
+    let nextQueue;
+    if (wasCorrect) {
+      nextQueue = queue.slice(1);
     } else {
+      nextQueue = [...queue.slice(1), q];
+    }
+    setPicked(null);
+    if (nextQueue.length === 0) {
+      setQueue(nextQueue);
       setDone(true);
-      onQuizComplete(score / total);
+      const finalScore = firstTryCorrect / total;
+      onQuizComplete(finalScore);
+    } else {
+      setQueue(nextQueue);
     }
   }
 
   function restart() {
-    setIdx(0); setPicked(null); setScore(0); setDone(false);
+    setQueue(shuffle(topic.quiz.map((q, i) => ({ ...q, _origIdx: i }))));
+    setPicked(null);
+    setMastered(new Set());
+    setTotalAnswers(0);
+    setFirstTryCorrect(0);
+    setMissedIds(new Set());
+    setDone(false);
   }
 
   if (done) {
-    const pct = Math.round((score / total) * 100);
-    const pass = pct >= 80;
+    const pct = Math.round((firstTryCorrect / total) * 100);
+    const pass = pct === 100;
     return (
       <div style={{ textAlign: "center", padding: "20px 0" }}>
         <div className="me-display" style={{ fontSize: 18, color: TEXT_DIM, letterSpacing: "0.15em" }}>
@@ -1422,8 +1525,11 @@ function DrillMode({ topic, onQuizComplete }) {
         <div className="me-display" style={{ fontSize: 80, lineHeight: 1, margin: "16px 0", color: pass ? "#40dc8c" : RED, textShadow: `0 0 20px ${pass ? "rgba(64,220,140,0.4)" : "rgba(255,82,82,0.4)"}` }}>
           {pct}%
         </div>
-        <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 24, letterSpacing: "0.1em" }}>
-          {score} OF {total} CORRECT  ·  {pass ? "MASTERY ACHIEVED" : "REVIEW & RETRY"}
+        <div style={{ fontSize: 13, color: pass ? "#40dc8c" : RED, marginBottom: 8, letterSpacing: "0.1em", fontWeight: 700 }}>
+          {pass ? "MASTERY ACHIEVED" : "TRY AGAIN — 100% REQUIRED FOR MASTERY"}
+        </div>
+        <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 24, letterSpacing: "0.1em" }}>
+          {firstTryCorrect} OF {total} ON FIRST TRY · {totalAnswers} TOTAL ANSWERS
         </div>
         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
           <button className="me-button" onClick={restart}>
@@ -1434,19 +1540,23 @@ function DrillMode({ topic, onQuizComplete }) {
     );
   }
 
+  if (!q) return null;
+
   const wasCorrect = picked === q.correct;
+  const masteredCount = mastered.size;
+  const progressPct = (masteredCount / total) * 100;
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, letterSpacing: "0.12em", color: TEXT_DIM, marginBottom: 8 }}>
-        <span>QUESTION {idx + 1} / {total}</span>
-        <span className="me-glow-cyan">SCORE: {score}/{idx + (picked !== null ? 1 : 0)}</span>
+        <span>MASTERED {masteredCount} / {total}  ·  QUEUE {queue.length}</span>
+        <span className="me-glow-cyan">FIRST-TRY: {firstTryCorrect}/{total}</span>
       </div>
       <div className="me-progress-bar" style={{ marginBottom: 18 }}>
-        <div className="me-progress-fill" style={{ width: `${((idx + (picked !== null ? 1 : 0)) / total) * 100}%` }}></div>
+        <div className="me-progress-fill" style={{ width: `${progressPct}%` }}></div>
       </div>
 
-      <div style={{ fontSize: 15, lineHeight: 1.55, marginBottom: 16, color: TEXT, fontWeight: 500 }}>
+      <div style={{ fontSize: 16.5, lineHeight: 1.55, marginBottom: 16, color: TEXT, fontWeight: 500 }}>
         {q.q}
       </div>
 
@@ -1487,12 +1597,16 @@ function DrillMode({ topic, onQuizComplete }) {
         </div>
       )}
 
-      {picked !== null && (
-        <button className="me-button active" onClick={next} style={{ width: "100%" }}>
-          {idx + 1 < total ? "NEXT QUESTION" : "FINISH DRILL"}
-          <ChevronRight size={11} style={{ display: "inline", marginLeft: 4, verticalAlign: "-2px" }} />
-        </button>
-      )}
+      {picked !== null && (() => {
+        const willFinish = wasCorrect && queue.length === 1;
+        const willRequeue = !wasCorrect;
+        return (
+          <button className="me-button active" onClick={next} style={{ width: "100%" }}>
+            {willFinish ? "FINISH DRILL" : willRequeue ? "RE-QUEUED · NEXT QUESTION" : "NEXT QUESTION"}
+            <ChevronRight size={11} style={{ display: "inline", marginLeft: 4, verticalAlign: "-2px" }} />
+          </button>
+        );
+      })()}
     </div>
   );
 }
@@ -1801,12 +1915,13 @@ export default function App() {
 
   function quizComplete(scorePct) {
     if (!activeTopic) return;
+    if (scorePct < 1.0) return;
     setPerTopicProgress(prev => ({
       ...prev,
       [activeTopic.id]: {
         ...(prev[activeTopic.id] || { studied: true }),
         studied: true,
-        quizScore: Math.max(prev[activeTopic.id]?.quizScore || 0, scorePct)
+        quizScore: 1.0,
       }
     }));
   }
