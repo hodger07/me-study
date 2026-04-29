@@ -21,7 +21,8 @@
       "Bash(vercel login *)",
       "Bash(pkill -f \"vercel\")",
       "Bash(vercel logout *)",
-      "Bash(vercel *)"
+      "Bash(vercel *)",
+      "Bash(git push *)"
     ]
   }
 }

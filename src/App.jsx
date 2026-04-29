@@ -9,14 +9,22 @@ import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, 
 
 // ---------- Vmc Factor Table (from your handwritten notes) ----------
 const VMC_TABLE = [
-  { factor: "Critical engine inop (windmilling)",   perf: "↓",  perfNote: "+ drag",            ctrl: "↓",  ctrlNote: "− rudder effectiveness", vmc: "↑" },
-  { factor: "Operating engine at max power",        perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑" },
-  { factor: "Max gross weight",                     perf: "↓",  perfNote: "− rate of climb",   ctrl: "↑",  ctrlNote: "+ inertia",              vmc: "↓" },
-  { factor: "Bank up to 5° (ball ½ split)",         perf: "↑",  perfNote: "− sideslip / drag", ctrl: "↑",  ctrlNote: "+ horizontal lift",      vmc: "↓" },
-  { factor: "Aft CG",                               perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "less rudder authority",  vmc: "↑" },
-  { factor: "Takeoff config (gear up / flaps up)",  perf: "↑",  perfNote: "clean",             ctrl: "↓",  ctrlNote: "less keel / flaps",      vmc: "↑" },
-  { factor: "Standard day — Low DA",                perf: "↑",  perfNote: "",                  ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑" },
-  { factor: "High DA",                              perf: "↓",  perfNote: "",                  ctrl: "↑",  ctrlNote: "− P-A-S-T",              vmc: "↓" },
+  { factor: "Critical engine inop (windmilling)",   perf: "↓",  perfNote: "+ drag",            ctrl: "↓",  ctrlNote: "− rudder effectiveness", vmc: "↑",
+    examinerAnswer: "Critical engine inop — performance drops because of added drag, controllability drops because of reduced rudder effectiveness, so Vmc rises." },
+  { factor: "Operating engine at max power",        perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑",
+    examinerAnswer: "Operating engine at max power — performance improves because of higher rate of climb, controllability drops because more PAST loads the rudder, so Vmc rises." },
+  { factor: "Max gross weight",                     perf: "↓",  perfNote: "− rate of climb",   ctrl: "↑",  ctrlNote: "+ inertia",              vmc: "↓",
+    examinerAnswer: "Max gross weight — performance drops because of a slower rate of climb, controllability improves because of greater inertia resisting yaw, so Vmc drops." },
+  { factor: "Bank up to 5° (ball ½ split)",         perf: "↑",  perfNote: "− sideslip / drag", ctrl: "↑",  ctrlNote: "+ horizontal lift",      vmc: "↓",
+    examinerAnswer: "Bank up to 5° (ball ½ split) — performance improves because of reduced sideslip drag, controllability improves because horizontal lift counteracts the yaw, so Vmc drops." },
+  { factor: "Aft CG",                               perf: "↑",  perfNote: "+ rate of climb",   ctrl: "↓",  ctrlNote: "less rudder authority",  vmc: "↑",
+    examinerAnswer: "Aft CG — performance improves slightly because of a higher rate of climb, controllability drops because of a shorter rudder arm, so Vmc rises." },
+  { factor: "Takeoff config (gear up / flaps up)",  perf: "↑",  perfNote: "clean",             ctrl: "↓",  ctrlNote: "less keel / flaps",      vmc: "↑",
+    examinerAnswer: "Takeoff config (gear up / flaps up) — performance improves because the airplane is clean, controllability drops because of less keel and flap area, so Vmc rises." },
+  { factor: "Standard day — Low DA",                perf: "↑",  perfNote: "",                  ctrl: "↓",  ctrlNote: "+ P-A-S-T",              vmc: "↑",
+    examinerAnswer: "Standard day — Low DA — performance improves because the engine makes full rated power, controllability drops because more PAST is being generated, so Vmc rises." },
+  { factor: "High DA",                              perf: "↓",  perfNote: "",                  ctrl: "↑",  ctrlNote: "− P-A-S-T",              vmc: "↓",
+    examinerAnswer: "High DA — performance drops because thinner air reduces power, controllability improves because less PAST is being generated, so Vmc drops." },
 ];
 
 // ---------- V-Speeds (PA-30 reference, verify against POH) ----------
@@ -1050,6 +1058,7 @@ function VSpeedsView({ onBack }) {
 }
 
 function VmcTableView({ onBack }) {
+  const [openRow, setOpenRow] = useState(null);
   return (
     <div className="me-panel" style={{ padding: 20 }}>
       <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
@@ -1059,33 +1068,98 @@ function VmcTableView({ onBack }) {
       <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
         EFFECT OF EACH FACTOR ON PERFORMANCE · CONTROLLABILITY · ACTUAL Vmc
       </div>
+
+      <div style={{ marginBottom: 14, padding: "14px 16px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 8 }}>THE FUNDAMENTAL RULE</div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>
+          Controllability and Vmc are <span className="me-glow-cyan" style={{ fontWeight: 700 }}>INVERSE</span>. Anything that improves controllability (↑) lowers Vmc (↓). Anything that hurts controllability (↓) raises Vmc (↑). They're the same axis, viewed two ways. Once you see this, you only need to reason about ONE column — the other follows automatically.
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 22, padding: "14px 16px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 10 }}>PAST — THE FOUR LEFT-YAWING TENDENCIES</div>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 12, rowGap: 4, fontSize: 13.5, marginBottom: 12, fontWeight: 500 }}>
+          <span style={{ color: AMBER, fontWeight: 700 }}>P</span><span style={{ color: TEXT }}>— P-factor</span>
+          <span style={{ color: AMBER, fontWeight: 700 }}>A</span><span style={{ color: TEXT }}>— Accelerated slipstream</span>
+          <span style={{ color: AMBER, fontWeight: 700 }}>S</span><span style={{ color: TEXT }}>— Spiraling slipstream</span>
+          <span style={{ color: AMBER, fontWeight: 700 }}>T</span><span style={{ color: TEXT }}>— Torque</span>
+        </div>
+        <div style={{ fontSize: 13.5, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>
+          PAST is the <span className="me-glow-amber" style={{ fontWeight: 700 }}>WHY</span> behind the controllability column. It explains:
+        </div>
+        <ul style={{ fontSize: 13, lineHeight: 1.7, color: TEXT, margin: "6px 0 0 0", paddingLeft: 20 }}>
+          <li>Why the <span className="me-glow-amber" style={{ fontWeight: 700 }}>LEFT engine is critical</span> on a conventional twin (PAST puts the right engine's thrust line farther from centerline)</li>
+          <li>Why operating engine at max power <span className="me-glow-amber" style={{ fontWeight: 700 }}>raises</span> Vmc (more power = more PAST = more controllability burden)</li>
+          <li>Why high DA <span className="me-glow-amber" style={{ fontWeight: 700 }}>lowers</span> Vmc (less power available = less PAST)</li>
+        </ul>
+      </div>
+
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 8, letterSpacing: "0.12em" }}>
+        TAP A ROW FOR THE EXAMINER ANSWER
+      </div>
       <div style={{ overflowX: "auto" }}>
         <table className="me-table">
           <thead>
             <tr>
               <th>Factor</th>
-              <th style={{ textAlign: "center", width: 130 }}>Performance</th>
-              <th style={{ textAlign: "center", width: 150 }}>Controllability</th>
-              <th style={{ textAlign: "center", width: 80 }}>Vmc</th>
+              <th style={{ textAlign: "center", width: 90 }}>Perf</th>
+              <th style={{ textAlign: "center", width: 90 }}>Ctrl</th>
+              <th style={{ textAlign: "center", width: 70 }}>Vmc</th>
             </tr>
           </thead>
           <tbody>
-            {VMC_TABLE.map((row, i) => (
-              <tr key={i}>
-                <td style={{ fontWeight: 600 }}>{row.factor}</td>
-                <td style={{ textAlign: "center" }}>
-                  <span className={row.perf === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 18 }}>{row.perf}</span>
-                  <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 2 }}>{row.perfNote}</div>
-                </td>
-                <td style={{ textAlign: "center" }}>
-                  <span className={row.ctrl === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 18 }}>{row.ctrl}</span>
-                  <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 2 }}>{row.ctrlNote}</div>
-                </td>
-                <td style={{ textAlign: "center" }}>
-                  <span className={row.vmc === "↑" ? "me-vmc-up" : "me-vmc-down"} style={{ fontSize: 22, fontWeight: 700 }}>{row.vmc}</span>
-                </td>
-              </tr>
-            ))}
+            {VMC_TABLE.map((row, i) => {
+              const isOpen = openRow === i;
+              return (
+                <React.Fragment key={i}>
+                  <tr
+                    onClick={() => setOpenRow(isOpen ? null : i)}
+                    style={{ cursor: "pointer", background: isOpen ? "rgba(93,213,230,0.06)" : undefined }}
+                  >
+                    <td style={{ fontWeight: 600 }}>
+                      <ChevronRight
+                        size={12}
+                        style={{
+                          display: "inline",
+                          marginRight: 6,
+                          verticalAlign: "-1px",
+                          color: TEXT_DIM,
+                          transform: isOpen ? "rotate(90deg)" : "rotate(0)",
+                          transition: "transform 0.15s",
+                        }}
+                      />
+                      {row.factor}
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className={row.perf === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 20 }}>{row.perf}</span>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className={row.ctrl === "↑" ? "me-arrow-up" : "me-arrow-down"} style={{ fontSize: 20 }}>{row.ctrl}</span>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className={row.vmc === "↑" ? "me-vmc-up" : "me-vmc-down"} style={{ fontSize: 22, fontWeight: 700 }}>{row.vmc}</span>
+                    </td>
+                  </tr>
+                  {isOpen && (
+                    <tr>
+                      <td colSpan={4} style={{ background: PANEL_2, padding: 0, borderBottom: `1px solid ${BORDER}` }}>
+                        <div style={{
+                          padding: "12px 16px",
+                          borderLeft: `3px solid ${CYAN}`,
+                          fontSize: 13.5,
+                          lineHeight: 1.7,
+                          color: TEXT,
+                          fontWeight: 500,
+                        }}>
+                          <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>EXAMINER ANSWER:</div>
+                          {row.examinerAnswer}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
