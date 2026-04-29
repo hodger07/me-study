@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks, BarChart3 } from "lucide-react";
+import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks, BarChart3, MessageSquare, Search } from "lucide-react";
 
 // =====================================================================
 // MULTI-ENGINE STUDY APP — Private Pilot AMEL Add-On
@@ -260,6 +260,695 @@ const PERFORMANCE = {
     { q: "Engine failure 100 ft AGL after takeoff at KLBB on a hot day, runway 11,500 ft and majority remaining. Best action:", a: ["Climb out at Vyse, declare, return", "Land straight ahead on remaining runway, gear down if available", "Pitch up to clear obstacles", "Bank toward operating engine and try to circle back"], correct: 1, explain: "Lubbock's long runways are an asset. If you have runway remaining at 100 ft AGL, the SAFE answer is land straight ahead. Climbing out single-engine at high DA when you have a runway is taking the harder option for no reason. Pre-takeoff briefing: 'Runway remaining → land. No runway → blue line, identify-verify-feather, return.'" },
     { q: "Why is the single-engine climb chart the most safety-critical performance chart for Lubbock operations in May?", a: ["It's required by FAA", "Lubbock's high field elevation (~3,300 ft) plus warm temps push DA to 5,000-6,000+ ft, where PA-30 single-engine climb capability degrades significantly", "It tells you cruise speed", "It's used for landing only"], correct: 1, explain: "Lubbock is high-elevation by piston-twin standards. Combine field elevation (~3,300 ft) with typical May afternoon temps (80-90°F) and DA quickly hits 5,000-6,000 ft. The PA-30 loses single-engine climb capability fast as DA increases. Knowing the climb-rate number for the day is what separates a safe go/no-go from a guess." },
     { q: "Approximate rule of thumb: DA increase per 10°F above ISA?", a: ["+100 ft", "+700 ft", "+2,000 ft", "+10,000 ft"], correct: 1, explain: "About +700 ft per 10°F above ISA. So 30°F above ISA ≈ +2,100 ft DA. Useful for ramp math when you don't have charts handy. The metric version: +1,200 ft per 10°C above ISA." },
+  ],
+};
+
+// ---------- MANEUVERS (Per-task ACS deep dive) ----------
+const MANEUVERS = {
+  tasks: [
+    {
+      id: "preflight",
+      name: "Preflight Inspection",
+      acs: {
+        standards: [
+          "Use checklist; identify discrepancies",
+          "Verify aircraft is airworthy (AROW + maintenance currency)",
+          "Recognize go/no-go items per POH and 91.213",
+        ],
+        tolerances: "Examiner observes thoroughness; no specific tolerance — discrepancies must be caught",
+      },
+      flow: [
+        "Cabin: documents (AROW), POH/AFM, weight & balance, placards verified",
+        "Logbook: annual, 100-hour if applicable, ADs, transponder/static (24mo), ELT (12mo + battery)",
+        "Walkaround starting at left wing root, working clockwise",
+        "Each engine: oil quantity, cowl security, prop free of nicks, induction inlet clear",
+        "Each gear: tire condition, brake lines, struts, gear pin removed",
+        "Fuel: sumps drained from all tanks (mains + aux), cap secure, vents clear, color/smell checked",
+        "Pitot/static: covers off, ports clear, AOA vane (if equipped)",
+        "Stall warning vane: lift it, hear horn (master ON)",
+      ],
+      commonErrors: [
+        "Skipping the documents check — this is what the examiner watches first",
+        "Not draining aux tank sumps (PA-30 has 4 sumps total)",
+        "Forgetting to verify stall warning works",
+        "Missing AD compliance verification in logbook",
+      ],
+      examinerGotchas: [
+        "'Show me the airworthiness certificate' — must be displayed visibly in the cabin",
+        "'Is this aircraft legal to fly today?' — must check annual + 100-hour + transponder + static + ELT all in one breath",
+        "'What's the most recent AD compliance?' — should know how to find AD records in the logbook",
+      ],
+      quiz: [
+        { q: "AROW means:", a: ["Airworthiness, Registration, Owner, Weight", "Airworthiness, Registration, Operating limitations, Weight & balance", "Annual, Required, Owner, Weight", "Aircraft, Records, Operating, Weather"], correct: 1, explain: "The four documents required onboard: Airworthiness cert, Registration, Operating limitations (POH/AFM/placards), Weight & balance data. Examiner WILL verify all four are aboard the aircraft." },
+        { q: "Transponder inspection currency for IFR?", a: ["12 months", "24 calendar months", "100 hours", "Annual"], correct: 1, explain: "91.413: 24 calendar months. Same window for static/altimeter system per 91.411 (IFR only). VOR check 30 days for IFR. ELT inspection 12 months." },
+        { q: "PA-30 has how many fuel sump drain points to check on preflight?", a: ["2 (one per main)", "4 (mains + aux per side)", "6", "8"], correct: 1, explain: "Two mains, two aux = 4 sumps minimum. Some PA-30s have additional drains at the gascolator. Verify all per N1100L's specific configuration." },
+      ],
+    },
+    {
+      id: "engine-start-twin",
+      name: "Engine Start (Twin)",
+      acs: {
+        standards: ["Use checklist", "Start without damage", "Verify engine instruments green before taxi"],
+        tolerances: "Engine instruments in green within 30 seconds of start; oil pressure rising",
+      },
+      flow: [
+        "Brakes set, parking brake on, prop area clear (CLEAR PROP shouted)",
+        "Master ON, mags OFF, throttle cracked ¼ inch, mixture rich, prop full forward",
+        "Fuel pump ON for 3-5 seconds for prime, then OFF",
+        "Mags to BOTH or START (per POH)",
+        "Engage starter, release when engine catches",
+        "Verify oil pressure rises into green within 30 seconds — IF NOT, shut down immediately",
+        "Set 1000-1200 RPM for warm-up",
+        "Repeat for second engine",
+        "Once both running: alternators ON, verify amps positive, avionics master ON",
+      ],
+      commonErrors: [
+        "Starting with master OFF (won't crank) or mags ON before starter (kickback risk)",
+        "Leaving electric fuel pump on after start (masks engine-driven pump failure)",
+        "Excessive cranking (>10 seconds — starter overheats)",
+        "Adding power before oil temp comes off the peg in cold weather",
+      ],
+      examinerGotchas: [
+        "'What if oil pressure doesn't come up in 30 seconds?' — IMMEDIATE shutdown to prevent engine damage",
+        "'Why turn the electric pump off after start?' — to verify the engine-driven pump produces pressure on its own",
+      ],
+      quiz: [
+        { q: "After start, if oil pressure does NOT rise into green within 30 seconds:", a: ["Wait another minute", "Shut down immediately", "Increase RPM to 2000", "Continue with start of second engine"], correct: 1, explain: "Oil pressure not rising = oil pump failure or oil leak. Continued running causes engine damage in seconds. Shut down immediately and investigate before any further attempt." },
+        { q: "Why turn off the electric fuel pump after start?", a: ["Saves battery", "To verify the engine-driven pump produces normal pressure", "FAA requirement", "Reduces noise"], correct: 1, explain: "Electric pump assists during start. Once running, the engine-driven pump should produce normal pressure on its own. Verifying this on the ground means you don't discover an engine-driven pump failure at altitude." },
+      ],
+    },
+    {
+      id: "normal-takeoff-amel",
+      name: "Normal Takeoff & Climb",
+      acs: {
+        standards: [
+          "Configure per POH (flaps, trim)",
+          "Vr per POH",
+          "Climb at Vy",
+          "Maintain runway centerline",
+          "Positive rate confirmed before gear retraction",
+        ],
+        tolerances: "Vr ±5 kt, Vy ±5 kt, centerline maintained, no excessive drift",
+      },
+      flow: [
+        "Pre-takeoff briefing (out loud, every time): runway, conditions, abort plan, departure plan",
+        "Line up, heading bug to runway heading, transponder ALT, lights ON",
+        "Throttles smoothly forward to FULL, BOTH ENGINES TOGETHER",
+        "Verify all engine instruments green BEFORE releasing brakes",
+        "Release brakes, accelerate",
+        "Rotate at Vr (PA-30 typical ~80 mph)",
+        "Climb at Vy (PA-30 typical ~112 mph) until 500 ft AGL or as briefed",
+        "Positive rate + NO usable runway → GEAR UP",
+        "At safe altitude (typically 500-1000 ft AGL): reduce to climb power, retract flaps if used",
+      ],
+      commonErrors: [
+        "Brakes released before verifying both engines made full power (asymmetric power start = swerve)",
+        "Gear up too early (still over usable runway)",
+        "Climbing at Vyse instead of Vy (Vyse is single-engine target only)",
+        "Forgetting the takeoff briefing — examiner notices immediately",
+      ],
+      examinerGotchas: [
+        "'Why do you advance throttles together and verify before brake release?' — to detect asymmetric power BEFORE you're committed to the takeoff roll",
+        "'When do you retract gear?' — positive rate AND no usable runway remaining (both conditions must be true)",
+      ],
+      quiz: [
+        { q: "Initial climb after a normal takeoff (both engines) is at:", a: ["Vmc", "Vyse (blue line)", "Vy", "Vfe"], correct: 2, explain: "Vy with both engines. Vyse is the single-engine climb target — irrelevant when both engines are running normally." },
+        { q: "Throttles up: smoothly together or one at a time?", a: ["One at a time, left then right", "Together, smoothly to full", "Right first since it's the critical engine compensation", "Whichever feels right"], correct: 1, explain: "Together. Asymmetric advance = asymmetric thrust = swerve at low speed. Smooth advance lets you detect any engine issue (gauge mismatch) before committing." },
+      ],
+    },
+    {
+      id: "short-field-takeoff",
+      name: "Short-Field Takeoff & Climb",
+      acs: {
+        standards: ["Configure per POH (flaps in takeoff position)", "Use max available runway", "Vx until obstacle cleared, then Vy"],
+        tolerances: "Vx +5/-0 kt until clear of 50 ft obstacle",
+      },
+      flow: [
+        "Taxi to very end of usable runway",
+        "Hold brakes, throttles to FULL, verify gauges",
+        "Release brakes",
+        "Rotate at POH short-field Vr (slightly lower than normal)",
+        "Climb at Vx (~90 mph PA-30) until clear of 50 ft obstacle",
+        "Transition to Vy, retract gear when positive rate + past obstacle",
+      ],
+      commonErrors: [
+        "Climbing at Vy instead of Vx (won't clear obstacle)",
+        "Holding Vx longer than necessary (Vx is closer to Vmc — engine failure has less margin)",
+        "Forgetting to set flaps to takeoff position per POH",
+      ],
+      examinerGotchas: [
+        "'Why is Vx more critical than Vy in a twin?' — Vx is closer to Vmc, so engine failure at Vx has less speed margin before loss of control",
+        "'When do you transition from Vx to Vy?' — once clear of the 50 ft obstacle",
+      ],
+      quiz: [
+        { q: "Climb speed during short-field takeoff (until obstacle cleared)?", a: ["Vy", "Vx", "Vyse", "Va"], correct: 1, explain: "Vx = best ANGLE = most altitude per horizontal distance = obstacle clearance. Once past the obstacle, transition to Vy for best rate." },
+        { q: "Why is Vx more critical than Vy in a twin?", a: ["Higher fuel burn", "Vx is closer to Vmc — engine failure at Vx has less speed margin", "Lower oil pressure", "More noise"], correct: 1, explain: "Vx is slower than Vy. Slower = closer to Vmc. Engine failure at Vx leaves less speed cushion before loss of directional control." },
+      ],
+    },
+    {
+      id: "steep-turns",
+      name: "Steep Turns",
+      acs: {
+        standards: ["Maneuvering speed (Va) per POH", "50° bank both directions", "Coordinated turn"],
+        tolerances: "50° bank ±5°, altitude ±100 ft, airspeed ±10 kt, rollout ±10° of entry heading",
+      },
+      flow: [
+        "Clearing turns",
+        "Set maneuvering speed (Va — PA-30 typical ~130 mph)",
+        "Pick visual reference for entry heading",
+        "Smooth roll into 50° bank, add power as bank increases (drag rises)",
+        "Increase back-pressure to maintain altitude",
+        "Roll out by leading ~25° (half the bank)",
+        "Roll directly into opposite-direction steep turn",
+      ],
+      commonErrors: [
+        "Losing altitude (not enough back-pressure)",
+        "Gaining altitude (too much back-pressure or letting bank shallow)",
+        "Forgetting to add power",
+        "Rolling out late (overshooting entry heading)",
+      ],
+      examinerGotchas: [
+        "'Why do you add power in a steep turn?' — induced drag rises with load factor, requires more thrust to maintain airspeed",
+        "'What's the load factor at 50° bank?' — 1.56 G's (1/cos(50°))",
+      ],
+      quiz: [
+        { q: "Private AMEL steep turn ACS standard bank angle?", a: ["30°", "45°", "50°", "60°"], correct: 2, explain: "50° bank ±5° for Private AMEL. (Private ASEL is 45°; Commercial is also 50°.)" },
+        { q: "Altitude tolerance during Private AMEL steep turns?", a: ["±50 ft", "±100 ft", "±150 ft", "±200 ft"], correct: 1, explain: "±100 ft. Memorize all four: bank ±5°, altitude ±100 ft, airspeed ±10 kt, rollout ±10°." },
+        { q: "Approximate load factor at 50° bank, level turn?", a: ["1.0 G", "1.25 G", "1.56 G", "2.0 G"], correct: 2, explain: "1/cos(50°) = 1.56 G. Stall speed in this turn = Vs × √1.56 = Vs × 1.25. So if Vs is 70 mph wings level, accelerated stall in a 50° turn happens at ~88 mph." },
+      ],
+    },
+    {
+      id: "slow-flight",
+      name: "Slow Flight",
+      acs: {
+        standards: ["Maintain airspeed just above stall warning activation", "Maintain altitude/heading"],
+        tolerances: "Altitude ±100 ft, heading ±10°, airspeed +10/-0 kt, bank ±10° in turns",
+      },
+      flow: [
+        "Clearing turns",
+        "Configure as specified by examiner (typically gear + flaps as for landing)",
+        "Reduce power, slowly raise nose",
+        "Stabilize at airspeed 5-10 kt above stall warning activation (NOT WHERE WARNING IS SOUNDING — that's the old PTS standard, the current ACS is just above activation)",
+        "Maintain altitude with pitch, airspeed with power",
+        "Demonstrate level turns ±10° bank",
+        "Recover: power up, lower nose, retract flaps in stages, gear up if appropriate",
+      ],
+      commonErrors: [
+        "Letting stall warning sound (current ACS specifies just above activation, no warning)",
+        "Asymmetric power changes (Vmc setup near stall AOA — DANGEROUS)",
+        "Loss of altitude during turns",
+      ],
+      examinerGotchas: [
+        "'What's the current ACS slow flight criterion?' — just above stall warning activation; horn is NOT supposed to sound. Easy bust if you use old PTS standard.",
+        "'Why is asymmetric power especially dangerous in slow flight?' — high AOA + low airspeed = Vmc setup",
+      ],
+      quiz: [
+        { q: "Current Private ACS slow flight criterion?", a: ["Minimum controllable airspeed with stall horn blaring", "Just above stall warning activation, no warning sounding", "1.3 Vso", "Vmc + 5"], correct: 1, explain: "ACS revision changed the standard. Slow flight is now demonstrated WITHOUT stall warning sounding. Old PTS standard was 'minimum controllable' with horn going. Examiner will mark you down if you ride the horn." },
+      ],
+    },
+    {
+      id: "stalls",
+      name: "Power-Off, Power-On, Accelerated Stalls",
+      acs: {
+        standards: ["Recognize and recover at first indication of stall"],
+        tolerances: "Recover at first indication (horn, buffet, or any onset cue) — going to full break is now considered a deficiency",
+      },
+      flow: [
+        "Clearing turns, configure (off = landing config; on = takeoff/climb config)",
+        "Slow toward stall while maintaining altitude",
+        "At first indication (horn, buffet, decay): RECOVER",
+        "Recovery: REDUCE AOA FIRST (lower nose), THEN add power on BOTH engines symmetrically, level wings, retract flaps in stages",
+      ],
+      commonErrors: [
+        "Adding power before reducing AOA (deepens stall)",
+        "Asymmetric power application (Vmc roll setup)",
+        "Going past first indication (current ACS deficiency)",
+      ],
+      examinerGotchas: [
+        "'Why reduce AOA before adding power?' — power-on stall recovery without AOA reduction can deepen the stall (pitch-up moment from thrust)",
+        "'Why is asymmetric power dangerous near stall?' — high AOA + low airspeed = below Vmc with engine differential = Vmc roll or cross-controlled spin",
+      ],
+      quiz: [
+        { q: "Stall recovery in a multi-engine airplane begins with:", a: ["Adding full power on both engines", "Reducing AOA (lower the nose)", "Banking toward operating engine", "Retracting flaps"], correct: 1, explain: "AOA reduction is ALWAYS the first step in stall recovery. Adding power first can deepen the stall via pitch-up moment. Same in twins as singles, but consequences of mistake are bigger in twins." },
+      ],
+    },
+    {
+      id: "vmc-demo",
+      name: "Vmc Demonstration",
+      acs: {
+        standards: ["Demonstrate awareness of approaching Vmc loss-of-control with one engine simulated inoperative"],
+        tolerances: "Recover at FIRST indication (loss of directional control, stall warning, or unsafe pitch attitude) — whichever comes first",
+      },
+      flow: [
+        "Safe altitude (≥3,000 ft AGL minimum)",
+        "Clearing turns",
+        "Gear up, flaps up, takeoff power on operating engine, idle (or zero thrust) on simulated dead engine",
+        "Bank ~5° toward operating engine",
+        "Pitch up gradually to bleed airspeed at ~1 kt/sec",
+        "Maintain heading with rudder",
+        "RECOVER at first indication: simultaneously REDUCE POWER on operating engine, LOWER NOSE",
+        "Re-establish controlled flight at Vyse",
+      ],
+      commonErrors: [
+        "Trying to ride to actual Vmc (not the standard — recover at FIRST indication)",
+        "Adding power instead of reducing during recovery (deepens loss of control)",
+        "Pulling nose UP during recovery (lower it!)",
+        "Banking AWAY from operating engine (worsens situation)",
+        "Performing below 3,000 ft AGL",
+      ],
+      examinerGotchas: [
+        "'Three indicators for recovery — name them.' — loss of directional control, stall warning, unsafe pitch attitude",
+        "'Why reduce power and lower nose simultaneously?' — power reduction lowers asymmetric thrust (regains control); lower nose increases airspeed (gets above Vmc again)",
+        "'Why ≥3,000 ft AGL?' — if recovery doesn't go as planned, you need altitude to sort it out",
+      ],
+      quiz: [
+        { q: "During Vmc demo, recover at FIRST indication of:", a: ["Loss of directional control, stall warning, or unsafe pitch — whichever first", "Full Vmc loss only", "Stall break only", "Audible warning only"], correct: 0, explain: "Three triggers, recover at whichever happens FIRST. At altitude, stall warning often comes BEFORE loss of control because thin air = lower power = lower actual Vmc, but stall speed is unchanged." },
+        { q: "Recovery from Vmc demo:", a: ["Add power, pull nose up", "Reduce power on operating engine and lower the nose", "Bank away from operating engine", "Feather immediately"], correct: 1, explain: "Counterintuitive but correct. Reduce power = less asymmetric thrust = regain control. Lower nose = gain airspeed back above Vmc. Adding power makes it worse." },
+        { q: "Vmc demo minimum altitude?", a: ["1,000 ft AGL", "3,000 ft AGL", "10,000 ft MSL", "Pattern altitude"], correct: 1, explain: "3,000 ft AGL minimum. Recovery margin if it goes wrong." },
+      ],
+    },
+    {
+      id: "drag-demo",
+      name: "Drag Demonstration",
+      acs: {
+        standards: ["Demonstrate effect of various drag sources on single-engine climb performance"],
+        tolerances: "Configure as directed; describe and demonstrate performance loss",
+      },
+      flow: [
+        "Safe altitude, simulate engine failure (one engine to zero thrust)",
+        "Establish Vyse climb wings level, ball centered",
+        "Demonstrate sequence:",
+        "  1. Wings level + ball centered: poor climb (sideslipping)",
+        "  2. Bank 2° toward operating engine + ½ ball: best climb",
+        "  3. Add gear DOWN: massive performance loss",
+        "  4. Add flaps: more performance loss",
+        "  5. Windmilling vs feathered prop: dramatic difference",
+      ],
+      commonErrors: [
+        "Not actually demonstrating each step quantitatively (climb rate observed at each config)",
+        "Confusing drag demo with Vmc demo",
+      ],
+      examinerGotchas: [
+        "'Show me what gear-down does to single-engine climb.' Be ready to call out the specific climb rate change",
+        "'Which is worse — windmilling prop or gear down?' Both significant; windmilling typically more",
+      ],
+      quiz: [
+        { q: "Greatest drag penalty after engine failure (and most important to fix quickly):", a: ["Gear down", "Windmilling prop", "Cowl flaps open", "Pitot heat on"], correct: 1, explain: "Windmilling prop produces more drag than a wide-open paddle. Feathering quickly is the highest-leverage drag reduction available. Gear down is significant but a smaller effect than windmilling." },
+      ],
+    },
+    {
+      id: "engine-failure-during-takeoff",
+      name: "Engine Failure During Takeoff",
+      acs: {
+        standards: ["Recognize engine failure", "Maintain control", "Apply correct procedure based on phase of takeoff"],
+        tolerances: "Decision must be made and executed without delay",
+      },
+      flow: [
+        "ENGINE FAILURE BELOW Vmc (on takeoff roll):",
+        "  THROTTLES IDLE (both)",
+        "  Maximum braking",
+        "  Maintain directional control with rudder + brakes",
+        "  Stop on runway",
+        "",
+        "ENGINE FAILURE ABOVE Vmc, RUNWAY REMAINING:",
+        "  Land straight ahead on remaining runway",
+        "  Throttles idle, gear DOWN if not yet retracted",
+        "  Brake to stop",
+        "",
+        "ENGINE FAILURE AIRBORNE, NO RUNWAY:",
+        "  AVIATE: pitch for blue line (Vyse), rudder to stop yaw, ~2° bank toward live engine",
+        "  CLEAN UP: gear up if not already, flaps up if used",
+        "  IDENTIFY: dead foot, dead engine",
+        "  VERIFY: slowly retard throttle on dead-side; if no yaw change, you got the right one",
+        "  FEATHER: prop to feather on dead engine",
+        "  SECURE: mixture cutoff, mags off, fuel selector off, alt/pump off on dead side",
+        "  DECLARE: tell ATC, return for landing",
+      ],
+      commonErrors: [
+        "Trying to fly out below Vmc (Vmc roll, fatal at low altitude)",
+        "Climbing with gear DOWN airborne (massive drag loss)",
+        "Identifying via instruments instead of dead-foot rule (slow)",
+        "Feathering before verifying (risk shutting down good engine)",
+      ],
+      examinerGotchas: [
+        "'Below Vmc, runway remaining or not — what's the answer?' — ALWAYS abort. No exceptions.",
+        "'Show me the dead-foot rule.' — the foot you're NOT pressing identifies the failed engine",
+        "'Why verify before feathering?' — to avoid shutting down the WORKING engine",
+      ],
+      quiz: [
+        { q: "Engine failure on takeoff roll BELOW Vmc, with 8,000 ft of runway remaining:", a: ["Continue, lift off, troubleshoot", "Abort: throttles idle, max braking", "Add full power on the other engine", "Pull up sharply to clear obstacles"], correct: 1, explain: "Below Vmc the airplane is uncontrollable with one engine at full power. Doesn't matter how much runway is ahead — you cannot maintain directional control airborne. ABORT is the only answer." },
+        { q: "After engine failure airborne with no runway, the correct order is:", a: ["Identify-Verify-Feather-Maintain control", "Maintain control-Configure-Identify-Verify-Feather-Secure", "Feather-Secure-Identify", "Declare-Identify-Feather"], correct: 1, explain: "AVIATE FIRST. Pitch blue line, rudder, ~2° bank → THEN configure (gear up, mixtures/props/throttles forward) → THEN identify (dead foot) → THEN verify (slow throttle pull) → THEN feather → THEN secure. Skipping aviate = Vmc roll." },
+      ],
+    },
+    {
+      id: "engine-failure-cruise",
+      name: "Engine Failure in Flight (Cruise)",
+      acs: {
+        standards: ["Recognize, control, identify, verify, secure, troubleshoot, divert"],
+        tolerances: "Maintain altitude or controlled descent; reach single-engine cruise without loss of control",
+      },
+      flow: [
+        "AVIATE: maintain control, pitch for blue line if descending",
+        "If at cruise altitude, you may be able to maintain altitude single-engine — depends on weight, DA, and altitude",
+        "IDENTIFY-VERIFY-FEATHER-SECURE",
+        "TROUBLESHOOT (if appropriate): is restart possible? (fuel selector wrong tank, mag, primer leak)",
+        "If restart not possible: DECLARE, divert to nearest suitable airport",
+        "Single-engine cruise: typically reduce to ~70-75% on operating engine to stay below redlines",
+        "Plan single-engine approach with extra altitude margin and flatter glide path",
+      ],
+      commonErrors: [
+        "Trying to make original destination instead of nearest suitable",
+        "Adding too much flap on single-engine approach (drag spike)",
+        "Configuring for landing too early (excess drag = sink)",
+      ],
+      examinerGotchas: [
+        "'Where do you go after engine failure in cruise?' — nearest SUITABLE airport (length, weather, services)",
+        "'Why not your destination if it's only 30 miles further?' — degraded performance, no redundancy, possible undetected damage",
+      ],
+      quiz: [
+        { q: "After securing a failed engine in flight, your destination should be:", a: ["The original destination if weather allows", "The nearest suitable airport", "The departure airport always", "Whichever is largest"], correct: 1, explain: "Nearest suitable. Single-engine = degraded performance, no redundancy. 'Suitable' = adequate runway, services, weather. Don't try to make destination just because you're close." },
+      ],
+    },
+    {
+      id: "single-engine-approach",
+      name: "Single-Engine Approach & Landing",
+      acs: {
+        standards: ["Configure appropriately", "Maintain Vyse on approach", "Stabilized approach", "Land safely"],
+        tolerances: "Vyse +10/-5 until short final, then ref speed ±5 kt",
+      },
+      flow: [
+        "Brief approach in advance",
+        "Maintain Vyse until on final, then transition to approach speed",
+        "Gear DOWN once landing is assured (not before — gear is huge drag)",
+        "Flaps in stages, only as needed (each notch = drag)",
+        "Power on operating engine: significantly more than two-engine approach (offsets asymmetric drag)",
+        "Touchdown on speed, on aim point",
+        "Be ready for go-around — single-engine missed approach is harder than two-engine",
+      ],
+      commonErrors: [
+        "Gear down too early (drag sink during turn to final)",
+        "Full flaps too early (similar)",
+        "Insufficient power (sink below glidepath)",
+        "Trying to salvage an unstable approach instead of going missed early",
+      ],
+      examinerGotchas: [
+        "'When do you put the gear down on a single-engine approach?' — once landing is assured (not on downwind)",
+        "'Compared to a normal two-engine approach, your power on the operating engine is:' — MORE, not less",
+      ],
+      quiz: [
+        { q: "On single-engine approach, gear should be lowered:", a: ["Abeam the touchdown point on downwind, like normal", "Once landing is assured (typically short final or after intercepting glidepath)", "On the takeoff roll", "Never on single engine"], correct: 1, explain: "Gear is huge drag, especially with asymmetric thrust. Delay gear-down until landing is assured to preserve glide energy. Standard 'abeam touchdown' gear extension is for two-engine ops." },
+      ],
+    },
+    {
+      id: "instrument-approach",
+      name: "Instrument Approach (with Engine Failure)",
+      acs: {
+        standards: ["Load and brief approach in GNS 430W", "Fly approach to MDA/DA", "Manage degraded single-engine performance", "Recognize when to go missed early"],
+        tolerances: "Course ±¾ scale on CDI, altitude ±100 ft on stabilized segments, MDA/DA -0/+50 ft",
+      },
+      flow: [
+        "Load approach EARLY (before any failure)",
+        "Brief: course, altitudes, FAF, MDA/DA, missed approach",
+        "When engine failure simulated: maintain control FIRST, then continue approach",
+        "Single-engine approach = MORE power on operating engine",
+        "If performance is marginal at any point: GO MISSED EARLY (don't try to salvage to minimums)",
+        "On 430W: switch CDI from GPS to VLOC for ILS at the appropriate prompt; stay on GPS for RNAV",
+      ],
+      commonErrors: [
+        "Trying to brief approach AFTER the failure (task saturation)",
+        "Forgetting to switch CDI from GPS to VLOC on ILS",
+        "Continuing to minimums when performance shows you can't go missed safely",
+      ],
+      examinerGotchas: [
+        "'When do you switch CDI from GPS to VLOC?' — at the 430W's prompt, typically intermediate segment before LOC intercept",
+        "'When do you go missed?' — early if performance is marginal; don't push to minimums",
+      ],
+      quiz: [
+        { q: "On a GNS 430W ILS approach, the CDI is switched from GPS to VLOC:", a: ["At the FAF", "When the unit prompts (intermediate segment, before LOC intercept)", "Never", "On missed approach"], correct: 1, explain: "The 430W shows a prompt: 'Set CRS xxx, switch CDI to VLOC.' That's typically before localizer intercept. Leaving it on GPS means tracking to airport, not down the localizer." },
+        { q: "RNAV (GPS) approach CDI source:", a: ["VLOC", "GPS for the entire approach", "Either", "OBS"], correct: 1, explain: "RNAV approaches use GPS as the navigation source. Stay on GPS the whole way." },
+      ],
+    },
+    {
+      id: "short-field-landing",
+      name: "Short-Field Landing",
+      acs: {
+        standards: ["Stabilized approach at POH speed", "Touchdown at or beyond aim point", "Stop in shortest distance"],
+        tolerances: "Touchdown +200 / -0 ft of aim point, full flaps per POH",
+      },
+      flow: [
+        "Stabilized approach at POH short-field speed (slightly slower than normal final)",
+        "Full flaps per POH",
+        "Aim point established by examiner",
+        "Firm touchdown at or beyond aim point — NEVER short",
+        "Immediately retract FLAPS (verify gear handle vs flap handle visually)",
+        "Maximum braking",
+      ],
+      commonErrors: [
+        "Touchdown short of aim point (instant deficiency, fail in real life = obstacle strike)",
+        "Floating past aim point (didn't dissipate energy)",
+        "Reaching for gear handle on rollout instead of flaps (= retracted gear on ground = bent airplane)",
+      ],
+      examinerGotchas: [
+        "'Show me the aim point.' Examiner picks it; you commit to landing at or just past",
+        "'Why retract flaps not gear on rollout?' — flap retraction transfers weight to wheels for braking; gear retraction = ground loop with prop strikes",
+      ],
+      quiz: [
+        { q: "Private AMEL short-field landing tolerance?", a: ["±100 ft of aim point", "+200 / -0 ft of aim point", "+500 / -0 ft", "Anywhere in first third"], correct: 1, explain: "+200 / -0 ft. AT or BEYOND the aim point, never short. Asymmetric tolerance reflects that overshoot is recoverable; undershoot strikes obstacles." },
+      ],
+    },
+    {
+      id: "emergency-descent",
+      name: "Emergency Descent",
+      acs: {
+        standards: ["Establish max-allowed descent rate", "Maintain control", "Configure per POH"],
+        tolerances: "Configure per POH; arrive at target altitude ±100 ft",
+      },
+      flow: [
+        "Cause: cabin fire, smoke, depressurization (less applicable PA-30, no pressurization), passenger medical",
+        "Throttles to IDLE",
+        "Prop full forward (high RPM = drag, plus available for go-around)",
+        "Gear DOWN (max drag if at safe airspeed)",
+        "Bank into a steep descending turn (clear traffic visually)",
+        "Pitch for max allowable airspeed (just below Vle/Vno depending on config)",
+        "Communicate with ATC, declare emergency",
+        "Plan landing at nearest field",
+      ],
+      commonErrors: [
+        "Not declaring emergency",
+        "Pitching too steep (overspeed)",
+        "Forgetting to clear visually before steep turn",
+      ],
+      examinerGotchas: [
+        "'When would you do an emergency descent?' — fire, smoke, structural damage, medical emergency",
+        "'What speed?' — max allowed in current config (Vle, Vno, Vne minus margin)",
+      ],
+      quiz: [
+        { q: "Emergency descent in PA-30: what speed do you target?", a: ["Vy", "Vyse", "Maximum allowed in current configuration (typically Vle ~150 mph with gear down)", "Vmc"], correct: 2, explain: "Max allowed speed gets you down fast. Gear DOWN = Vle ~150 mph (drag bonus). Gear up = Vno/Vne minus margin. Pick the max for your config." },
+      ],
+    },
+  ],
+};
+
+// ---------- ORAL EXAM PREP ----------
+const ORAL = {
+  areas: [
+    {
+      id: "certs-docs",
+      name: "Certificates, Documents & Currency",
+      questions: [
+        { q: "What documents must be in the aircraft for legal flight?", a: "AROW: Airworthiness certificate (displayed visibly), Registration, Operating limitations (POH/AFM and placards), Weight & balance current data." },
+        { q: "What inspections must be current for IFR flight?", a: "Annual (12 calendar months); 100-hour if for hire; transponder + altimeter/static + encoder all 24 calendar months; VOR check 30 days; ELT 12 months for inspection plus battery replacement at 50% useful life or after 1 hour cumulative use." },
+        { q: "Currency to act as PIC of a multi-engine airplane carrying passengers?", a: "61.57(a): 3 takeoffs and landings to a full stop in the preceding 90 days, in the same category and class. Multi-engine is its own class — single-engine T/Os don't count toward AMEL currency. Tailwheel needs full-stop landings; nosewheel can be touch-and-go." },
+        { q: "After this checkride, do you need a written knowledge test for AMEL?", a: "No. 61.63(c): adding a class rating at the same certificate level requires no additional knowledge test, no additional aeronautical experience minimums, and no additional aeronautical knowledge — just the practical test." },
+        { q: "How long is your medical valid for private privileges?", a: "Class 3 medical: 60 calendar months under 40 years old, 24 calendar months 40 and older. BasicMed is also valid for private privileges if you meet the requirements." },
+        { q: "Endorsements required for this checkride?", a: "Per 61.31(a) and 61.63: training completion endorsement (proficiency in required tasks), recommendation for the practical test. CFI's logbook endorsements demonstrating both." },
+        { q: "If the examiner finds one task unsatisfactory, what happens?", a: "Examiner has discretion. May discontinue (you complete remaining tasks on retest) or continue. On retest, only the unsatisfactory task plus anything affected by it. Existing PPL not affected — only the AMEL add-on attempt fails." },
+      ],
+    },
+    {
+      id: "systems",
+      name: "Aircraft Systems (PA-30)",
+      questions: [
+        { q: "Describe the propeller system on N1100L.", a: "Hartzell constant-speed, full-feathering, hydraulic. Oil pressure drives blades to LOW pitch (high RPM); springs and counterweights drive blades to FEATHER when oil pressure is interrupted. That's why a failed engine can still feather — physics drives it." },
+        { q: "Why do you cycle the prop controls during runup?", a: "To circulate WARM oil into the propeller hub. Feathering requires oil pressure changes that work properly only with warm oil. Cold oil delays feather — sometimes by enough to matter." },
+        { q: "How does the fuel system work — what tanks, and how do you use them?", a: "Two main tanks (one per side) feeding their respective engines normally. Two auxiliary tanks (one per side) typically restricted to LEVEL CRUISE only — not for takeoff, landing, or single-engine ops per POH. Crossfeed allows feeding either engine from either side's mains — primary purpose is feeding the operating engine from the dead side's fuel after engine failure." },
+        { q: "Describe the electrical system.", a: "Dual alternators (one per engine), single battery typical. Master switch controls battery + alternator field. Each alternator switch independent. Loss of one alternator = the other carries load (consider load-shedding non-essentials). Loss of both = battery only — limited time, land soonest." },
+        { q: "What instruments are on vacuum, and which on electric?", a: "On N1100L: dual Garmin G5s are ELECTRIC with internal battery backup — primary attitude and HSI. Turn coordinator electric. Steam altimeter and ASI are pitot/static (mechanical). Vacuum loss in N1100L would only kill any remaining vacuum-driven backup AI/DG (if installed) — not catastrophic with the dual G5 setup." },
+        { q: "What's the alternate air system, and when do you use it?", a: "Manual control on the panel — must be PULLED FULL ON by pilot. Used when induction air blockage is suspected (impact icing, freezing rain, etc.). PA-30 is fuel-injected so no carb ice, but induction icing in the air intake can still occur. Manual = pilot action required." },
+      ],
+    },
+    {
+      id: "performance",
+      name: "Performance & Limitations",
+      questions: [
+        { q: "What is Vmc and where is it marked on the airspeed indicator?", a: "Vmc = minimum control speed with the critical engine inoperative. Red radial line on the ASI. Below this speed with one engine out, the rudder cannot overcome the asymmetric thrust — directional control is lost, leading to a Vmc roll." },
+        { q: "What conditions are assumed in the Vmc certification?", a: "Per 14 CFR §23.149: critical engine windmilling, operating engine at max takeoff power, most unfavorable weight, most unfavorable CG (aft), gear up, flaps in takeoff position, up to 5° bank toward operating engine, standard day at sea level." },
+        { q: "What's the effect of high density altitude on Vmc?", a: "Vmc DECREASES at higher altitude. Less air = less power available from the operating engine = less asymmetric thrust = less rudder needed. The trap: actual Vmc may drop below stall speed, meaning the airplane STALLS before losing directional control. The published red line gives no warning of this." },
+        { q: "What's Vyse and why does it matter?", a: "Vyse = best rate of climb single engine. Marked as the BLUE radial line. After engine failure, your sole pitch target is blue line — that's the airspeed that gives the best climb (or least descent) on the remaining engine." },
+        { q: "How do you compute density altitude on the ramp without a chart?", a: "Pressure altitude + (ISA deviation × ~120 ft per °C, or ~70 ft per °F). At KLBB: field elevation 3,282 ft. ISA temp at 3,282 ft ≈ 8°C / 47°F. So 85°F day = 38°F above ISA × 70 = +2,650 ft → DA ≈ 5,930 ft." },
+        { q: "PA-30 single-engine service ceiling at gross weight?", a: "Approximately 7,100 ft (where single-engine climb degrades to 50 fpm). Above this, climb capability is essentially zero. On a hot Lubbock afternoon (DA pushing 6,000-7,000 ft), single-engine climb margin is thin — ADM consideration." },
+      ],
+    },
+    {
+      id: "vmc-aerodynamics",
+      name: "Vmc & Aerodynamics",
+      questions: [
+        { q: "Which is the critical engine on a conventional twin and why?", a: "On a twin with both props rotating clockwise (pilot's view) — like a standard PA-30 — the LEFT engine is critical. Reason: P-A-S-T (P-factor, Accelerated slipstream, Spiraling slipstream, Torque). All four factors put the right engine's effective thrust line FARTHER from centerline. So losing the LEFT engine leaves the surviving right engine producing thrust on a longer arm = larger yawing moment = harder to control." },
+        { q: "Walk me through the engine-failure flow.", a: "MAINTAIN CONTROL: pitch for blue line, rudder to stop yaw, ~2° bank toward live engine. CONFIGURE: mixtures/props/throttles forward, flaps up, gear up if airborne. IDENTIFY: dead foot, dead engine. VERIFY: slowly retard throttle on suspected dead engine — if no yaw change, you've got it right. FEATHER: prop control to feather. SECURE: mixture cutoff, mags off, fuel selector off, alt/pump off on dead side. DECLARE and land at nearest suitable airport." },
+        { q: "What's zero sideslip and why does it matter?", a: "Configuration where relative wind is parallel to the longitudinal axis — minimum drag. Achieved by banking ~2° toward the operating engine with rudder such that the inclinometer ball is displaced about ½ ball toward the operating engine. NOT centered — that's the trap. Zero sideslip can roughly DOUBLE single-engine climb rate vs wings-level/ball-centered. Memory aid: 'raise the dead.'" },
+        { q: "Effect on Vmc: lighter weight, aft CG, high DA, full power.", a: "Lighter weight = Vmc UP (less inertia, less horizontal lift when banked). Aft CG = Vmc UP (shorter rudder arm). High DA = Vmc DOWN (less power available, less asymmetric thrust). Full power = Vmc UP (more PAST). Recovery: REDUCE power on operating engine and lower the nose — counterintuitive but correct." },
+        { q: "Why is feathering important?", a: "A windmilling propeller produces enormous drag — more than gear extended. That drag (a) reduces single-engine climb performance dramatically and (b) increases asymmetric force, raising Vmc. Feathering eliminates ~80% of that drag, restoring most of the airplane's single-engine performance and lowering actual Vmc." },
+      ],
+    },
+    {
+      id: "regulations",
+      name: "Regulations (Multi-Engine Specific)",
+      questions: [
+        { q: "Required equipment for VFR day flight per 91.205?", a: "ATOMATOFLAMES: Airspeed indicator, Tachometer, Oil pressure, Manifold pressure (each engine for constant-speed prop), Altimeter, Temperature gauge (each engine), Oil temperature (each air-cooled engine), Fuel gauge (each tank), Landing gear position indicator (retractable), Anti-collision lights (after 1996), Magnetic compass, ELT, Seat belts." },
+        { q: "Additional for VFR night per 91.205(c)?", a: "FLAPS: Fuses or circuit breakers, Landing light (if for hire), Anti-collision light, Position lights, Source of electricity. Add to the day VFR list." },
+        { q: "Additional for IFR per 91.205(d)?", a: "GRABCARDD: Generator/alternator, Radios for ground/airborne navigation, Attitude indicator, Ball (slip/skid), Clock with seconds, Altimeter (sensitive), Rate-of-turn indicator, DME above FL240, Directional gyro." },
+        { q: "How does 91.213 (inoperative equipment) work?", a: "Three-step: (1) Is it required by the type certificate / KOEL? If yes, no fly. (2) Is it required by 91.205 / 91.213(d)(2)? If yes, no fly. (3) Has an MEL been issued? If yes, follow it. If none of the above and item is not required: deactivate, placard 'inoperative,' make logbook entry — okay to fly." },
+        { q: "What's the alcohol rule (91.17)?", a: "8 hours bottle to throttle, BAC below 0.04, no flying while under the influence of any drug that affects faculties." },
+      ],
+    },
+    {
+      id: "weather",
+      name: "Weather",
+      questions: [
+        { q: "What's a TAF? What sources do you use for preflight weather?", a: "TAF: Terminal Aerodrome Forecast — 24-30 hour forecast for an airport. Sources: aviationweather.gov, ForeFlight, 1-800-WX-BRIEF for FSS, ATC for in-flight. Always cross-check multiple sources." },
+        { q: "Density altitude factors and effects?", a: "DA increases with: high field elevation, high temp, low pressure, high humidity. Effects: longer takeoff roll, reduced climb performance, lower service ceiling, less efficient prop. PA-30 single-engine ceiling at gross is ~7,100 ft — a hot Lubbock afternoon can put DA near or above this." },
+        { q: "Thunderstorm hazards?", a: "Hail, severe turbulence, lightning, microburst, severe icing, downdrafts/updrafts strong enough to break airframes. Stay 20+ NM from severe storms. Don't penetrate any cumulonimbus. Embedded thunderstorms in IMC are particularly dangerous." },
+        { q: "Carb ice risk in PA-30?", a: "Trick question — PA-30 is fuel-injected, no carb. But INDUCTION ICING in the air intake can still occur from impact icing or freezing rain. That's why the alternate air control is on the panel." },
+      ],
+    },
+    {
+      id: "ifr",
+      name: "IFR & Instrument Procedures",
+      questions: [
+        { q: "How do you load and brief an approach in the GNS 430W?", a: "PROC button → Select Approach → Choose airport → Choose approach → Choose IAF or vectors → ACTIVATE. Brief: course, altitudes, FAF, MDA/DA, missed approach point, missed approach procedure. For ILS: switch CDI from GPS to VLOC at 430W's prompt. For RNAV: stay on GPS." },
+        { q: "What's a stabilized approach criterion?", a: "By 1,000 ft AGL IFR (500 ft VFR): on glidepath, on speed, configured (gear/flaps as appropriate), in trim, pre-landing checklist complete. If not stabilized → go missed approach." },
+        { q: "Single-engine on an instrument approach: what's different?", a: "MORE power on operating engine to maintain glidepath against asymmetric drag. Delay gear DOWN until landing assured. Be ready to GO MISSED EARLY — single-engine missed at minimums is marginal at best. Configure final stages of flaps later than normal." },
+      ],
+    },
+    {
+      id: "adm",
+      name: "ADM & Risk Management",
+      questions: [
+        { q: "Define ADM.", a: "Aeronautical Decision Making. Systematic approach to mental processes used by pilots to consistently determine the best course of action in response to a given set of circumstances." },
+        { q: "DECIDE model?", a: "Detect a change. Estimate the need to counter or react. Choose a desirable outcome. Identify actions to control the change. Do the necessary action. Evaluate the effect of the action." },
+        { q: "Hazardous attitudes?", a: "Five hazardous attitudes (per FAA): Anti-authority (don't tell me), Impulsivity (do something quickly), Invulnerability (it won't happen to me), Macho (I can do it), Resignation (what's the use). Each has a specific antidote — 'follow the rules,' 'not so fast, think first,' etc." },
+        { q: "PAVE checklist for risk?", a: "Pilot (currency, fatigue, IM SAFE), Aircraft (airworthy, equipped, fueled), enVironment (weather, terrain, airports), External pressures (schedule, get-there-itis)." },
+      ],
+    },
+  ],
+  scenarios: [
+    {
+      id: "hot-day-f49",
+      title: "Hot Day at F49",
+      setup: "It's late May at F49 (Slaton). 2 PM local. OAT 92°F. Field elevation 3,124 ft. Runway 4,600 ft. Wind 180 at 18 kt. You're at gross weight (3,600 lbs). Your destination is KAUS (Austin), 4 hours away.",
+      questions: [
+        "Density altitude for these conditions?",
+        "Single-engine climb rate at gross weight from the chart?",
+        "What's accelerate-stop distance? Margin against runway available?",
+        "Engine fails on takeoff roll at 60 mph — action?",
+        "Engine fails airborne at 200 ft AGL with half the runway still ahead — action?",
+        "Engine fails airborne at 1,000 ft AGL after liftoff with no runway remaining — action?",
+        "Could you legally take off? Should you?",
+      ],
+      crossTopics: ["performance", "vmc-aerodynamics", "adm"],
+    },
+    {
+      id: "ifr-engine-out",
+      title: "IFR Engine-Out to Lubbock",
+      setup: "You're cruising at 8,000 ft IFR from Albuquerque to Lubbock. 50 NM west of KLBB, in IMC, the right engine starts running rough then loses oil pressure and seizes. Weather at KLBB: 600 OVC, 3 SM visibility, ILS 17R available.",
+      questions: [
+        "Walk me through your procedure from the moment you notice the failure.",
+        "Why right engine — was it the critical engine?",
+        "What's your altitude after feather and zero sideslip established?",
+        "How do you brief the ILS in this situation?",
+        "On the approach, you're slightly above glidepath at the FAF but performance is degrading. What's your decision?",
+        "If you go missed at minimums, what's your plan?",
+      ],
+      crossTopics: ["vmc-aerodynamics", "ifr", "adm", "performance"],
+    },
+    {
+      id: "passenger-emergency",
+      title: "Passenger Medical Emergency",
+      setup: "You're VFR at 6,500 ft, 30 NM north of Lubbock, returning from a $300 hamburger trip with 2 passengers. Your front-seat passenger has a sudden severe chest pain and difficulty breathing.",
+      questions: [
+        "Walk me through your decision-making.",
+        "What ATC service do you use, and what do you say?",
+        "Emergency descent procedure?",
+        "If KLBB has a 30 minute hold for arrivals due to weather, what do you do?",
+        "Could you declare a medical emergency on flight following frequency, or do you need a different freq?",
+      ],
+      crossTopics: ["adm", "regulations", "ifr"],
+    },
+    {
+      id: "thunderstorm-divert",
+      title: "Thunderstorm Pop-Up",
+      setup: "VFR cross-country, 30 minutes from F49 (Slaton). You see a fast-developing line of thunderstorms 25 NM ahead, blocking your route. Forecast didn't call for them. Fuel: 1.5 hours.",
+      questions: [
+        "What's your first action?",
+        "How far do you stay from a thunderstorm?",
+        "What information do you need to make a divert decision?",
+        "If conditions deteriorate to where you can't see ahead, options?",
+      ],
+      crossTopics: ["weather", "adm"],
+    },
+    {
+      id: "checkride-day-discontinuance",
+      title: "Checkride Day Decision",
+      setup: "You're on your checkride. Engine failure simulation goes well. You're on the single-engine ILS at KLBB. At 600 ft AGL (200 ft above DA), your simulated dead engine 'comes back' (instructor restoring power). You're slightly low on glidepath and 5 kt slow.",
+      questions: [
+        "Continue the approach or go missed?",
+        "If you continue and get back on glidepath by 200 ft AGL, is that a pass?",
+        "What does the examiner look for in this exact situation?",
+      ],
+      crossTopics: ["adm", "ifr"],
+    },
+  ],
+};
+
+// ---------- QUICK REFERENCE ----------
+const REFERENCE = {
+  regulations: [
+    { reg: "91.213", title: "Inoperative Equipment", note: "Three-step test: type cert/KOEL → 91.205 → MEL? If none required, deactivate + placard + logbook = okay" },
+    { reg: "91.205", title: "Required Equipment", note: "VFR day: ATOMATOFLAMES. Add FLAPS for night. Add GRABCARDD for IFR." },
+    { reg: "91.107", title: "Seatbelts", note: "Use during taxi, takeoff, landing. Each occupant in own seat." },
+    { reg: "91.211", title: "Supplemental Oxygen", note: "Required: crew above 12,500-14,000 ft for 30+ min. All occupants above 14,000. All occupants above 15,000." },
+    { reg: "91.151", title: "VFR Fuel Reserves", note: "Day: enough to destination + 30 min at normal cruise. Night: + 45 min." },
+    { reg: "91.167", title: "IFR Fuel Reserves", note: "Destination + alternate (if required) + 45 min at normal cruise." },
+    { reg: "91.169", title: "Alternate Required", note: "1-2-3 rule: from 1 hour before to 1 hour after ETA, ceiling at least 2,000 ft AGL and visibility at least 3 SM. If not, alternate required." },
+    { reg: "61.31", title: "Type & Class Ratings", note: "Class rating add-on: training + endorsements + practical test. No new written required at same cert level." },
+    { reg: "61.57", title: "Recent Flight Experience", note: "3 T/Os and landings in 90 days for passengers, in same category and class. Multi-engine separate from single." },
+    { reg: "61.56", title: "Flight Review", note: "Every 24 calendar months, with a CFI. 1 hour ground + 1 hour flight." },
+    { reg: "61.23", title: "Medical", note: "Class 3 valid 60 mo under age 40, 24 mo at 40+. BasicMed alternative for private privileges." },
+    { reg: "91.17", title: "Alcohol & Drugs", note: "8 hours bottle to throttle. BAC below 0.04. No drugs that affect faculties." },
+    { reg: "91.103", title: "Preflight Action", note: "Become familiar with all available info concerning the flight: NOTAMs, weather, fuel, alternates, performance." },
+    { reg: "91.111", title: "Operating Near Other Aircraft", note: "Can't operate so close as to create collision hazard. Formation flight only by arrangement, never with passengers for hire." },
+    { reg: "91.117", title: "Speed Limits", note: "Below 10,000 ft MSL: 250 kt indicated. Below 2,500 ft AGL within 4 NM of Class C/D: 200 kt indicated. Under shelf of B: 200 kt." },
+    { reg: "91.119", title: "Minimum Safe Altitudes", note: "Anywhere: enough altitude to land safely. Congested area: 1,000 ft above highest obstacle within 2,000 ft. Other than congested: 500 ft AGL, 500 ft from any person/structure/vehicle/vessel." },
+    { reg: "91.155", title: "VFR Cloud Clearance", note: "Class B: clear of clouds. Class C/D/E below 10,000: 500 below, 1,000 above, 2,000 horizontal, 3 SM viz. Class E at and above 10,000: 1,000/1,000/1 SM/5 SM viz. Class G varies by altitude/day-night." },
+    { reg: "91.183", title: "IFR Position Reports", note: "Required reports: missed approach, leaving altitude, unable to climb 500 fpm, etc. Practice this list." },
+  ],
+  weightBalance: {
+    procedure: "1. Look up empty weight + arm in W&B record (in aircraft documents). 2. Add pilot, passengers, baggage with their weights × arms = moments. 3. Add fuel (mains + aux) with its arm × weight = moment. 4. Sum all moments. 5. Total moment / total weight = CG location. 6. Compare CG to forward and aft limits at that weight from the CG envelope chart. CG must be within envelope at takeoff AND landing.",
+    pa30typical: "PA-30 typical empty weight ~2,180 lbs. Max gross 3,600 lbs. Useful load ~1,420 lbs. Max takeoff and landing weight typically same. CG range narrow — load thoughtfully.",
+    examinerWillAsk: [
+      "Compute W&B for the day's flight (you and instructor + fuel)",
+      "What's the most forward CG limit? Most aft?",
+      "What happens if you load aft of CG aft limit? (loss of control authority, possible stall recovery problems)",
+      "How does fuel burn affect CG during flight?",
+    ],
+  },
+  emergencyMemoryItems: [
+    { emergency: "Engine Failure on Takeoff (below Vmc)", items: ["Throttles — IDLE", "Brakes — MAXIMUM", "Maintain directional control"] },
+    { emergency: "Engine Failure in Flight", items: ["Maintain control (pitch blue line, rudder, ~2° bank toward live)", "Mixtures/Props/Throttles — FORWARD", "Flaps/Gear — UP", "IDENTIFY (dead foot)", "VERIFY (slow throttle pull)", "FEATHER", "SECURE (mixture cutoff, mags off, fuel off, electrical off on dead side)"] },
+    { emergency: "Engine Fire in Flight", items: ["Mixture — IDLE CUTOFF (affected engine)", "Fuel selector — OFF", "Mags — OFF", "Prop — FEATHER", "Cabin heat — OFF (if from affected engine)", "Land soonest"] },
+    { emergency: "Cabin Fire", items: ["Cabin heat/vent — CLOSE", "Master switch — OFF (if electrical fire)", "Fire extinguisher — USE", "Land soonest", "If smoke continues: emergency descent"] },
+    { emergency: "Electrical Fire", items: ["Master — OFF", "All switches — OFF", "Fire extinguisher", "Land soonest", "Once on ground: investigate"] },
+    { emergency: "Gear Fails to Extend", items: ["Verify gear circuit breaker — IN", "Reset gear handle if applicable", "Emergency extension procedure per POH (manual hand-pump or mechanical release)", "If unable: prepare for gear-up landing — runway with foam if available, no flaps, off engines on touchdown to minimize fire risk"] },
   ],
 };
 
@@ -1116,6 +1805,15 @@ function Header({ progress, onReset, view, setView }) {
           <button className={`me-button ${view === "performance" || view === "performancequiz" ? "active" : ""}`} onClick={() => setView("performance")}>
             <BarChart3 size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Perf
           </button>
+          <button className={`me-button cyan ${view === "maneuvers" || view === "maneuverquiz" ? "active" : ""}`} onClick={() => setView("maneuvers")}>
+            <ClipboardCheck size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Maneuvers
+          </button>
+          <button className={`me-button cyan ${view === "oral" ? "active" : ""}`} onClick={() => setView("oral")}>
+            <MessageSquare size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Oral
+          </button>
+          <button className={`me-button cyan ${view === "reference" ? "active" : ""}`} onClick={() => setView("reference")}>
+            <FileText size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Reference
+          </button>
           <button className={`me-button cyan ${view === "drillall" ? "active" : ""}`} onClick={() => setView("drillall")}>
             <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Drill All
           </button>
@@ -1639,6 +2337,386 @@ function PerformanceQuizView({ onBack }) {
   );
 }
 
+function ManeuversView({ onBack, onDrillTask }) {
+  const [openTask, setOpenTask] = useState(null);
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>MANEUVERS</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        PRIVATE AMEL ACS · TASK BREAKDOWN
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {MANEUVERS.tasks.map((task, i) => {
+          const isOpen = openTask === task.id;
+          return (
+            <div key={task.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+              <button
+                onClick={() => setOpenTask(isOpen ? null : task.id)}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  background: "transparent",
+                  border: "none",
+                  padding: "12px 14px",
+                  cursor: "pointer",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "JetBrains Mono, monospace",
+                  color: TEXT,
+                }}
+              >
+                <span>
+                  <span style={{ color: TEXT_DIM, fontSize: 10, letterSpacing: "0.12em", marginRight: 8 }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{task.name}</span>
+                </span>
+                <ChevronRight size={14} style={{ color: TEXT_DIM, transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s", flexShrink: 0 }} />
+              </button>
+              {isOpen && (
+                <div style={{ padding: "0 14px 14px 14px", borderTop: `1px solid ${BORDER}` }}>
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>ACS STANDARDS</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: TEXT, fontWeight: 500 }}>
+                      {task.acs.standards.map((s, j) => <li key={j}>{s}</li>)}
+                    </ul>
+                    <div style={{ marginTop: 8, fontSize: 12, color: TEXT_DIM, fontStyle: "italic" }}>
+                      <span style={{ color: AMBER, letterSpacing: "0.08em", fontWeight: 700, fontStyle: "normal" }}>TOLERANCES: </span>
+                      {task.acs.tolerances}
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>PROCEDURE FLOW</div>
+                    <ol style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.65, color: TEXT, fontWeight: 500 }}>
+                      {task.flow.map((step, j) => (
+                        step === "" ? <li key={j} style={{ listStyle: "none", height: 4 }} /> :
+                        <li key={j} style={{ marginBottom: 2 }}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.15em", color: RED, fontWeight: 700, marginBottom: 6 }}>COMMON ERRORS</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: TEXT, fontWeight: 500 }}>
+                      {task.commonErrors.map((e, j) => <li key={j}>{e}</li>)}
+                    </ul>
+                  </div>
+
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 6 }}>EXAMINER GOTCHAS</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: TEXT, fontWeight: 500 }}>
+                      {task.examinerGotchas.map((e, j) => <li key={j}>{e}</li>)}
+                    </ul>
+                  </div>
+
+                  {task.quiz && task.quiz.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      <button className="me-button cyan" onClick={() => onDrillTask(task.id)}>
+                        <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
+                        Drill {task.name} ({task.quiz.length} {task.quiz.length === 1 ? "question" : "questions"})
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ManeuverQuizView({ taskId, onBack }) {
+  const task = useMemo(() => MANEUVERS.tasks.find(t => t.id === taskId), [taskId]);
+  const topic = useMemo(() => ({
+    id: `maneuver-quiz-${taskId}`,
+    title: task ? task.name : "Maneuver",
+    summary: "Maneuver-specific drill",
+    quiz: task ? task.quiz : [],
+  }), [taskId, task]);
+
+  if (!task) return null;
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back to Maneuvers
+      </button>
+      <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4 }}>{task.name.toUpperCase()} · DRILL</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
+        ACS TASK · QUESTIONS DRAWN FROM PROCEDURE FLOW + COMMON ERRORS
+      </div>
+      <DrillMode topic={topic} onQuizComplete={() => {}} />
+    </div>
+  );
+}
+
+function OralPrepView({ onBack }) {
+  const [tab, setTab] = useState("areas");
+  const [openArea, setOpenArea] = useState(null);
+  const [openQ, setOpenQ] = useState({});
+  const [openScenario, setOpenScenario] = useState(null);
+  const [openSQ, setOpenSQ] = useState({});
+  const [scenarioStatus, setScenarioStatus] = useState({});
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>ORAL EXAM PREP</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        AREAS OF OPERATION + CROSS-TOPIC SCENARIOS
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+        <button className={`me-button ${tab === "areas" ? "active" : ""}`} onClick={() => setTab("areas")}>
+          Areas of Operation
+        </button>
+        <button className={`me-button cyan ${tab === "scenarios" ? "active" : ""}`} onClick={() => setTab("scenarios")}>
+          Scenarios
+        </button>
+      </div>
+
+      {tab === "areas" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {ORAL.areas.map((area) => {
+            const isOpen = openArea === area.id;
+            return (
+              <div key={area.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+                <button
+                  onClick={() => setOpenArea(isOpen ? null : area.id)}
+                  style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontFamily: "JetBrains Mono, monospace", color: TEXT }}
+                >
+                  <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{area.name}</span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em" }}>{area.questions.length} Q</span>
+                    <ChevronRight size={14} style={{ color: TEXT_DIM, transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s" }} />
+                  </span>
+                </button>
+                {isOpen && (
+                  <div style={{ padding: "0 14px 14px 14px", borderTop: `1px solid ${BORDER}` }}>
+                    {area.questions.map((qa, i) => {
+                      const key = `${area.id}__${i}`;
+                      const qOpen = !!openQ[key];
+                      return (
+                        <div key={i} style={{ marginTop: 10, paddingTop: 10, borderTop: i === 0 ? "none" : `1px dashed ${BORDER}` }}>
+                          <button
+                            onClick={() => setOpenQ(prev => ({ ...prev, [key]: !prev[key] }))}
+                            style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13.5, lineHeight: 1.55, fontWeight: 600, display: "flex", gap: 8, alignItems: "flex-start" }}
+                          >
+                            <ChevronRight size={12} style={{ color: TEXT_DIM, marginTop: 4, transform: qOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s", flexShrink: 0 }} />
+                            <span>{qa.q}</span>
+                          </button>
+                          {qOpen && (
+                            <div style={{ marginTop: 8, marginLeft: 20, padding: "10px 12px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", fontSize: 13, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>
+                              {qa.a}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === "scenarios" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {ORAL.scenarios.map((sc) => {
+            const isOpen = openScenario === sc.id;
+            const status = scenarioStatus[sc.id];
+            return (
+              <div key={sc.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${status === "got" ? "#40dc8c" : status === "review" ? AMBER : CYAN}`, borderRadius: "0 3px 3px 0", padding: "14px 16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                  <div className="me-glow-amber" style={{ fontWeight: 700, fontSize: 15 }}>{sc.title}</div>
+                  {status && (
+                    <span style={{ fontSize: 10, color: status === "got" ? "#40dc8c" : AMBER, letterSpacing: "0.12em", fontWeight: 700, textTransform: "uppercase" }}>
+                      {status === "got" ? "✓ Got it" : "⟳ Review"}
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 12.5, color: TEXT_DIM, fontStyle: "italic", lineHeight: 1.55, marginBottom: 12 }}>
+                  {sc.setup}
+                </div>
+                <div style={{ fontSize: 10, letterSpacing: "0.12em", color: TEXT_DIM, marginBottom: 6 }}>
+                  CROSS-TOPICS: <span style={{ color: CYAN, fontWeight: 700 }}>{sc.crossTopics.join(" · ")}</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
+                  {sc.questions.map((q, i) => {
+                    const key = `${sc.id}__${i}`;
+                    const qOpen = !!openSQ[key];
+                    return (
+                      <div key={i}>
+                        <button
+                          onClick={() => setOpenSQ(prev => ({ ...prev, [key]: !prev[key] }))}
+                          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "4px 0", cursor: "pointer", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13, lineHeight: 1.5, fontWeight: 500, display: "flex", gap: 8, alignItems: "flex-start" }}
+                        >
+                          <span style={{ color: AMBER, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                          <span>{q}</span>
+                        </button>
+                        {qOpen && (
+                          <div style={{ marginTop: 6, marginLeft: 18, padding: "10px 12px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", fontSize: 12.5, lineHeight: 1.65, color: TEXT_DIM, fontStyle: "italic" }}>
+                            This scenario requires synthesizing topics: <span style={{ color: CYAN, fontStyle: "normal", fontWeight: 700 }}>{sc.crossTopics.join(", ")}</span>. Walk through your answer out loud as if you were responding to the examiner. Compare your answer to the model when you've worked through it.
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <button
+                    className="me-button"
+                    style={{ borderColor: status === "got" ? "#40dc8c" : BORDER, color: status === "got" ? "#40dc8c" : TEXT }}
+                    onClick={() => setScenarioStatus(prev => ({ ...prev, [sc.id]: prev[sc.id] === "got" ? null : "got" }))}
+                  >
+                    <Check size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />I got this
+                  </button>
+                  <button
+                    className="me-button"
+                    style={{ borderColor: status === "review" ? AMBER : BORDER, color: status === "review" ? AMBER : TEXT }}
+                    onClick={() => setScenarioStatus(prev => ({ ...prev, [sc.id]: prev[sc.id] === "review" ? null : "review" }))}
+                  >
+                    <RotateCcw size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Need to review
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReferenceView({ onBack }) {
+  const [section, setSection] = useState("regs");
+  const [filter, setFilter] = useState("");
+  const filteredRegs = useMemo(() => {
+    const f = filter.trim().toLowerCase();
+    if (!f) return REFERENCE.regulations;
+    return REFERENCE.regulations.filter(r =>
+      r.reg.toLowerCase().includes(f) ||
+      r.title.toLowerCase().includes(f) ||
+      r.note.toLowerCase().includes(f)
+    );
+  }, [filter]);
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>QUICK REFERENCE</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        REGS · W&amp;B · EMERGENCY MEMORY ITEMS
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+        <button className={`me-button ${section === "regs" ? "active" : ""}`} onClick={() => setSection("regs")}>Regulations</button>
+        <button className={`me-button cyan ${section === "wb" ? "active" : ""}`} onClick={() => setSection("wb")}>Weight &amp; Balance</button>
+        <button className={`me-button cyan ${section === "emergency" ? "active" : ""}`} onClick={() => setSection("emergency")}>Emergency Memory</button>
+      </div>
+
+      {section === "regs" && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, padding: "8px 12px", background: PANEL_2, border: `1px solid ${BORDER}`, borderRadius: 3 }}>
+            <Search size={14} style={{ color: TEXT_DIM, flexShrink: 0 }} />
+            <input
+              type="text"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filter by reg, title, or content..."
+              style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13 }}
+            />
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table className="me-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 90 }}>Reg</th>
+                  <th style={{ width: 200 }}>Title</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRegs.map((r, i) => (
+                  <tr key={i}>
+                    <td style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, color: AMBER }}>§{r.reg}</td>
+                    <td style={{ fontWeight: 600, color: TEXT, fontSize: 12.5 }}>{r.title}</td>
+                    <td style={{ fontSize: 12, color: TEXT, lineHeight: 1.55, fontWeight: 500 }}>{r.note}</td>
+                  </tr>
+                ))}
+                {filteredRegs.length === 0 && (
+                  <tr>
+                    <td colSpan={3} style={{ fontSize: 12, color: TEXT_DIM, fontStyle: "italic", textAlign: "center", padding: 18 }}>
+                      No regulations match "{filter}".
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {section === "wb" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CYAN}`, padding: "14px 16px", borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 8 }}>PROCEDURE</div>
+            <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.7, fontWeight: 500, whiteSpace: "pre-wrap" }}>
+              {REFERENCE.weightBalance.procedure}
+            </div>
+          </div>
+
+          <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, padding: "14px 16px", borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 8 }}>PA-30 TYPICAL NUMBERS</div>
+            <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.7, fontWeight: 500 }}>
+              {REFERENCE.weightBalance.pa30typical}
+            </div>
+          </div>
+
+          <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${RED}`, padding: "14px 16px", borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.15em", color: RED, fontWeight: 700, marginBottom: 8 }}>EXAMINER WILL ASK</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: TEXT, lineHeight: 1.7, fontWeight: 500 }}>
+              {REFERENCE.weightBalance.examinerWillAsk.map((q, i) => <li key={i}>{q}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {section === "emergency" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ fontSize: 11, color: TEXT_DIM, letterSpacing: "0.12em", marginBottom: 4 }}>
+            MEMORIZE EVERY ITEM. BOLD MEANS COMMIT TO MUSCLE MEMORY.
+          </div>
+          {REFERENCE.emergencyMemoryItems.map((em, i) => (
+            <div key={i} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `4px solid ${RED}`, padding: "14px 16px", borderRadius: "0 3px 3px 0" }}>
+              <div style={{ fontSize: 14, color: TEXT, fontWeight: 700, marginBottom: 10, letterSpacing: "0.04em" }}>
+                <AlertTriangle size={14} style={{ display: "inline", color: RED, marginRight: 8, verticalAlign: "-2px" }} />
+                {em.emergency.toUpperCase()}
+              </div>
+              <ol style={{ margin: 0, paddingLeft: 22, fontSize: 13, color: TEXT, lineHeight: 1.75, fontWeight: 500 }}>
+                {em.items.map((step, j) => <li key={j}>{step}</li>)}
+              </ol>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HomeView({ progress, perTopicProgress, onSelectTopic }) {
   const iconMap = { BookOpen, Plane, Target, Wrench, Award };
   return (
@@ -2104,6 +3182,18 @@ function buildAllQuestions() {
       _kind: "performance",
     });
   });
+  // Include per-maneuver questions
+  MANEUVERS.tasks.forEach((task) => {
+    (task.quiz || []).forEach((q, qi) => {
+      all.push({
+        ...q,
+        _id: `maneuver_${task.id}__${qi}`,
+        _topic: task.name,
+        _day: "Maneuvers",
+        _kind: "maneuver",
+      });
+    });
+  });
   return all;
 }
 
@@ -2331,9 +3421,10 @@ function Stat({ label, value, color }) {
 // =====================================================================
 
 export default function App() {
-  const [view, setView] = useState("home"); // home, topic, vspeeds, vmctable
+  const [view, setView] = useState("home");
   const [activeTopic, setActiveTopic] = useState(null);
   const [activeKind, setActiveKind] = useState(null);
+  const [activeManeuverId, setActiveManeuverId] = useState(null);
   const [mode, setMode] = useState("learn");
   const [perTopicProgress, setPerTopicProgress] = useState({});
 
@@ -2408,6 +3499,21 @@ export default function App() {
         )}
         {view === "performancequiz" && (
           <PerformanceQuizView onBack={() => setView("performance")} />
+        )}
+        {view === "maneuvers" && (
+          <ManeuversView
+            onBack={() => setView("home")}
+            onDrillTask={(taskId) => { setActiveManeuverId(taskId); setView("maneuverquiz"); }}
+          />
+        )}
+        {view === "maneuverquiz" && activeManeuverId && (
+          <ManeuverQuizView taskId={activeManeuverId} onBack={() => setView("maneuvers")} />
+        )}
+        {view === "oral" && (
+          <OralPrepView onBack={() => setView("home")} />
+        )}
+        {view === "reference" && (
+          <ReferenceView onBack={() => setView("home")} />
         )}
         {view === "drillall" && (
           <DrillAllView onBack={() => setView("home")} />
