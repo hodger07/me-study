@@ -50,10 +50,32 @@ async function loadProgressRemote(userId) {
     const res = await fetch(`/api/load-progress?userId=${encodeURIComponent(userId)}`);
     if (!res.ok) throw new Error("Load failed");
     const data = await res.json();
-    return data.progress;
+    return { ok: true, progress: data.progress };
   } catch (e) {
     console.warn("Remote load failed:", e);
+    return { ok: false, progress: null };
+  }
+}
+
+function localKey(userId) {
+  return `me-study:progress:${userId}`;
+}
+
+function loadProgressLocal(userId) {
+  try {
+    const raw = localStorage.getItem(localKey(userId));
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
     return null;
+  }
+}
+
+function saveProgressLocal(userId, progress) {
+  try {
+    localStorage.setItem(localKey(userId), JSON.stringify(progress));
+  } catch (e) {
+    /* quota or disabled — silently ignore */
   }
 }
 
@@ -3494,28 +3516,42 @@ export default function App() {
   const [syncStatus, setSyncStatus] = useState("loading"); // "loading" | "synced" | "saving" | "offline"
   const [showWelcome, setShowWelcome] = useState(false);
 
-  // Load remote progress on mount / userId change
+  // Load progress on mount / userId change. Try remote first, fall back to localStorage.
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const local = loadProgressLocal(userId);
       const remote = await loadProgressRemote(userId);
       if (cancelled) return;
-      if (remote && remote.perTopicProgress) {
-        setPerTopicProgress(remote.perTopicProgress);
-      } else {
-        setShowWelcome(true);
+
+      if (remote.ok && remote.progress && remote.progress.perTopicProgress) {
+        setPerTopicProgress(remote.progress.perTopicProgress);
+        setSyncStatus("synced");
+        return;
       }
-      setSyncStatus("synced");
+
+      if (!remote.ok && local && local.perTopicProgress) {
+        // Remote unreachable — restore from local cache, mark offline
+        setPerTopicProgress(local.perTopicProgress);
+        setSyncStatus("offline");
+        return;
+      }
+
+      // No remote data and no local cache — first-time visitor
+      setShowWelcome(true);
+      setSyncStatus(remote.ok ? "synced" : "offline");
     })();
     return () => { cancelled = true; };
   }, [userId]);
 
-  // Save remote progress on change (debounced)
+  // Save progress on change (debounced). Always write localStorage, then try remote.
   useEffect(() => {
     if (syncStatus === "loading") return;
+    const payload = { perTopicProgress };
+    saveProgressLocal(userId, payload);
     const handle = setTimeout(async () => {
       setSyncStatus("saving");
-      const ok = await saveProgressRemote(userId, { perTopicProgress });
+      const ok = await saveProgressRemote(userId, payload);
       setSyncStatus(ok ? "synced" : "offline");
     }, 500);
     return () => clearTimeout(handle);
