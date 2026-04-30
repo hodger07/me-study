@@ -101,6 +101,128 @@ const VMC_TABLE = [
   { factor: "High DA",                              perf: "↓",  perfNote: "",                      ctrl: "↑",  ctrlNote: "− PAST",              vmc: "↓" },
 ];
 
+// ---------- VMC MASTERY (120 questions, 3 tiers) ----------
+const VMC_MASTERY = {
+  tiers: [
+    {
+      id: "foundations",
+      level: 1,
+      name: "Tier 1 — Foundations",
+      blurb: "Direct factor lookups. Lock in the core relationships before reasoning about combinations.",
+      questions: [
+        { q: "Effect of HIGH DENSITY ALTITUDE on Vmc?", a: ["Vmc increases", "Vmc decreases (less power, less PAST)", "No effect", "Only changes with weight"], correct: 1, type: "lookup", explain: "Less air = less power available from operating engine = less asymmetric thrust = less rudder needed. Vmc decreases. The trap: actual Vmc may drop below stall speed, so airplane stalls before losing directional control." },
+        { q: "Effect of LOW DENSITY ALTITUDE (standard day, sea level) on Vmc?", a: ["Vmc decreases", "Vmc increases (full power available, more PAST)", "No effect", "Only matters with engine failure"], correct: 1, type: "lookup", explain: "Sea level standard day = engine produces full rated power = maximum PAST = maximum asymmetric thrust to overcome = highest Vmc. This is the certification basis." },
+        { q: "Effect of OPERATING ENGINE AT MAX POWER on Vmc?", a: ["Vmc decreases", "Vmc increases (more PAST)", "No effect", "Only on takeoff"], correct: 1, type: "lookup", explain: "More power on the live engine = more asymmetric thrust = more rudder needed to control = higher Vmc. Vmc recovery procedure is to REDUCE power on operating engine — directly leverages this relationship." },
+        { q: "Effect of REDUCING POWER on operating engine on Vmc?", a: ["Vmc decreases", "Vmc increases", "No change", "Doubles Vmc"], correct: 0, type: "lookup", explain: "Less power = less PAST = less asymmetric thrust = lower Vmc. This is the entire basis of Vmc recovery: when you encounter loss of control, REDUCE power and the airplane becomes controllable again." },
+        { q: "Effect of MAX GROSS WEIGHT on Vmc?", a: ["Vmc increases", "Vmc decreases (more inertia + horizontal lift when banked)", "No effect", "Doubles Vmc"], correct: 1, type: "lookup", explain: "Heavier airplane = more inertia resisting yaw + larger horizontal lift component when banked toward operating engine. Both lower Vmc. But performance also tanks. Vmc and performance moving opposite directions on weight is a key examiner trap." },
+        { q: "Effect of LIGHTER WEIGHT on Vmc?", a: ["Vmc decreases", "Vmc increases", "No effect", "Same as max gross"], correct: 1, type: "lookup", explain: "Less inertia + smaller horizontal lift component when banked = less resistance to yaw = higher Vmc. Lighter is BETTER for climb performance but WORSE for Vmc. This is why the certification standard uses 'most unfavorable weight' — generally lighter — for the worst-case Vmc." },
+        { q: "Effect of AFT CG on Vmc?", a: ["Vmc decreases", "Vmc increases (shorter rudder arm)", "No effect", "Same as forward CG"], correct: 1, type: "lookup", explain: "Aft CG shortens the moment arm between CG and rudder. Less rudder authority for the same deflection. Need more airspeed to generate enough rudder force = higher Vmc." },
+        { q: "Effect of FORWARD CG on Vmc?", a: ["Vmc decreases (longer rudder arm)", "Vmc increases", "No effect", "Same as aft CG"], correct: 0, type: "lookup", explain: "Forward CG = longer moment arm = more rudder authority for same deflection = lower Vmc. This is why operationally, weighting forward helps single-engine controllability (though performance penalty exists from longer trim drag)." },
+        { q: "Effect of BANK 5° TOWARD OPERATING ENGINE on Vmc?", a: ["Vmc increases", "Vmc decreases (horizontal lift component opposes yaw)", "No effect", "Only matters above 5,000 ft"], correct: 1, type: "lookup", explain: "Banking creates a horizontal lift component that physically opposes the asymmetric yaw. Plus reduces sideslip drag. The ONE factor that helps both Vmc AND performance — that's why 'raise the dead, ½ ball, ~2° bank' is post-failure muscle memory." },
+        { q: "Effect of BANK TOWARD DEAD ENGINE on Vmc?", a: ["Vmc decreases", "Vmc increases significantly (compounds the asymmetric yaw)", "No effect", "Same as wings level"], correct: 1, type: "lookup", explain: "Banking toward the dead engine puts the horizontal lift component working WITH the asymmetric yaw, not against it. Vmc rises sharply. NEVER bank toward the dead engine after engine failure." },
+        { q: "Effect of WINGS LEVEL (zero bank) with one engine out on Vmc?", a: ["Vmc decreases vs banked", "Vmc increases vs banked toward operating engine (no horizontal lift to oppose yaw)", "No effect", "Same as both engines running"], correct: 1, type: "lookup", explain: "Wings level = no horizontal lift component to counter yaw. Vmc is higher than the banked-toward-operating case. The certification spec allows up to 5° bank toward operating engine specifically because this lowers the published Vmc." },
+        { q: "Effect of WINDMILLING propeller on the dead engine on Vmc?", a: ["Vmc decreases (less drag)", "Vmc increases (more drag, more asymmetric force)", "No effect", "Only matters with gear up"], correct: 1, type: "lookup", explain: "Windmilling prop produces enormous drag — more than gear extended. That drag adds to the asymmetric force already present from the live engine, raising Vmc. Worst-case condition assumed in cert standard." },
+        { q: "Effect of FEATHERED propeller on the dead engine on Vmc?", a: ["Vmc decreases (drag reduced)", "Vmc increases", "No effect", "Only matters above 5,000 ft"], correct: 0, type: "lookup", explain: "Feathering eliminates ~80% of the windmilling drag. Less asymmetric force = lower Vmc. Plus better climb performance. Why the engine-failure flow prioritizes feathering quickly." },
+        { q: "Effect of GEAR UP / FLAPS UP (clean takeoff config) on Vmc?", a: ["Vmc decreases", "Vmc increases (less keel/fin effect, less rudder authority from flap-blown air)", "No effect", "Same as gear down"], correct: 1, type: "lookup", explain: "Gear and flaps act as 'keel' surfaces that add directional stability. Clean config = less keel = need more airspeed to maintain control. Cert standard uses clean config = higher published Vmc." },
+        { q: "Effect of GEAR DOWN / FLAPS DOWN on Vmc?", a: ["Vmc decreases (more keel/fin effect)", "Vmc increases", "No effect", "Doubles Vmc"], correct: 0, type: "lookup", explain: "Extended gear/flaps = more vertical surface area resisting yaw = lower Vmc. But MASSIVE drag penalty kills climb performance. So even though gear-down lowers Vmc, you clean up after engine failure for the climb performance." },
+        { q: "Effect of CRITICAL ENGINE INOP (windmilling) on Vmc — does Vmc apply?", a: ["No, Vmc only applies with both engines running", "Yes — Vmc IS the speed below which one-engine-out control is lost", "Only on takeoff", "Only on landing"], correct: 1, type: "lookup", explain: "Vmc is BY DEFINITION the minimum control speed with the critical engine inoperative. Vmc is the airspeed below which the rudder cannot overcome asymmetric thrust from one engine at full power." },
+        { q: "Vmc is marked on the airspeed indicator as a:", a: ["Blue radial line", "Red radial line", "Yellow arc", "White arc"], correct: 1, type: "lookup", explain: "RED radial line. Mnemonic: Red = Dead (below Vmc with engine out, the airplane becomes uncontrollable). Blue = Best (Vyse, single-engine best rate of climb)." },
+        { q: "Vyse is marked as what color radial?", a: ["Red", "Blue", "Green", "White"], correct: 1, type: "lookup", explain: "BLUE radial. Vyse = best rate of climb single-engine. After identify-verify-feather, your sole pitch target is blue line." },
+        { q: "Per certification, the inoperative engine in Vmc determination is assumed to be:", a: ["Feathered", "Windmilling", "At idle", "Shut down with prop stopped"], correct: 1, type: "lookup", explain: "Windmilling — the worst-case drag condition. Feathering would lower actual Vmc below the published red line, which is why feathering quickly in real life is so beneficial." },
+        { q: "Per certification, the gear and flaps are assumed to be:", a: ["Gear down, flaps full", "Gear up, flaps in takeoff position", "Gear up, flaps up", "Gear down, flaps up"], correct: 1, type: "lookup", explain: "Gear UP, flaps in TAKEOFF position. Represents the most-likely engine-failure scenario (just after liftoff, before clean-up complete)." },
+        { q: "Maximum bank angle assumed in Vmc certification?", a: ["0°", "Up to 5° toward the operating engine", "10° toward the dead engine", "15° wings level"], correct: 1, type: "lookup", explain: "14 CFR §23.149: up to 5° bank toward the OPERATING engine. The horizontal lift component lowers the determined Vmc — without this bank allowance, published Vmc would be unworkably high." },
+        { q: "Per certification, weight assumed for Vmc determination is:", a: ["Maximum gross", "Most unfavorable (typically lighter)", "Empty weight", "Mid-range"], correct: 1, type: "lookup", explain: "Most unfavorable. For Vmc, lighter = higher Vmc (less inertia, less horizontal lift when banked), so cert uses lighter weight. The 'most unfavorable' phrasing is in the regulation." },
+        { q: "Per certification, CG assumed for Vmc determination is:", a: ["Forward limit", "Most unfavorable (typically aft)", "Mid-range", "Empty weight CG"], correct: 1, type: "lookup", explain: "Most unfavorable, typically aft — shortens rudder arm, reduces rudder authority, raises Vmc. Cert standard always picks the worst-case, so the published red line is conservative." },
+        { q: "Per certification, the operating engine is at:", a: ["Cruise power", "Maximum takeoff power", "Idle", "75% power"], correct: 1, type: "lookup", explain: "Maximum takeoff power — produces the most asymmetric thrust = highest rudder demand = highest Vmc. Worst-case assumption." },
+        { q: "Per certification, density altitude condition assumed:", a: ["High DA (10,000 ft)", "Standard day at sea level", "Service ceiling", "Density altitude doesn't matter"], correct: 1, type: "lookup", explain: "Standard day, sea level. Where engine makes full rated power. At altitude, less power = less PAST = lower actual Vmc, but the published red line stays put." },
+        { q: "On a conventional twin (both props clockwise from pilot view), the critical engine is the:", a: ["Right engine", "Left engine", "Either", "Neither"], correct: 1, type: "lookup", explain: "LEFT engine. PAST puts each engine's effective thrust line on its right side; geometry makes the right engine's thrust farther from centerline. Lose the left and the right's longer arm produces a bigger yawing moment." },
+        { q: "On a counter-rotating twin (e.g., PA-39), the critical engine is the:", a: ["Right engine", "Left engine", "Neither — counter-rotation cancels asymmetry", "Both"], correct: 2, type: "lookup", explain: "Neither. Counter-rotating props mirror PAST effects, so thrust geometry is symmetric about centerline. Neither engine is critical." },
+        { q: "P-A-S-T stands for:", a: ["P-factor, Asymmetric thrust, Slipstream, Torque", "P-factor, Accelerated slipstream, Spiraling slipstream, Torque", "Power, Airflow, Spin, Throttle", "Pitch, Angle, Speed, Trim"], correct: 1, type: "lookup", explain: "The four left-yawing tendencies in any propeller airplane. In a twin, these are why the LEFT engine is critical and why operating engine power affects controllability." },
+        { q: "If Vmc on a twin is published as 80 mph, can actual Vmc be lower than 80 mph in flight?", a: ["No, never", "Yes — at altitude (less power available, less PAST)", "Only with feathered prop", "Only on cold days"], correct: 1, type: "lookup", explain: "Actual Vmc decreases with altitude because the engine can't produce full rated power. Real Vmc may drop well below 80 mph at 8,000 ft DA. The danger: actual Vmc may even drop below stall speed, meaning the airplane stalls without warning of Vmc approach." },
+        { q: "Can actual Vmc ever be higher than the published red line?", a: ["No, never — published is conservative for normal ops", "Yes, with windmilling prop and aft CG combined", "Yes, on hot days", "Always at altitude"], correct: 0, type: "lookup", explain: "No. The cert standard uses the worst-case combination of factors, so published Vmc is conservative. Any real-world deviation from the cert assumptions either lowers Vmc or doesn't change it. (Some training literature debates edge cases, but for ACS oral the answer is 'no.')" },
+      ],
+    },
+    {
+      id: "reasoning",
+      level: 2,
+      name: "Tier 2 — Reasoning",
+      blurb: "Reverse questions, combinations, rule application. You can't unlock without 100% on Tier 1.",
+      questions: [
+        { q: "Vmc DECREASED but you didn't change weight or CG. Most likely change?", a: ["You climbed to higher altitude (less power available, less PAST)", "You gained weight", "You shifted CG aft", "Wings rolled level"], correct: 0, type: "reverse", explain: "Of the standard Vmc factors, only altitude/DA changes Vmc without you actively changing weight, CG, or configuration. Higher altitude → less power → less PAST → lower Vmc." },
+        { q: "Vmc INCREASED. The pilot states they did not change power, configuration, or altitude. Most likely cause?", a: ["Burned fuel = lighter weight", "Forward CG shift", "Banked harder toward operating engine", "Outside air temperature dropped"], correct: 0, type: "reverse", explain: "Burning fuel reduces weight. Lighter = less inertia + less horizontal lift = higher Vmc. The classic 'I'm flying lighter and Vmc went up' scenario." },
+        { q: "Single-engine performance is degrading but Vmc is unchanged. Most likely?", a: ["Climbed to high altitude (Vmc would also drop, contradicts)", "Gear and flaps now extended (drag = perf ↓, but keel effect lowers Vmc — contradicts)", "Engine output of operating engine fading from heat soak (Vmc would also fall)", "Trick question — these two move together; if perf drops, something is also affecting Vmc"], correct: 3, type: "reverse", explain: "This is a CFI-level question. Performance and controllability/Vmc are linked through power. If single-engine performance drops, it's almost certainly because of less power being produced, which would also reduce PAST → reduce Vmc. So 'perf down, Vmc unchanged' is essentially contradictory in real conditions." },
+        { q: "After feathering, single-engine climb dramatically improved AND Vmc dropped. Why both?", a: ["Coincidence", "Feathering reduced drag (perf ↑) AND reduced asymmetric force (Vmc ↓) — same physical change drives both", "The pilot also shifted CG forward", "Altitude must have changed"], correct: 1, type: "reverse", explain: "ONE physical change (windmilling → feathered) drives both improvements. Drag drops dramatically AND the asymmetric force from the dead engine drops. This is why feathering is the highest-leverage post-failure action." },
+        { q: "Pilot reports symmetric airplane behavior with one engine windmilling — no yaw. Most likely?", a: ["The airplane is fully feathered, not windmilling", "The pilot is flying below Vmc and has lost control already", "The airplane is at zero airspeed", "Both engines are actually running normally"], correct: 3, type: "reverse", explain: "With one engine truly windmilling at high power on the other side, there WILL be asymmetric yaw — that's basic physics. If there's no yaw, the most likely explanation is the dead engine isn't actually dead. Verify before feathering." },
+        { q: "On a hot day at altitude, the airplane stalls instead of giving you a Vmc roll warning. Why?", a: ["The airplane is broken", "Actual Vmc dropped below stall speed (less power = lower Vmc; stall speed unchanged with altitude)", "Stall speed went up at altitude", "It's not actually stalling"], correct: 1, type: "reverse", explain: "Stall speed is purely about airflow over the wing — same indicated airspeed at any altitude. Vmc decreases at altitude because of reduced power. At enough altitude, real Vmc can drop below stall speed, so the airplane stalls before any Vmc warning. THE most dangerous twin scenario." },
+        { q: "Pilot has banked toward operating engine but Vmc still seems high. Most likely?", a: ["Bank angle is too small (need ~2°, ½ ball)", "Wings level — bank not actually achieved", "Bank is correct but ball is centered (sideslip still present, drag high)", "All of the above are possible diagnostic checks"], correct: 3, type: "reverse", explain: "All three are common errors that prevent zero-sideslip benefit. The fix is the same in all cases: ~2° bank toward operating engine, ball ½ split toward operating engine, NOT centered." },
+        { q: "Vmc went UP and weight went DOWN. What changed?", a: ["Altitude — lower altitude (more power available)", "Weight reduction directly raises Vmc (less inertia)", "Aft CG shift", "Operating engine power increased to max"], correct: 1, type: "reverse", explain: "Weight reduction directly RAISES Vmc — less inertia and less horizontal lift component when banked. Could also be combined with altitude or power changes, but the weight change alone explains Vmc going up." },
+        { q: "Vmc went UP but pilot didn't touch the power lever. The likely change is:", a: ["Burned fuel (lighter weight)", "Crossed into different airspace", "Time of day changed", "Magnetic deviation"], correct: 0, type: "reverse", explain: "Without changing power, altitude, or configuration, the most common cause of Vmc creep is fuel burn = weight loss = higher Vmc. CGs shift too as fuel burns, depending on tank arms — but weight is the dominant effect." },
+        { q: "After 30 minutes of single-engine flight, the pilot notices it takes more rudder to maintain heading even though airspeed is the same. Why?", a: ["Rudder cable stretched", "Fuel burn made the airplane lighter, raising Vmc, increasing required rudder", "Engine warmed up and is making more power", "Both engines are now running"], correct: 1, type: "reverse", explain: "Fuel burn = lighter weight = higher Vmc = at the same airspeed, you've effectively gotten closer to Vmc, so more rudder is needed. Sneaky real-world effect — reason cross-feeding is sometimes used to balance fuel and weight in long single-engine ops." },
+        { q: "Pilot increased altitude by 3,000 ft. Vmc dropped 5 mph. Then they shifted CG forward by re-stowing baggage. What likely happened to Vmc?", a: ["Dropped further (forward CG also lowers Vmc)", "Rose back up to baseline", "No change", "Vmc became zero"], correct: 0, type: "reverse", explain: "Both factors lower Vmc independently. They stack. Higher altitude (less power) AND forward CG (longer rudder arm) both decrease Vmc → combined effect is even lower Vmc." },
+        { q: "Vmc DROPPED below stall speed. What does this mean operationally?", a: ["Safer — the airplane will stall before losing directional control", "More dangerous — no Vmc warning before stall, and stall + windmilling engine = Vmc roll", "No practical difference", "Vmc is now irrelevant"], correct: 1, type: "reverse", explain: "MORE DANGEROUS. With Vmc above stall, you get a yaw warning as you slow toward Vmc — recoverable. With Vmc below stall, the airplane stalls with no warning, and a stalled airplane with one engine windmilling is a Vmc-roll/spin setup. This is the central altitude risk." },
+        { q: "Hot day (95°F) + max gross weight + aft CG. Net effect on Vmc vs a cool day at gross with mid CG?", a: ["Vmc significantly higher (all three raise Vmc)", "Vmc lower (heat dominates)", "Vmc roughly the same (effects cancel)", "Cannot determine without exact numbers"], correct: 2, type: "combined", explain: "Hot day = higher DA = LOWER Vmc. Max gross = LOWER Vmc. Aft CG = HIGHER Vmc. The first two pull Vmc down, the third pushes up. Roughly cancel for examiner-level reasoning. The actual answer depends on magnitudes, but the cancellation is the conceptual point." },
+        { q: "Light weight + forward CG + standard day SL. Effect on Vmc?", a: ["Lower than published red line", "Higher than published red line in some directions, lower in others", "Closer to published red line — these are roughly the cert conditions", "Vmc becomes negative"], correct: 2, type: "combined", explain: "These conditions are CLOSE to the cert assumptions: most unfavorable weight (lighter) and aft CG. Forward CG would actually be slightly LESS unfavorable for Vmc. So you're in the ballpark of the published red line — maybe slightly below it. Exact answer requires knowing how much forward CG offsets." },
+        { q: "Engine fails at 8,000 ft on a hot day. Pilot feathers, banks 2° toward operating engine, ball ½ split. Effect on Vmc compared to wings level?", a: ["Vmc roughly halved", "Vmc dropped significantly (~5-10 mph) below already-altitude-reduced Vmc", "Vmc unchanged at altitude", "Vmc went above stall speed"], correct: 1, type: "combined", explain: "Multiple factors stacking to lower Vmc: high altitude (less power available), feathered prop (less drag/asymmetric force), correct bank (horizontal lift opposing yaw). All push Vmc down. Real Vmc here may be 60 mph or less vs published 80." },
+        { q: "Engine fails at low altitude. Pilot pitches up to slow to Vyse, banks toward dead engine by mistake, doesn't feather. Combined effect?", a: ["Vmc drops dramatically", "Vmc rises significantly + performance kills - imminent loss of control", "Performance improves", "No change"], correct: 1, type: "combined", explain: "Three errors compounding: bank toward DEAD engine (raises Vmc), windmilling prop (raises Vmc + drag kills climb), pitching up to slow (approaching Vmc). This is exactly the chain that causes Vmc rolls and fatal accidents on engine failure." },
+        { q: "On the takeoff roll, you experience an engine failure 5 mph BELOW Vmc with 5,000 ft of runway remaining. Action?", a: ["Continue, climb out single-engine", "Abort — throttles idle, max braking", "Try to drift left to compensate", "Add power on the operating engine"], correct: 1, type: "combined", explain: "Below Vmc, no amount of remaining runway changes the fact that the airplane CAN'T be controlled airborne with one engine at takeoff power. ABORT, no exceptions. Every multi-engine briefing must commit to this rule before brake release." },
+        { q: "On takeoff, engine fails 10 mph ABOVE Vmc with 2,000 ft runway remaining. Action?", a: ["Land straight ahead", "Lift off, climb at Vyse", "Push throttles to red line", "Bank toward dead engine"], correct: 0, type: "combined", explain: "Above Vmc with runway remaining = LAND. Don't try to fly out of a problem when there's runway available. The runway is your friend — the airborne single-engine option is harder, more error-prone, and takes you away from the runway." },
+        { q: "Engine fails just after liftoff, gear retracted, no useable runway. You're 5 mph above Vmc. Pitch target?", a: ["Climb at Vy", "Climb at Vyse (blue line) ASAP", "Pitch DOWN slightly to gain margin above Vmc, then climb at Vyse", "Pull nose up sharply to avoid terrain"], correct: 2, type: "combined", explain: "5 mph above Vmc is dangerously thin. You need MORE airspeed margin first. Pitch down slightly to gain energy, get above Vyse, then begin climbing at Vyse. Trying to climb immediately at 5 above Vmc risks dropping below Vmc on the first turbulence bump = roll." },
+        { q: "After identifying and feathering the dead engine, you bank toward operating engine. Why does this help BOTH performance AND controllability?", a: ["Performance only", "Controllability only", "Bank reduces sideslip drag (perf ↑) AND adds horizontal lift component (Vmc ↓)", "It only helps controllability"], correct: 2, type: "combined", explain: "Bank is the ONE single input that helps both. Sideslip drops (less drag = better climb). Horizontal lift component opposes asymmetric yaw (lower Vmc, easier to control). 'Raise the dead, ½ ball.'" },
+        { q: "If you're at 9,500 ft DA and your weight is at gross, single-engine climb is 0 fpm. What happens to Vmc and stall speed in this configuration?", a: ["Vmc rose, stall dropped", "Vmc dropped (less power), stall speed unchanged at indicated airspeed", "Both rose", "Both dropped"], correct: 1, type: "combined", explain: "Stall speed (indicated) is unchanged with altitude — wing lift behavior is the same in any density. Vmc dropped because reduced power = reduced PAST. The trap: at this combination, real Vmc may be NEAR or BELOW stall speed — stall warning may come BEFORE Vmc warning." },
+        { q: "Single-engine, gear up, prop feathered, bank 2° toward op engine. Now extend gear. Net effect?", a: ["Climb performance drops dramatically + Vmc drops slightly (more keel)", "Climb performance improves + Vmc rises", "No change to either", "Climb performance improves significantly"], correct: 0, type: "combined", explain: "Gear extension = MASSIVE drag = climb performance drops. Slight Vmc reduction from extra keel/fin effect. Net: bad trade. Don't extend gear unless you're committed to landing." },
+        { q: "Pilot adds full power on operating engine and pitches UP to climb steeply. With one engine out, this combination drives Vmc:", a: ["DOWN — more power = better climb", "UP — full power increases PAST, slowing the airplane brings it closer to actual Vmc", "Unchanged", "Below stall speed"], correct: 1, type: "combined", explain: "Full power = more PAST = higher Vmc. Pitching up bleeds airspeed, getting closer to that elevated Vmc. This is one of the worst combinations — exactly how Vmc rolls happen. Recovery: REDUCE power AND pitch DOWN simultaneously." },
+        { q: "On a cool morning at light weight on a long Lubbock runway, an engine fails after liftoff. Compared to a hot afternoon at gross weight on the same runway:", a: ["Both scenarios are equivalently dangerous", "Cool/light morning is much safer — full performance available, Vmc behaves normally above stall, runway available", "Cool/light is more dangerous (Vmc higher)", "Hot/heavy is safer (Vmc lower)"], correct: 1, type: "combined", explain: "Cool morning at light weight = full single-engine climb available + Vmc above stall (controlled warning) + same runway = much better outcome. Even though Vmc is higher in the cool/light case, you have the climb performance to deal with it. Performance dominates Vmc as a safety factor in real engine-out scenarios." },
+        { q: "Examiner asks: 'Compare actual Vmc on a 95°F day at 5,000 ft DA at gross weight vs published red line of 80 mph.'", a: ["Actual is higher than 80", "Actual is lower than 80 (less power available, less PAST)", "Actual is exactly 80", "Cannot determine"], correct: 1, type: "combined", explain: "High DA + max gross weight both LOWER Vmc. Actual Vmc at these conditions is meaningfully below the published 80. The danger isn't that you'll exceed Vmc — it's that you may stall before any Vmc warning." },
+        { q: "Bank 5° toward dead engine, full power on operating, aft CG, gear up. Effect on Vmc:", a: ["Vmc dropped to safe levels", "Vmc spiked dramatically — every factor pushes Vmc up", "Performance improved", "Cannot determine"], correct: 1, type: "combined", explain: "Every single factor in that combination raises Vmc: bank toward dead (yaw augmenting), full power (max PAST), aft CG (less rudder authority), clean (less keel). This is essentially the recipe for an immediate Vmc roll." },
+        { q: "If Vmc went UP without changing power or config, the most likely cause is:", a: ["Burned fuel (lighter weight)", "Climbed to higher altitude", "Aft CG shift", "Both A and C"], correct: 3, type: "apply", explain: "Both lighter weight (less inertia, less horizontal lift) AND aft CG (shorter rudder arm) raise Vmc. Without changing power or configuration, these are the two most likely changes during cruise." },
+        { q: "If Vmc went DOWN without changing weight, CG, or configuration, the most likely cause is:", a: ["Climbed to higher altitude", "Lowered the gear", "Switched to heavier fuel", "Engine fire"], correct: 0, type: "apply", explain: "Without changing weight, CG, or config, altitude is the only factor left. Climbing reduces available power, reduces PAST, lowers Vmc." },
+        { q: "Pilot wants to LOWER Vmc as much as possible. Which combination achieves this best?", a: ["Light weight, forward CG, gear down, climb to altitude", "Heavy, aft CG, gear up, sea level", "Heavy, forward CG, gear down, high altitude, feathered", "Light, aft CG, gear up, sea level"], correct: 2, type: "apply", explain: "Stacking ALL Vmc-lowering factors: heavy (more inertia + horizontal lift), forward CG (longer rudder arm), gear down (more keel), high altitude (less power), feathered (less drag/asymmetric force). Combined effect: lowest possible Vmc." },
+        { q: "If you want Vmc to be HIGHEST (worst case), the combination is:", a: ["Cert standard conditions: light weight, aft CG, gear up, flaps takeoff, max power, windmilling, sea level", "Heavy weight, forward CG, sea level", "Just maximum power on a hot day", "Aft CG and full flaps"], correct: 0, type: "apply", explain: "The certification standard combination IS the worst case by design. The published red line represents these conditions. Any deviation in real-world operation typically lowers actual Vmc — this is why cert is conservative." },
+        { q: "Which factor is the ONLY one that helps BOTH performance and Vmc simultaneously?", a: ["Higher altitude", "Heavier weight", "Bank toward operating engine", "Forward CG"], correct: 2, type: "apply", explain: "Bank toward operating engine: reduces sideslip (perf ↑), adds horizontal lift (Vmc ↓). The other factors help one and hurt the other. This is why zero-sideslip technique is core after every engine failure." },
+        { q: "Examiner asks how to get the airplane MOST controllable after engine failure. Best procedure?", a: ["Add full power immediately", "Feather, bank ~2° toward operating engine, ball ½ split, maintain Vyse", "Pull nose up to slow flight", "Lower gear and flaps for keel effect"], correct: 1, type: "apply", explain: "Feather (drag/asymmetric force ↓ = Vmc ↓), bank toward op engine (horizontal lift = Vmc ↓), Vyse (best climb). This is the textbook post-failure configuration. Adding gear/flaps for keel would hurt performance more than help Vmc." },
+        { q: "If a pilot wants to demonstrate Vmc as defined in §23.149, they would:", a: ["Configure for max Vmc (cert conditions) and approach loss of control at altitude", "Configure for min Vmc to be safe", "Perform at cruise altitude only", "Use feathered prop"], correct: 0, type: "apply", explain: "Vmc demo replicates cert conditions (or close to them) to show the loss-of-control onset. Idle/zero-thrust on dead engine, full power on op engine, gear up, flaps takeoff, slowing toward Vmc with up to 5° bank. ALWAYS at safe altitude (≥3,000 AGL)." },
+        { q: "If actual Vmc is found to be lower than published red line in flight, the safe interpretation is:", a: ["The red line is wrong, recalibrate", "Published Vmc is for worst case; real Vmc is lower in normal ops, but the red line is still your reference", "Ignore the red line", "Vmc has no meaning"], correct: 1, type: "apply", explain: "Real Vmc < published is normal — published is conservative. Always reference the red line as your operational minimum. The exception is the 'Vmc below stall' situation at altitude, where the trap is the airplane STALLS before yaw warning." },
+        { q: "Real-world post-failure procedure that uses Vmc-factor knowledge:", a: ["Feather (Vmc ↓), bank 2° toward operating (Vmc ↓), maintain Vyse (best climb)", "Add full power, pitch up", "Lower gear, full flaps", "Bank toward dead engine"], correct: 0, type: "apply", explain: "Each step has both controllability and performance rationale. Feathering eliminates 80% of the asymmetric drag and force. Bank uses horizontal lift to oppose yaw. Vyse maximizes climb on remaining engine. All together = safest post-failure configuration." },
+        { q: "Operating engine fails, you confirm dead foot dead engine, slowly retard the suspected dead throttle, and the yaw GETS WORSE. What does this tell you?", a: ["Confirmed dead engine — feather it", "You retarded the GOOD engine — push that throttle back forward immediately", "Both engines failed", "Carb ice"], correct: 1, type: "apply", explain: "If retarding a throttle WORSENS yaw, you grabbed the WORKING engine. Push it forward fast. This is the entire point of VERIFY before FEATHER — prevents shutting down the only working engine." },
+        { q: "Pilot reports successful single-engine ILS at 8,500 ft DA. After landing, why was that approach manageable?", a: ["Vmc was lower at altitude", "Lower power requirement on operating engine + zero-sideslip technique + delayed gear extension", "ATC provided extra vectors", "Wing didn't stall"], correct: 1, type: "apply", explain: "Zero-sideslip + delaying gear-down (until landing assured) + careful power management = manageable single-engine approach. Vmc being lower at altitude is incidental — what matters is the procedure was followed." },
+        { q: "After engine failure, you go through Identify-Verify-Feather. Which factor is most affected by the FEATHER step?", a: ["Weight", "CG", "Drag from windmilling prop", "Atmospheric pressure"], correct: 2, type: "apply", explain: "Feathering eliminates ~80% of windmilling drag. Massive performance improvement (climb returns) AND lower Vmc (less asymmetric force). One physical action, two big benefits — why feathering is highest-leverage post-failure step." },
+      ],
+    },
+    {
+      id: "examiner",
+      level: 3,
+      name: "Tier 3 — Examiner Mode",
+      blurb: "Scenario paragraphs, traps, oral-style questions. Locks open after 100% on Tier 2.",
+      questions: [
+        { q: "Examiner: 'Hot August day at KLBB, 95°F, gross weight, runway 17R 11,500 ft, no wind. Walk me through your go/no-go.'", a: ["Take off — long runway compensates for any DA issue", "DA is ~7,000 ft — at or above single-engine service ceiling at gross. Engine failure on departure means no climb capability. Reduce weight, wait for cooler temps, or scrub. Long runway doesn't help once airborne if you can't climb.", "Take off because Vmc is lower at altitude", "Use shorter runway"], correct: 1, type: "scenario", explain: "Recognition that runway length is NOT the only constraint. Single-engine ceiling is the binding limit on a hot day in Lubbock. Lower Vmc at altitude is irrelevant if you can't climb. ADM > legality." },
+        { q: "Examiner: 'You're cruising at 6,500 ft, single-engine after failure. Fuel burn over 30 minutes drops you 200 lbs lighter. What changed for Vmc, performance, and controllability?'", a: ["Nothing — fuel burn doesn't matter", "Vmc rose (lighter), performance improved (lighter), controllability slightly degraded (more rudder needed at same airspeed)", "All metrics improved", "All metrics degraded"], correct: 1, type: "scenario", explain: "Lighter weight — three effects: Vmc up (less inertia + less horizontal lift component), performance up (less weight to climb), controllability slightly worse (Vmc closer to your current speed = more rudder needed). Real-world cross-country single-engine ops awareness." },
+        { q: "Examiner: 'You're on single-engine ILS, 600 ft AGL above DA, on glidepath, on speed. Suddenly performance starts degrading. What do you do?'", a: ["Continue and try to salvage", "Go missed approach NOW — single-engine missed at minimums is marginal at best, going missed early gives you more options", "Add full flaps to slow down", "Reduce power on operating engine"], correct: 1, type: "scenario", explain: "Going missed EARLY is the safe call. From 600 ft you can climb out at Vyse, evaluate the issue, divert. From DA you have no margin. ADM principle: take the safer option earlier rather than the marginal one later." },
+        { q: "Examiner: 'I'm going to fail the right engine. Walk me through your procedure from the moment of failure.'", a: ["Identify the failed engine first, then feather", "Maintain control: pitch blue line, rudder to stop yaw, ~2° bank toward live engine. Then configure: mixtures/props/throttles forward, gear up if airborne, flaps up. Then identify (dead foot), verify (slow throttle pull), feather, secure. Declare emergency, divert nearest suitable.", "Add full power to compensate, then troubleshoot", "Pull nose up to maintain altitude"], correct: 1, type: "scenario", explain: "The CCIVFS sequence: Control, Configure, Identify, Verify, Feather, Secure. Every multi-engine pilot must run this in their sleep. AVIATE first, always. Skipping aviate is how Vmc rolls happen." },
+        { q: "Examiner: 'It's hot, gross weight, takeoff roll. You hear an engine miss at 65 mph (below Vmc). What do you do?'", a: ["Lift off and feather", "Abort — throttles idle, brakes, maintain control with rudder/brakes", "Continue to Vyse and assess", "Add full power on the other engine"], correct: 1, type: "scenario", explain: "Below Vmc with even a power loss = abort. No exceptions, no negotiation. Doesn't matter how much runway is ahead. You cannot fly with one engine at takeoff power below Vmc." },
+        { q: "Examiner: 'Compare an engine failure at 500 ft AGL to one at 5,000 ft AGL. What changes?'", a: ["Nothing — same procedure", "At 500 ft: less time to react, terrain proximity, may need to land straight ahead. At 5,000 ft: more altitude to set up, can troubleshoot, can fly to nearest suitable. Procedure same, ADM differs.", "5,000 ft is harder", "Only Vmc changes"], correct: 1, type: "scenario", explain: "Procedure is identical at any altitude. ADM and time-margin differ dramatically. At low altitude, runway becomes a critical asset (if any remains). At altitude, you have time to be methodical." },
+        { q: "Examiner: 'You're at 7,000 ft DA, Vmc demo. As you slow toward Vmc, the stall horn comes on BEFORE you feel directional control loss. What does this mean and what do you do?'", a: ["Continue to actual Vmc", "Recover at first indication = stall horn here. Real Vmc dropped below stall speed at this altitude. Reduce power on operating engine, lower nose. Recovery same as Vmc loss-of-control.", "Add power", "Bank harder"], correct: 1, type: "scenario", explain: "Critical Vmc demo lesson: at altitude, stall warning often precedes Vmc indication because Vmc drops with altitude while stall speed is unchanged. Recover at FIRST indication. Going past stall warning to seek 'real' Vmc = stall + windmilling engine = spin." },
+        { q: "Examiner: 'After feathering, you're at Vyse climbing 200 fpm. Then performance drops to 100 fpm. What might have changed?'", a: ["The airplane is broken", "Likely either DA increased (climb to higher altitude — power dropping) OR weight burned/dropped slightly OR pilot configuration drift (gear/flap/cowl)", "Engine RPM increased", "Vmc went down"], correct: 1, type: "scenario", explain: "Performance drift in single-engine flight has multiple causes. Most common: climbed into thinner air, picked up icing, or unintentional configuration change. Examiner wants to see you THINK about the cause, not just observe the symptom." },
+        { q: "Examiner: 'Engine failure shortly after takeoff. You're at 200 ft AGL, half the runway still ahead. Action?'", a: ["Continue at Vyse, climb out", "Land straight ahead on remaining runway, gear DOWN if not yet retracted, throttles idle, brakes", "Pitch up to clear obstacles", "Feather and divert"], correct: 1, type: "scenario", explain: "Runway remaining is your safety net. Use it. Don't try to fly out of a problem when you have a runway available. Pre-takeoff briefing must include 'land straight ahead with runway remaining' as the rule." },
+        { q: "Examiner: 'Why is the engine-failure procedure on takeoff different from in-flight?'", a: ["It isn't — same procedure", "Takeoff has phase-of-flight decision points (below Vmc, above Vmc with runway, airborne with no runway). In-flight has time and altitude. Different decisions because different consequences and time margins.", "FAA requirement", "Insurance reasons"], correct: 1, type: "scenario", explain: "Takeoff's three decision-zones (below Vmc abort / above Vmc runway-remaining land / airborne no-runway flight-out) reflect that decisions are constrained by phase. In-flight, you have altitude and time to be methodical." },
+        { q: "Examiner: 'It's the same airplane, same weight, same DA — but a different pilot's checkride. Pilot A demonstrates Vmc demo cleanly. Pilot B stalls during the demo. Why might that be?'", a: ["Pilot B is heavier", "Pilot B may have used incorrect bank, less rudder, or pitched up too steeply, losing airspeed faster than Pilot A and stalling before reaching the recovery indication", "Vmc changed", "Engine failed"], correct: 1, type: "scenario", explain: "Vmc demo execution depends on pilot inputs. Bank angle, rudder application, pitch rate all affect whether you hit stall or Vmc indication first. The factors are the same; the inputs differ. Examiner watches technique." },
+        { q: "Examiner: 'You're 30 minutes into a single-engine flight and the airplane feels harder to control. Why?'", a: ["Probably nothing — the mind plays tricks", "Fuel burn = lighter weight = higher Vmc. At the same indicated airspeed, you're now closer to Vmc, requiring more rudder. Realistic single-engine fatigue effect.", "Wind shifted", "ATC instructed differently"], correct: 1, type: "scenario", explain: "Real-world phenomenon. Long single-engine flights subtly raise Vmc as fuel burns. May want to reduce operating engine power slightly (which lowers Vmc) or increase airspeed margin." },
+        { q: "TRUE OR FALSE: Hot, humid days are GOOD for engine failure scenarios because Vmc is lower.", a: ["TRUE — lower Vmc means safer", "FALSE — Hot/humid days are MUCH MORE dangerous because climb performance drops far more than Vmc helps. You can't climb after engine failure on a hot day at gross weight in Lubbock.", "Depends on altitude", "Only true above 5,000 ft"], correct: 1, type: "trap", explain: "THE classic Vmc trap. Yes, Vmc drops at altitude. But performance drops FASTER and matters MORE. Single-engine service ceiling at gross may equal field elevation on a hot day. Examiner's favorite trap question." },
+        { q: "TRUE OR FALSE: You should always bank away from the dead engine to clear it for restart attempts.", a: ["TRUE", "FALSE — Always bank TOWARD the operating (live) engine. Banking toward dead increases yaw and Vmc.", "Only at altitude", "Depends on phase"], correct: 1, type: "trap", explain: "Trap: 'away from dead' sounds intuitive. Wrong. Bank TOWARD the live engine. Memory aid: 'raise the dead' = raise the dead engine's wing = bank toward live." },
+        { q: "TRUE OR FALSE: Adding maximum power on the operating engine after engine failure will help you climb out fastest.", a: ["TRUE — more power = more climb", "PARTIALLY TRUE but with major caveat: max power maximizes asymmetric thrust = Vmc rises = if airspeed drops near Vmc, you risk loss of control. Procedure is to use what climb you need at safe airspeed (Vyse), not necessarily max power.", "Always TRUE", "Always FALSE"], correct: 1, type: "trap", explain: "Subtle trap. Max power gives best climb numerically but raises Vmc significantly. Procedure is to leave operating engine at climb power (not max) at Vyse — gives best balance of performance and controllability margin." },
+        { q: "TRUE OR FALSE: A windmilling propeller is fine if you can fly the airplane with one engine.", a: ["TRUE — feathering is a luxury", "FALSE — Windmilling produces enormous drag, far more than gear extended. It dramatically reduces single-engine climb and significantly raises Vmc. Feathering is essential, not optional.", "Only true above 10,000 ft", "Only true with gear up"], correct: 1, type: "trap", explain: "Windmilling drag is enormous — often more than gear-down drag. The airplane may be controllable but climb capability vanishes. Feathering is the highest-leverage post-failure step." },
+        { q: "TRUE OR FALSE: Vmc is always 80 mph for a PA-30 — that's why the red line is at 80.", a: ["TRUE — it's a fixed number", "FALSE — Published Vmc is for worst-case cert conditions. Real Vmc varies with altitude, weight, CG, configuration, and prop state. The red line is a conservative reference.", "Only TRUE at sea level", "Only TRUE at gross weight"], correct: 1, type: "trap", explain: "Critical understanding. Vmc varies in real-world conditions. The published red line is the FAA's worst-case calibration. Real Vmc may be 60 mph at altitude at gross with feathered prop. Don't fly to the red line as if it's exact at all conditions." },
+        { q: "TRUE OR FALSE: Feathering the dead engine eliminates the dead engine's effect on the airplane.", a: ["TRUE — feathered = no effect", "PARTIALLY TRUE — feathering eliminates ~80% of the dead engine's drag and reduces asymmetric force, but the airplane is still single-engine. Performance still degraded vs both engines, just much better than windmilling.", "Always TRUE", "Always FALSE"], correct: 1, type: "trap", explain: "Feathering hugely improves the situation but doesn't restore the dead engine's contribution. You're still flying single-engine — climb is still degraded, Vmc still applies, just at much better numbers." },
+        { q: "TRUE OR FALSE: When Vmc drops below stall speed, the airplane is safer because you'll stall before losing directional control.", a: ["TRUE — stall is recoverable", "FALSE — When stall comes before any yaw warning, you stall WITHOUT recognizing you're approaching loss of directional control. A stalled airplane with one engine windmilling and the other at high power = Vmc roll/spin. NO Vmc warning.", "Depends on prop", "Only TRUE at altitude"], correct: 1, type: "trap", explain: "Probably the most dangerous Vmc misconception. With Vmc above stall, you get a yaw warning approaching loss of control = recoverable. With Vmc below stall, the airplane stalls = wing drops = engine asymmetry = roll. The OPPOSITE of safer." },
+        { q: "TRUE OR FALSE: After engine failure, you should immediately add full power on the operating engine and pitch up to climb.", a: ["TRUE — climb is the priority", "FALSE — Maintain control FIRST (pitch blue line, rudder to stop yaw, ~2° bank toward live engine). THEN configure, then identify-verify-feather. Climb comes after. Full power + pitch up = recipe for Vmc roll.", "TRUE if airborne", "Only FALSE at altitude"], correct: 1, type: "trap", explain: "Prioritization trap. Aviate (control) ALWAYS comes before climb. Adding full power and pitching up before establishing zero-sideslip and feathering is the worst combination — full PAST + low airspeed = Vmc loss." },
+        { q: "TRUE OR FALSE: Heavier airplane is always more dangerous for single-engine operations.", a: ["TRUE — more weight = harder", "PARTIALLY TRUE — Heavier reduces single-engine climb (worse). But heavier ALSO lowers Vmc (more inertia, more horizontal lift when banked). So perf is worse but controllability is slightly better. Trade-off, not pure penalty.", "Always TRUE", "Always FALSE"], correct: 1, type: "trap", explain: "Performance and controllability decoupling. Lighter = better climb but higher Vmc. Heavier = worse climb but lower Vmc. Examiner wants you to recognize the trade, not pretend weight is monolithic." },
+        { q: "TRUE OR FALSE: The published Vmc red line is the same number whether you're at sea level or 10,000 ft.", a: ["TRUE — it's painted on the dial", "TRUE in display, but FALSE in actual physics. The painted red line stays at the same indicated airspeed, but actual Vmc decreases with altitude. The red line doesn't move when you climb.", "Always FALSE", "Only TRUE in PA-30s"], correct: 1, type: "trap", explain: "The dial is fixed. Reality is variable. The published red line is calibrated for cert conditions and doesn't move with altitude. Pilots must understand actual Vmc differs from indicated. This is what makes high-DA Vmc traps so dangerous." },
+        { q: "TRUE OR FALSE: Flaps and gear extended are always preferred for engine-out approach because they lower Vmc.", a: ["TRUE", "FALSE — Gear down lowers Vmc but adds significant drag, killing climb performance. Standard procedure is to delay gear extension until landing assured, accepting slightly higher Vmc for the performance margin.", "Only TRUE on approach", "Always TRUE"], correct: 1, type: "trap", explain: "Trade-off again. Gear-down lowers Vmc but the drag penalty is severe. In single-engine approach, you want climb performance available for go-around if needed. Delay gear until late." },
+        { q: "TRUE OR FALSE: Once both engines are running smoothly, Vmc considerations don't apply.", a: ["TRUE — Vmc is only for engine failure", "TRUE in normal ops, but the airplane is always susceptible to engine failure. Pre-takeoff briefing must commit to abort logic BEFORE every takeoff. Brief Vmc considerations even when both engines run.", "FALSE — Vmc always applies", "Only at altitude"], correct: 1, type: "trap", explain: "Vmc considerations apply CONTINGENTLY in normal ops — they activate the moment an engine fails. The pilot's mental model must include 'what if?' all the time. Pre-takeoff briefing is when you commit to the answer." },
+      ],
+    },
+  ],
+};
+
 // ---------- V-Speeds (PA-30 reference, verify against POH) ----------
 const VSPEEDS = [
   { code: "Vmc",  name: "Min control speed, critical engine inop", val: "80 mph", marking: "Red radial line" },
@@ -1108,16 +1230,15 @@ const CURRICULUM = [
               "  • **Aft CG:** Performance ↑ slightly but Vmc ↑ (shorter rudder arm = less rudder authority).",
               "  • **Max gross weight:** Performance ↓ but Vmc ↓ (more horizontal lift component when banked counters yaw).",
               "  • **Bank toward operating engine (5°):** Performance ↑ AND Vmc ↓ — the only factor that helps both. That's why zero-sideslip technique matters so much.",
+              "**For deeper mastery:** open the dedicated **Vmc Mastery** tab from the header. 120 questions across 3 tiers — Foundations, Reasoning, and Examiner Mode — designed to develop transfer (the ability to handle unfamiliar phrasings of these concepts).",
             ],
             quiz: [
-              { q: "Effect of HIGH DENSITY ALTITUDE on Vmc?", a: ["Vmc increases", "Vmc decreases (less power available, less asymmetric thrust)", "No effect", "Vmc only changes with weight"], correct: 1, explain: "Less air → less power from the operating engine → less asymmetric thrust → less rudder needed to control. Vmc decreases. The TRAP: at altitude, actual Vmc may drop below stall speed, meaning the airplane will STALL before losing directional control. A stall with one engine windmilling = Vmc roll. The published red line gives no warning." },
-              { q: "Effect of AFT CG on Vmc?", a: ["Vmc decreases", "Vmc increases (shorter rudder arm)", "No effect", "Same as forward CG"], correct: 1, explain: "Aft CG = shorter distance between CG and rudder = shorter moment arm for the rudder. Less rudder authority means more airspeed needed to generate enough rudder force to counter the asymmetric thrust. Vmc goes UP." },
-              { q: "Effect of MAX GROSS WEIGHT on Vmc?", a: ["Vmc increases", "Vmc decreases (horizontal lift component when banked)", "No effect", "Doubles Vmc"], correct: 1, explain: "Heavier airplane + the 5° bank toward the live engine = larger horizontal lift component working against the asymmetric yaw. Vmc actually DECREASES. But performance also tanks — heavier = worse climb. Vmc and performance moving in opposite directions is the whole point of the factor table." },
-              { q: "Bank up to 5° toward the operating engine has what effect?", a: ["Performance ↑ and Vmc ↑", "Performance ↓ and Vmc ↓", "Performance ↑ and Vmc ↓ (helps both)", "Performance ↓ and Vmc ↑"], correct: 2, explain: "The unicorn factor — bank toward the live engine HELPS both. Reduces sideslip (less drag = better climb) AND adds horizontal lift component (lower Vmc). That's why zero-sideslip technique with ~2° bank toward the live engine is so important after a real engine failure." },
-              { q: "FEATHERING the inoperative prop (vs windmilling) does what to Vmc?", a: ["Increases Vmc", "Decreases Vmc (less drag, less asymmetric force)", "No change", "Only matters above 5000 ft"], correct: 1, explain: "Windmilling props are huge drag generators — that's the worst-case the cert standard assumes. Feathering eliminates most of that drag, which dramatically reduces the asymmetric force and lowers actual Vmc. This is why the engine-failure flow prioritizes feathering quickly." },
-              { q: "Why is the published Vmc considered conservative at altitude?", a: ["Because the red line is calibrated for sea level / max power conditions; actual Vmc is lower at altitude — and you may stall before losing control", "Because the FAA pads it by 10%", "Because props change pitch automatically", "It isn't conservative"], correct: 0, explain: "Published Vmc is for sea-level standard day with full power available. At altitude, normally-aspirated engines lose power, asymmetric thrust drops, actual Vmc drops. The danger isn't that Vmc is too high — it's that real Vmc may now be BELOW stall speed, so the airplane stalls without warning of Vmc approach." },
-              { q: "Effect of operating engine at MAX POWER on Vmc?", a: ["Decreases Vmc", "Increases Vmc (more asymmetric thrust)", "No effect", "Only on takeoff"], correct: 1, explain: "More power on the live engine = more asymmetric force = more rudder needed = higher Vmc. That's why the Vmc recovery is to REDUCE power on the operating engine — it actually lowers Vmc and lets you regain control." },
-              { q: "Gear up / flaps up (clean takeoff config) — effect on Vmc?", a: ["Decreases Vmc", "Increases Vmc (less keel / fin effect, less rudder authority from flap-blown air)", "No effect", "Same as gear down"], correct: 1, explain: "Gear and flaps act as 'keel' surfaces that add directional stability and let the airplane resist yaw at lower airspeeds. Take them away (clean config) and you need more airspeed to maintain control. Gear-down would actually lower Vmc slightly — but you don't leave gear down for performance reasons after engine failure." },
+              { q: "Effect of HIGH DENSITY ALTITUDE on Vmc?", a: ["Vmc increases", "Vmc decreases (less power, less PAST)", "No effect", "Only changes with weight"], correct: 1, explain: "Less air = less power available from operating engine = less asymmetric thrust = less rudder needed. Vmc decreases. The trap: actual Vmc may drop below stall speed, so airplane stalls before losing directional control." },
+              { q: "Effect of MAX GROSS WEIGHT on Vmc?", a: ["Vmc increases", "Vmc decreases (more inertia + horizontal lift when banked)", "No effect", "Doubles Vmc"], correct: 1, explain: "Heavier airplane = more inertia resisting yaw + larger horizontal lift component when banked toward operating engine. Both lower Vmc. But performance also tanks. Vmc and performance moving opposite directions on weight is a key examiner trap." },
+              { q: "Effect of AFT CG on Vmc?", a: ["Vmc decreases", "Vmc increases (shorter rudder arm)", "No effect", "Same as forward CG"], correct: 1, explain: "Aft CG shortens the moment arm between CG and rudder. Less rudder authority for the same deflection. Need more airspeed to generate enough rudder force = higher Vmc." },
+              { q: "Effect of BANK 5° TOWARD OPERATING ENGINE on Vmc?", a: ["Vmc increases", "Vmc decreases (horizontal lift component opposes yaw)", "No effect", "Only matters above 5,000 ft"], correct: 1, explain: "Banking creates a horizontal lift component that physically opposes the asymmetric yaw. Plus reduces sideslip drag. The ONE factor that helps both Vmc AND performance." },
+              { q: "Vmc is marked on the airspeed indicator as a:", a: ["Blue radial line", "Red radial line", "Yellow arc", "White arc"], correct: 1, explain: "RED radial line. Mnemonic: Red = Dead (below Vmc with engine out, the airplane becomes uncontrollable). Blue = Best (Vyse, single-engine best rate of climb)." },
+              { q: "P-A-S-T stands for:", a: ["P-factor, Asymmetric thrust, Slipstream, Torque", "P-factor, Accelerated slipstream, Spiraling slipstream, Torque", "Power, Airflow, Spin, Throttle", "Pitch, Angle, Speed, Trim"], correct: 1, explain: "The four left-yawing tendencies in any propeller airplane. In a twin, these are why the LEFT engine is critical and why operating engine power affects controllability." },
             ],
           },
           {
@@ -1895,6 +2016,9 @@ function Header({ progress, view, setView, userId, syncStatus }) {
           <button className={`me-button cyan ${view === "vmctable" ? "active" : ""}`} onClick={() => setView("vmctable")}>
             <AlertTriangle size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Table
           </button>
+          <button className={`me-button cyan ${view === "vmc-mastery" || view === "vmc-mastery-drill" ? "active" : ""}`} onClick={() => setView("vmc-mastery")}>
+            <Award size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Mastery
+          </button>
         </div>
       </div>
 
@@ -2105,6 +2229,410 @@ function VmcTableView({ onBack }) {
         <span style={{ color: TEXT }}>"What's the effect of high density altitude on Vmc?" → </span>
         <span className="me-glow-amber">Vmc DECREASES because less power is available, producing less asymmetric thrust. The danger: actual Vmc may now be BELOW stall speed — you'll stall before losing directional control, and you can't see the published red line creeping toward you.</span>
       </div>
+    </div>
+  );
+}
+
+function VmcMasteryView({ onBack, vmcMastery, setVmcMastery }) {
+  // selection: null = entry view; { tierId } = active drill (tierId or "freeform")
+  const [activeTier, setActiveTier] = useState(null);
+  const [resumeKey, setResumeKey] = useState(0);
+
+  const tier1Complete = !!vmcMastery?.tier1Complete;
+  const tier2Complete = !!vmcMastery?.tier2Complete;
+  const tier3Complete = !!vmcMastery?.tier3Complete;
+
+  const tierLocked = (level) => {
+    if (level === 1) return false;
+    if (level === 2) return !tier1Complete;
+    if (level === 3) return !tier2Complete;
+    return true;
+  };
+
+  function startTier(tierId) {
+    setActiveTier(tierId);
+    setResumeKey(k => k + 1);
+  }
+  function resumeTier(tierId) {
+    setActiveTier(tierId);
+  }
+
+  if (activeTier) {
+    const tierObj = activeTier === "freeform"
+      ? null
+      : VMC_MASTERY.tiers.find(t => t.id === activeTier);
+    return (
+      <VmcMasteryDrill
+        key={`${activeTier}-${resumeKey}`}
+        tierId={activeTier}
+        tierObj={tierObj}
+        vmcMastery={vmcMastery}
+        setVmcMastery={setVmcMastery}
+        onExit={() => setActiveTier(null)}
+      />
+    );
+  }
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>VMC MASTERY DRILL</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        TIERED DRILL · 100% TO ADVANCE
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+        {VMC_MASTERY.tiers.map((tier) => {
+          const locked = tierLocked(tier.level);
+          const completeFlag = vmcMastery?.[`tier${tier.level}Complete`];
+          const session = vmcMastery?.currentSession;
+          const hasResume = session && session.tierId === tier.id && session.queue && session.queue.length > 0;
+          const masteredCount = session && session.tierId === tier.id ? (session.masteredIds || []).length : 0;
+          const accent = completeFlag ? "#40dc8c" : locked ? BORDER : AMBER;
+          return (
+            <div key={tier.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `4px solid ${accent}`, padding: "14px 16px", borderRadius: "0 3px 3px 0", opacity: locked ? 0.55 : 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+                <div className="me-glow-amber" style={{ fontSize: 15, fontWeight: 700 }}>{tier.name}</div>
+                <div style={{ fontSize: 10, letterSpacing: "0.12em", color: completeFlag ? "#40dc8c" : locked ? TEXT_DIM : CYAN, fontWeight: 700 }}>
+                  {completeFlag ? "✓ 100% MASTERED" : locked ? `🔒 LOCKED — Tier ${tier.level - 1} required` : `${tier.questions.length} QUESTIONS`}
+                </div>
+              </div>
+              <div style={{ fontSize: 12.5, color: TEXT_DIM, marginTop: 6, lineHeight: 1.55 }}>
+                {tier.blurb}
+              </div>
+              {!locked && (
+                <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
+                  {hasResume && !completeFlag && (
+                    <button className="me-button cyan" onClick={() => resumeTier(tier.id)}>
+                      <RotateCcw size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
+                      Resume ({masteredCount}/{tier.questions.length} mastered)
+                    </button>
+                  )}
+                  <button className="me-button cyan" onClick={() => startTier(tier.id)}>
+                    <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
+                    {hasResume && !completeFlag ? "Restart" : completeFlag ? "Drill Again" : "Start Drill"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `4px solid ${CYAN}`, padding: "14px 16px", borderRadius: "0 3px 3px 0" }}>
+        <div className="me-glow-cyan" style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em" }}>FREEFORM PRACTICE</div>
+        <div style={{ fontSize: 12.5, color: TEXT_DIM, marginTop: 6, lineHeight: 1.55 }}>
+          Random questions from every <strong style={{ color: TEXT }}>unlocked</strong> tier. No completion threshold. Cycles indefinitely.
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <button className="me-button" onClick={() => startTier("freeform")}>
+            <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Start Freeform
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function vmcShuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function VmcMasteryDrill({ tierId, tierObj, vmcMastery, setVmcMastery, onExit }) {
+  const isFreeform = tierId === "freeform";
+
+  // Build the question pool for this drill (with stable indices)
+  const pool = useMemo(() => {
+    if (isFreeform) {
+      const unlockedTiers = VMC_MASTERY.tiers.filter((t) => {
+        if (t.level === 1) return true;
+        if (t.level === 2) return !!vmcMastery?.tier1Complete;
+        if (t.level === 3) return !!vmcMastery?.tier2Complete;
+        return false;
+      });
+      const out = [];
+      unlockedTiers.forEach((t) => {
+        t.questions.forEach((q, i) => {
+          out.push({ ...q, _key: `${t.id}__${i}` });
+        });
+      });
+      return out;
+    }
+    return tierObj.questions.map((q, i) => ({ ...q, _key: `${tierObj.id}__${i}` }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tierId]);
+
+  const totalCount = pool.length;
+  const session = vmcMastery?.currentSession;
+  const canResume = !isFreeform && session && session.tierId === tierId && Array.isArray(session.queue) && session.queue.length > 0;
+
+  // Initial state — try to resume tier session, else fresh shuffle
+  const [queue, setQueue] = useState(() => {
+    if (canResume) return session.queue;
+    return vmcShuffle(pool.map((q) => q._key));
+  });
+  const [masteredIds, setMasteredIds] = useState(() => {
+    if (canResume) return new Set(session.masteredIds || []);
+    return new Set();
+  });
+  const [missedCount, setMissedCount] = useState(() => canResume ? (session.missedCount || 0) : 0);
+  const [picked, setPicked] = useState(null);
+  const [done, setDone] = useState(false);
+
+  const keyToQuestion = useMemo(() => {
+    const m = {};
+    pool.forEach((q) => { m[q._key] = q; });
+    return m;
+  }, [pool]);
+
+  // Persist tier sessions (not freeform) to vmcMastery so resume works after navigation
+  useEffect(() => {
+    if (isFreeform) return;
+    if (done) return;
+    setVmcMastery((prev) => ({
+      ...(prev || {}),
+      currentSession: {
+        tierId,
+        queue,
+        missedCount,
+        masteredIds: Array.from(masteredIds),
+      },
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue, masteredIds, missedCount, done]);
+
+  const currentKey = queue[0];
+  const q = currentKey ? keyToQuestion[currentKey] : null;
+
+  function pick(i) {
+    if (picked !== null || !q) return;
+    setPicked(i);
+    if (i === q.correct) {
+      setMasteredIds((prev) => {
+        const next = new Set(prev);
+        next.add(currentKey);
+        return next;
+      });
+    } else {
+      setMissedCount((n) => n + 1);
+    }
+  }
+
+  function next() {
+    if (!q) return;
+    const wasCorrect = picked === q.correct;
+    let nextQueue;
+    if (isFreeform) {
+      // Freeform: missed → re-queue 4-5 later; correct → drop, append fresh from full pool
+      nextQueue = queue.slice(1);
+      if (!wasCorrect) {
+        const insertAt = Math.min(nextQueue.length, 4 + Math.floor(Math.random() * 2));
+        nextQueue = [...nextQueue.slice(0, insertAt), currentKey, ...nextQueue.slice(insertAt)];
+      }
+      // Keep the queue at least somewhat full — when low, refill with shuffled pool
+      if (nextQueue.length < 5 && pool.length > 0) {
+        const replenish = vmcShuffle(pool.map((p) => p._key)).filter((k) => !nextQueue.includes(k));
+        nextQueue = [...nextQueue, ...replenish];
+      }
+      setQueue(nextQueue);
+      setPicked(null);
+      return;
+    }
+
+    // Tier mode: missed → re-inject 4-5 ahead; correct → drop
+    if (wasCorrect) {
+      nextQueue = queue.slice(1);
+    } else {
+      const tail = queue.slice(1);
+      const insertAt = Math.min(tail.length, 4 + Math.floor(Math.random() * 2));
+      nextQueue = [...tail.slice(0, insertAt), currentKey, ...tail.slice(insertAt)];
+    }
+    setQueue(nextQueue);
+    setPicked(null);
+
+    // Tier complete: queue empty AND every original key mastered
+    const everyMastered = pool.every((p) => masteredIds.has(p._key) || (wasCorrect && p._key === currentKey));
+    if (nextQueue.length === 0 && everyMastered) {
+      setDone(true);
+      setVmcMastery((prev) => {
+        const updated = { ...(prev || {}) };
+        updated[`tier${tierObj.level}Complete`] = true;
+        updated.currentSession = null;
+        return updated;
+      });
+    }
+  }
+
+  function pauseAndExit() {
+    onExit();
+  }
+
+  function abandonAndExit() {
+    if (!isFreeform) {
+      setVmcMastery((prev) => ({
+        ...(prev || {}),
+        currentSession: null,
+      }));
+    }
+    onExit();
+  }
+
+  if (done && !isFreeform) {
+    const tierLevel = tierObj.level;
+    const allDone = tierLevel === 3 || (tierLevel === 1 && vmcMastery?.tier1Complete) /* defensive */;
+    const nextTierName = tierLevel < 3 ? VMC_MASTERY.tiers[tierLevel].name : null;
+    return (
+      <div className="me-panel" style={{ padding: 20 }}>
+        <button className="me-button" onClick={onExit} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+        </button>
+        <div style={{ textAlign: "center", padding: "30px 0" }}>
+          <div className="me-display" style={{ fontSize: 18, color: TEXT_DIM, letterSpacing: "0.15em" }}>
+            {tierObj.name.toUpperCase()}
+          </div>
+          <div className="me-display" style={{ fontSize: 88, lineHeight: 1, margin: "16px 0", color: "#40dc8c", textShadow: "0 0 24px rgba(64,220,140,0.5)" }}>
+            100%
+          </div>
+          <div style={{ fontSize: 14, color: "#40dc8c", marginBottom: 8, letterSpacing: "0.12em", fontWeight: 700 }}>
+            MASTERY ACHIEVED
+          </div>
+          <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 24, letterSpacing: "0.1em" }}>
+            {totalCount} QUESTIONS · {missedCount} MISS{missedCount === 1 ? "" : "ES"} ALONG THE WAY
+          </div>
+          {tierLevel < 3 && (
+            <div style={{ fontSize: 13, color: CYAN, marginBottom: 18, letterSpacing: "0.05em" }}>
+              UNLOCKED: <span className="me-glow-cyan" style={{ fontWeight: 700 }}>{nextTierName}</span>
+            </div>
+          )}
+          {tierLevel === 3 && (
+            <div style={{ fontSize: 13, color: AMBER, marginBottom: 18, letterSpacing: "0.05em" }}>
+              <span className="me-glow-amber" style={{ fontWeight: 700 }}>ALL TIERS MASTERED</span>
+            </div>
+          )}
+          <button className="me-button cyan" onClick={onExit}>
+            BACK TO MASTERY
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!q) {
+    return (
+      <div className="me-panel" style={{ padding: 20 }}>
+        <button className="me-button" onClick={onExit} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+        </button>
+        <div className="me-display" style={{ fontSize: 22, color: AMBER }}>No questions available — unlock a tier first.</div>
+      </div>
+    );
+  }
+
+  const wasCorrect = picked === q.correct;
+  const masteredCount = masteredIds.size;
+  const progressPct = isFreeform ? 0 : (masteredCount / totalCount) * 100;
+  const headerLabel = isFreeform ? "FREEFORM PRACTICE" : tierObj.name.toUpperCase();
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, gap: 8, flexWrap: "wrap" }}>
+        <button className="me-button" onClick={pauseAndExit}>
+          <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
+          {isFreeform ? "Exit" : "Pause / Exit"}
+        </button>
+        {!isFreeform && (
+          <button
+            className="me-button"
+            onClick={() => { if (confirm("Abandon this drill? Progress for this session will be lost.")) abandonAndExit(); }}
+            style={{ borderColor: BORDER, color: TEXT_DIM }}
+          >
+            Abandon
+          </button>
+        )}
+      </div>
+
+      <div className="me-display" style={{ fontSize: 22, color: AMBER, marginBottom: 4 }}>{headerLabel}</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 14, letterSpacing: "0.12em" }}>
+        {isFreeform ? "RANDOM · UNLOCKED TIERS · NO GATE" : "100% REQUIRED FOR MASTERY · MISSES RE-QUEUE"}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, letterSpacing: "0.12em", color: TEXT_DIM, marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
+        {isFreeform ? (
+          <>
+            <span>QUEUE {queue.length}  ·  POOL {pool.length}</span>
+            <span className="me-glow-cyan">MISSES: {missedCount}</span>
+          </>
+        ) : (
+          <>
+            <span>MASTERED {masteredCount} / {totalCount}  ·  QUEUE {queue.length}</span>
+            <span className="me-glow-cyan">MISSES: {missedCount}</span>
+          </>
+        )}
+      </div>
+      {!isFreeform && (
+        <div className="me-progress-bar" style={{ marginBottom: 18 }}>
+          <div className="me-progress-fill" style={{ width: `${progressPct}%` }}></div>
+        </div>
+      )}
+
+      <div style={{ fontSize: 16.5, lineHeight: 1.55, marginBottom: 16, color: TEXT, fontWeight: 500 }}>
+        {q.q}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+        {q.a.map((opt, i) => {
+          let cls = "me-quiz-option";
+          if (picked !== null) {
+            cls += " disabled";
+            if (i === q.correct) cls += " correct";
+            else if (i === picked) cls += " wrong";
+          }
+          return (
+            <button key={i} className={cls} onClick={() => pick(i)}>
+              <span style={{ color: AMBER, marginRight: 10, fontWeight: 700 }}>{String.fromCharCode(65 + i)}.</span>
+              {opt}
+              {picked !== null && i === q.correct && <Check size={14} style={{ float: "right", color: "#40dc8c" }} />}
+              {picked !== null && i === picked && i !== q.correct && <X size={14} style={{ float: "right", color: RED }} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {picked !== null && q.explain && (
+        <div style={{
+          background: PANEL_2,
+          border: `1px solid ${BORDER}`,
+          borderLeft: `3px solid ${wasCorrect ? "#40dc8c" : AMBER}`,
+          padding: "12px 14px",
+          marginBottom: 14,
+          fontSize: 12.5,
+          lineHeight: 1.6,
+          borderRadius: "0 3px 3px 0",
+        }}>
+          <div style={{ fontSize: 9, letterSpacing: "0.15em", color: wasCorrect ? "#40dc8c" : AMBER, fontWeight: 700, marginBottom: 6 }}>
+            {wasCorrect ? "✓ CORRECT — WHY:" : "✗ NOT QUITE — HERE'S THE WHY:"}
+          </div>
+          <div style={{ color: TEXT }}>{q.explain}</div>
+        </div>
+      )}
+
+      {picked !== null && (() => {
+        const willFinish = !isFreeform && wasCorrect && queue.length === 1 && masteredIds.size + 1 >= totalCount;
+        const willRequeue = !wasCorrect;
+        return (
+          <button className="me-button active" onClick={next} style={{ width: "100%" }}>
+            {willFinish ? "FINISH DRILL" : willRequeue ? "RE-QUEUED · NEXT QUESTION" : "NEXT QUESTION"}
+            <ChevronRight size={11} style={{ display: "inline", marginLeft: 4, verticalAlign: "-2px" }} />
+          </button>
+        );
+      })()}
     </div>
   );
 }
@@ -3273,6 +3801,18 @@ function buildAllQuestions() {
       });
     });
   });
+  // Include Vmc Mastery tier questions
+  VMC_MASTERY.tiers.forEach((tier) => {
+    tier.questions.forEach((q, qi) => {
+      all.push({
+        ...q,
+        _id: `vmc_${tier.id}__${qi}`,
+        _topic: `Vmc Mastery — ${tier.name}`,
+        _day: "Vmc Mastery",
+        _kind: "vmc-mastery",
+      });
+    });
+  });
   return all;
 }
 
@@ -3513,6 +4053,7 @@ export default function App() {
     return newId;
   });
   const [perTopicProgress, setPerTopicProgress] = useState({});
+  const [vmcMastery, setVmcMastery] = useState({});
   const [syncStatus, setSyncStatus] = useState("loading"); // "loading" | "synced" | "saving" | "offline"
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -3524,15 +4065,18 @@ export default function App() {
       const remote = await loadProgressRemote(userId);
       if (cancelled) return;
 
-      if (remote.ok && remote.progress && remote.progress.perTopicProgress) {
-        setPerTopicProgress(remote.progress.perTopicProgress);
+      if (remote.ok && remote.progress) {
+        if (remote.progress.perTopicProgress) setPerTopicProgress(remote.progress.perTopicProgress);
+        if (remote.progress.vmcMastery) setVmcMastery(remote.progress.vmcMastery);
+        if (!remote.progress.perTopicProgress && !remote.progress.vmcMastery) setShowWelcome(true);
         setSyncStatus("synced");
         return;
       }
 
-      if (!remote.ok && local && local.perTopicProgress) {
+      if (!remote.ok && local) {
         // Remote unreachable — restore from local cache, mark offline
-        setPerTopicProgress(local.perTopicProgress);
+        if (local.perTopicProgress) setPerTopicProgress(local.perTopicProgress);
+        if (local.vmcMastery) setVmcMastery(local.vmcMastery);
         setSyncStatus("offline");
         return;
       }
@@ -3547,7 +4091,7 @@ export default function App() {
   // Save progress on change (debounced). Always write localStorage, then try remote.
   useEffect(() => {
     if (syncStatus === "loading") return;
-    const payload = { perTopicProgress };
+    const payload = { perTopicProgress, vmcMastery };
     saveProgressLocal(userId, payload);
     const handle = setTimeout(async () => {
       setSyncStatus("saving");
@@ -3556,7 +4100,7 @@ export default function App() {
     }, 500);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [perTopicProgress, userId]);
+  }, [perTopicProgress, vmcMastery, userId]);
 
   // Total topic count
   const allTopics = useMemo(() => {
@@ -3609,6 +4153,7 @@ export default function App() {
   function reset() {
     if (confirm("Clear all progress for this account? This affects every device using this URL.")) {
       setPerTopicProgress({});
+      setVmcMastery({});
     }
   }
 
@@ -3691,6 +4236,13 @@ export default function App() {
         )}
         {view === "vmctable" && (
           <VmcTableView onBack={() => setView("home")} />
+        )}
+        {view === "vmc-mastery" && (
+          <VmcMasteryView
+            onBack={() => setView("home")}
+            vmcMastery={vmcMastery}
+            setVmcMastery={setVmcMastery}
+          />
         )}
         {view === "topic" && activeTopic && (
           <TopicView

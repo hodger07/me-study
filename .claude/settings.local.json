@@ -22,7 +22,8 @@
       "Bash(pkill -f \"vercel\")",
       "Bash(vercel logout *)",
       "Bash(vercel *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(grep -n \"^const VMC_TABLE\\\\|id: \\\\\"vmc-factors\\\\\"\\\\|^function buildAllQuestions\\\\|export default function App\\\\|view === \\\\\"vmctable\\\\\"\\\\|VmcTableView\\\\|setVmcMastery\\\\|saveProgressRemote\\\\|loadProgressRemote\\\\|perTopicProgress, vmcMastery\\\\|payload = { perTopicProgress\" /Users/rhodgemacstudio1/me-study/src/App.jsx)"
     ]
   }
 }
