@@ -7,6 +7,56 @@ import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, 
 // Built around Raider Aviation's 5-day syllabus
 // =====================================================================
 
+// ---------- Cross-device sync helpers ----------
+function generateUserId() {
+  const chars = "abcdefghijkmnpqrstuvwxyz23456789"; // skip ambiguous: l, o, 0, 1
+  let id = "";
+  for (let i = 0; i < 6; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return id;
+}
+
+function getUserIdFromUrl() {
+  const path = window.location.pathname;
+  const match = path.match(/^\/u\/([a-z0-9]+)$/i);
+  return match ? match[1] : null;
+}
+
+function setUserIdInUrl(userId) {
+  const newUrl = `/u/${userId}`;
+  if (window.location.pathname !== newUrl) {
+    window.history.replaceState(null, "", newUrl);
+  }
+}
+
+async function saveProgressRemote(userId, progress) {
+  try {
+    const res = await fetch("/api/save-progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, progress }),
+    });
+    if (!res.ok) throw new Error("Save failed");
+    return true;
+  } catch (e) {
+    console.warn("Remote save failed:", e);
+    return false;
+  }
+}
+
+async function loadProgressRemote(userId) {
+  try {
+    const res = await fetch(`/api/load-progress?userId=${encodeURIComponent(userId)}`);
+    if (!res.ok) throw new Error("Load failed");
+    const data = await res.json();
+    return data.progress;
+  } catch (e) {
+    console.warn("Remote load failed:", e);
+    return null;
+  }
+}
+
 // ---------- Vmc Factor Table (from your handwritten notes) ----------
 const VMC_TABLE = [
   { factor: "Critical engine inop (windmilling)",   perf: "↓",  perfNote: "+ Drag",                ctrl: "↓",  ctrlNote: "− Rudder",            vmc: "↑" },
@@ -1772,7 +1822,7 @@ function StyleSheet() {
   );
 }
 
-function Header({ progress, onReset, view, setView }) {
+function Header({ progress, view, setView, userId, syncStatus }) {
   return (
     <div className="me-panel" style={{ padding: 18, marginBottom: 16, position: "relative" }}>
       <div className="me-corner-marker me-corner-tl"></div>
@@ -1823,9 +1873,6 @@ function Header({ progress, onReset, view, setView }) {
           <button className={`me-button cyan ${view === "vmctable" ? "active" : ""}`} onClick={() => setView("vmctable")}>
             <AlertTriangle size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Table
           </button>
-          <button className="me-button" onClick={onReset} title="Reset progress">
-            <RotateCcw size={11} />
-          </button>
         </div>
       </div>
 
@@ -1837,6 +1884,16 @@ function Header({ progress, onReset, view, setView }) {
       </div>
       <div className="me-progress-bar">
         <div className="me-progress-fill" style={{ width: `${progress * 100}%` }}></div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, fontSize: 9, letterSpacing: "0.12em", color: TEXT_DIM, gap: 12, flexWrap: "wrap" }}>
+        <span>YOUR URL: <span style={{ color: AMBER, fontFamily: "monospace" }}>me-study.vercel.app/u/{userId}</span></span>
+        <span style={{ color: syncStatus === "offline" ? RED : syncStatus === "synced" ? "#40dc8c" : AMBER }}>
+          {syncStatus === "loading" && "⟳ LOADING"}
+          {syncStatus === "saving" && "⟳ SAVING…"}
+          {syncStatus === "synced" && "✓ SYNCED"}
+          {syncStatus === "offline" && "⚠ OFFLINE"}
+        </span>
       </div>
     </div>
   );
@@ -3426,7 +3483,44 @@ export default function App() {
   const [activeKind, setActiveKind] = useState(null);
   const [activeManeuverId, setActiveManeuverId] = useState(null);
   const [mode, setMode] = useState("learn");
+  const [userId] = useState(() => {
+    const fromUrl = getUserIdFromUrl();
+    if (fromUrl) return fromUrl;
+    const newId = generateUserId();
+    setUserIdInUrl(newId);
+    return newId;
+  });
   const [perTopicProgress, setPerTopicProgress] = useState({});
+  const [syncStatus, setSyncStatus] = useState("loading"); // "loading" | "synced" | "saving" | "offline"
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Load remote progress on mount / userId change
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const remote = await loadProgressRemote(userId);
+      if (cancelled) return;
+      if (remote && remote.perTopicProgress) {
+        setPerTopicProgress(remote.perTopicProgress);
+      } else {
+        setShowWelcome(true);
+      }
+      setSyncStatus("synced");
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // Save remote progress on change (debounced)
+  useEffect(() => {
+    if (syncStatus === "loading") return;
+    const handle = setTimeout(async () => {
+      setSyncStatus("saving");
+      const ok = await saveProgressRemote(userId, { perTopicProgress });
+      setSyncStatus(ok ? "synced" : "offline");
+    }, 500);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [perTopicProgress, userId]);
 
   // Total topic count
   const allTopics = useMemo(() => {
@@ -3477,14 +3571,52 @@ export default function App() {
   }
 
   function reset() {
-    if (confirm("Reset all progress?")) setPerTopicProgress({});
+    if (confirm("Clear all progress for this account? This affects every device using this URL.")) {
+      setPerTopicProgress({});
+    }
   }
 
   return (
     <div className="me-app">
       <StyleSheet />
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <Header progress={progress} onReset={reset} view={view} setView={setView} />
+        <Header progress={progress} view={view} setView={setView} userId={userId} syncStatus={syncStatus} />
+        {showWelcome && (
+          <div style={{
+            background: "linear-gradient(90deg, rgba(93,213,230,0.15), rgba(255,184,74,0.10))",
+            border: `1px solid ${CYAN}`,
+            borderLeft: `3px solid ${CYAN}`,
+            padding: "14px 18px",
+            marginBottom: 16,
+            borderRadius: "0 4px 4px 0",
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>
+              👋 WELCOME — BOOKMARK THIS URL ON EVERY DEVICE
+            </div>
+            <div style={{ color: TEXT }}>
+              Your unique study URL is <strong style={{ color: AMBER, fontFamily: "monospace" }}>me-study.vercel.app/u/{userId}</strong>
+            </div>
+            <div style={{ color: TEXT_DIM, marginTop: 6, fontSize: 12 }}>
+              Bookmark it on your laptop, phone, and tablet. Progress syncs automatically across every device that uses this URL. <strong>Save the URL somewhere safe</strong> — it's your only way to recover progress if you lose all your bookmarks.
+            </div>
+            <button onClick={() => setShowWelcome(false)} style={{
+              marginTop: 10,
+              background: "transparent",
+              border: `1px solid ${CYAN}`,
+              color: CYAN,
+              padding: "6px 14px",
+              fontSize: 10,
+              letterSpacing: "0.15em",
+              cursor: "pointer",
+              borderRadius: 2,
+              fontFamily: "inherit",
+            }}>
+              GOT IT
+            </button>
+          </div>
+        )}
         {view === "home" && (
           <HomeView progress={progress} perTopicProgress={perTopicProgress} onSelectTopic={selectTopic} />
         )}
@@ -3537,6 +3669,26 @@ export default function App() {
         )}
         <div style={{ textAlign: "center", marginTop: 28, fontSize: 9, color: TEXT_DIM, letterSpacing: "0.2em" }}>
           ⊿ FOR STUDY USE ONLY · ALWAYS DEFER TO POH AND CFI · NOT A SUBSTITUTE FOR INSTRUCTION ⊿
+        </div>
+        <div style={{ textAlign: "center", marginTop: 20, marginBottom: 20 }}>
+          <button
+            onClick={reset}
+            style={{
+              background: "transparent",
+              border: `1px solid ${BORDER}`,
+              color: TEXT_DIM,
+              padding: "6px 14px",
+              fontSize: 9,
+              letterSpacing: "0.15em",
+              cursor: "pointer",
+              borderRadius: 2,
+              fontFamily: "inherit",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = RED; e.currentTarget.style.borderColor = RED; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_DIM; e.currentTarget.style.borderColor = BORDER; }}
+          >
+            CLEAR ALL PROGRESS
+          </button>
         </div>
       </div>
     </div>
