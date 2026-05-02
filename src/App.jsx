@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks, BarChart3, MessageSquare, Search } from "lucide-react";
+import { Plane, BookOpen, Target, ChevronRight, Check, X, RotateCcw, ArrowLeft, AlertTriangle, AlertOctagon, Wind, Settings, ClipboardCheck, Gauge, Wrench, Radio, MapPin, FileText, Award, ListChecks, BarChart3, MessageSquare, Search, Square, CheckSquare } from "lucide-react";
 
 // =====================================================================
 // MULTI-ENGINE STUDY APP — Private Pilot AMEL Add-On
@@ -223,20 +223,467 @@ const VMC_MASTERY = {
   ],
 };
 
-// ---------- V-Speeds (PA-30 reference, verify against POH) ----------
-const VSPEEDS = [
-  { code: "Vmc",  name: "Min control speed, critical engine inop", val: "80 mph", marking: "Red radial line" },
-  { code: "Vsse", name: "Safe single-engine speed",                val: "90 mph", marking: "Manufacturer recommended" },
-  { code: "Vxse", name: "Best angle of climb, single engine",      val: "90 mph", marking: "" },
-  { code: "Vyse", name: "Best rate of climb, single engine",       val: "105 mph", marking: "Blue radial line" },
-  { code: "Vy",   name: "Best rate of climb, both engines",        val: "112 mph", marking: "" },
-  { code: "Vx",   name: "Best angle of climb, both engines",       val: "90 mph",  marking: "" },
-  { code: "Vfe",  name: "Max flap extended",                       val: "125 mph", marking: "Top of white arc" },
-  { code: "Vlo",  name: "Max landing gear operating",              val: "125 mph", marking: "" },
-  { code: "Vle",  name: "Max landing gear extended",               val: "150 mph", marking: "" },
-  { code: "Vno",  name: "Max structural cruise",                   val: "185 mph", marking: "Top of green arc" },
-  { code: "Vne",  name: "Never exceed",                            val: "230 mph", marking: "Red line" },
-];
+// ---------- SPEEDS (PA-30 — kts + mph, from CheckMate) ----------
+const SPEEDS = {
+  intro: "All N1100L (PA-30 Twin Comanche) speeds in knots AND mph. Counter-rotating PA-39 variant noted where different.",
+  vSpeeds: [
+    { code: "Vr",    label: "Rotation Speed",                  kts: 78,  mph: 90,  note: "Counter-rotating: 70/80" },
+    { code: "Vx",    label: "Best Angle Climb",                kts: 78,  mph: 90 },
+    { code: "Vxse",  label: "Best Angle Climb 1-Engine",       kts: 82,  mph: 94 },
+    { code: "Vy",    label: "Best Rate Climb",                 kts: 97,  mph: 112 },
+    { code: "Vyse",  label: "Best Rate 1-Engine (Blue Line)",  kts: 91,  mph: 105, accent: "blue" },
+    { code: "Vmca",  label: "Min Ctrl 1-Engine (Red Line)",    kts: 78,  mph: 90,  accent: "red", note: "Counter-rotating: 70/80" },
+    { code: "Vsse",  label: "Safe Single-Engine Speed",        kts: 84,  mph: 97 },
+    { code: "Vs0",   label: "Stall With Flaps",                kts: 60,  mph: 69 },
+    { code: "Vs",    label: "Stall w/o Flaps",                 kts: 66,  mph: 76 },
+    { code: "Va",    label: "Max Abrupt (3000 lbs)",           kts: 129, mph: 148 },
+    { code: "Va",    label: "Max Abrupt (Full Gross)",         kts: 141, mph: 162 },
+    { code: "Vno",   label: "Max Structural Cruise",           kts: 169, mph: 194 },
+    { code: "Vne",   label: "Never Exceed",                    kts: 200, mph: 230 },
+    { code: "Vfe",   label: "Full Flaps",                      kts: 109, mph: 125 },
+    { code: "Vlo",   label: "Max Gear Operate",                kts: 130, mph: 150 },
+    { code: "Vle",   label: "Max Gear Extended",               kts: 130, mph: 150 },
+    { code: "X-Wind", label: "Max Demo'd Crosswind",           kts: 17,  mph: 20 },
+  ],
+  departure: [
+    { phase: "Rotation *",        kts: 78, mph: 90,  flaps: "0°" },
+    { phase: "Best Angle Climb",  kts: 78, mph: 90,  flaps: "0°" },
+    { phase: "Best Rate Climb",   kts: 97, mph: 112, flaps: "0°" },
+  ],
+  departureNotes: [
+    "Counter-Rotating Props Vmca – 70 KIAS (80 MPH)",
+    "Short Field: 15° Lift-Off 61 KIAS (70 MPH), * 73 KIAS (84 MPH) Over 50' Obstacle",
+  ],
+  cruise: [
+    { mode: "Economy", kts: 142, mph: 163, flaps: "0°", note: "19.1\" Hg – 2300 RPM – 13.4 GPH – 55%" },
+    { mode: "Normal",  kts: 156, mph: 179, flaps: "0°", note: "20.8\" Hg – 2400 RPM – 15.2 GPH – 65%" },
+    { mode: "Maximum", kts: 167, mph: 192, flaps: "0°", note: "Full Throttle – 2400 RPM – 17.2 GPH – 75%" },
+  ],
+  cruiseNotes: [
+    "True airspeeds at 7,000 ft.",
+    "Specs are approximate — environment & plane variables apply (lbs, KIAS, sea level, standard day, normal category, max gross weight, no wind, best power, new engines).",
+  ],
+  arrival: [
+    { phase: "Approach",       kts: 100, mph: 115, flaps: "15°", note: "17\" MP (Initially)" },
+    { phase: "Short Final *",  kts: 83,  mph: 95,  flaps: "27°", note: "Props – 2400 RPM Min." },
+  ],
+};
+
+// ---------- CHECKLIST (from CheckMate, 14 phases) ----------
+const CHECKLIST = {
+  intro: "PA-30 Twin Comanche checklists from CheckMate. Tap items to check them off — your progress persists across sessions until you hit Clear.",
+  phases: [
+    {
+      id: "initial", label: "INITIAL", next: "exterior",
+      items: [
+        { text: "Weather & Den. Alt." },
+        { text: "Weight & Balance" },
+        { text: "Performance Req." },
+        { text: "Flight Plan – File" },
+        { text: "Papers – A.R.O.W.", tooltip: "Airworthiness Certificate, Registration, Operating Limitations (POH), Weight & Balance" },
+        { text: "Mags – Off" },
+        { text: "Mixtures – Full Lean" },
+        { text: "Gear Lever – Down" },
+        { text: "Master – On" },
+        { text: "Gear Lights – Green" },
+        { text: "Flaps – Extend" },
+        { text: "Pitot Heat – Test" },
+        { text: "Stall Vanes – Test" },
+        { text: "Lights – Int. / Ext." },
+        { text: "Fuel Gauges – True" },
+        { text: "Master – Off" },
+      ],
+    },
+    {
+      id: "exterior", label: "EXTERIOR SUMMARY", next: "interior",
+      blurb: "After thorough geographical check",
+      items: [
+        { text: "Fuel Quantity" },
+        { text: "Fuel Quality" },
+        { text: "Caps / Drains / Vents" },
+        { text: "Engines / Oil / Belt" },
+        { text: "Props / Air Intakes" },
+        { text: "Exhaust Systems" },
+        { text: "Cowl Flaps" },
+        { text: "Surfaces & Controls" },
+        { text: "Pitot & Static Ports" },
+        { text: "Gear / Tires / Brakes" },
+        { text: "Antennas" },
+        { text: "Baggage Doors" },
+        { text: "Ties / Chocks / Towbar" },
+        { text: "Final Walk Around" },
+      ],
+    },
+    {
+      id: "interior", label: "INTERIOR", next: "start",
+      items: [
+        { text: "Flaps – Up" },
+        { text: "Passenger Load / Brief" },
+        { text: "Hobbs / Tach Time" },
+        { text: "Circuit Breakers" },
+        { text: "Oxygen" },
+        { text: "ELT – Armed" },
+      ],
+    },
+    {
+      id: "start", label: "START", next: "pre-taxi",
+      items: [
+        { text: "Seat Track / Back-Lock" },
+        { text: "Avionics – Off" },
+        { text: "Autopilot – Off" },
+        { text: "Prop Sync – Off" },
+        { text: "Cowl Flaps – Open" },
+        { text: "Brakes" },
+        { text: "— #1 ENGINE START —" },
+        { text: "Fuel – Mains" },
+        { text: "Mixture – Rich" },
+        { text: "Prop – High RPM" },
+        { text: "Throttle – Slight" },
+        { text: "Prop – Clear" },
+        { text: "Master – On" },
+        { text: "Beacon – On" },
+        { text: "Fuel Pump (Off After Fuel Indication)" },
+        { text: "Mixture – Lean" },
+        { text: "Mags – On" },
+        { text: "Starter – Engage" },
+        { text: "Mixture – Rich" },
+        { text: "Oil / Fuel Pressure" },
+        { text: "Generator – On" },
+        { text: "— #2 ENGINE START (Repeat) —" },
+        { text: "Lights – As Req." },
+        { text: "Mixture – As Req." },
+      ],
+    },
+    {
+      id: "pre-taxi", label: "PRE-TAXI / TAXI", next: "run-up",
+      items: [
+        { text: "Seat Belts / Harness" },
+        { text: "Heat / Vent / Defrost" },
+        { text: "Avionics" },
+        { text: "ATIS / AWOS" },
+        { text: "Altimeter" },
+        { text: "XPDR – Alt + Sqwk", tooltip: "Transponder set to Altitude reporting mode + assigned squawk code" },
+        { text: "ADS-B – On" },
+        { text: "Radio – Test" },
+        { text: "Taxi Light – As Req" },
+        { text: "Brakes – Test" },
+        { text: "Fuel Crossfeed – Test" },
+        { text: "Attitude Indic. – Test" },
+        { text: "Turn Coord. – Test" },
+        { text: "HSI To Compass – Test", tooltip: "Horizontal Situation Indicator aligned with magnetic compass" },
+      ],
+    },
+    {
+      id: "run-up", label: "RUN-UP", next: "pre-takeoff",
+      items: [
+        { text: "Brakes" },
+        { text: "Elec. Trim / Autopilot" },
+        { text: "Trim – Takeoff" },
+        { text: "Flight Controls" },
+        { text: "Instruments" },
+        { text: "Mixture – Best Power" },
+        { text: "1500 RPM" },
+        { text: "Feather – Test" },
+        { text: "2200 RPM" },
+        { text: "Props – Cycle" },
+        { text: "Mags (L & R) – Test" },
+        { text: "Vacuum" },
+        { text: "Amps / Volts" },
+        { text: "Generators" },
+        { text: "Oil Pressure" },
+        { text: "Oil Temperature" },
+        { text: "Idle – Check Closed" },
+        { text: "Friction Lock" },
+      ],
+    },
+    {
+      id: "pre-takeoff", label: "PRE-TAKEOFF", next: "takeoff",
+      items: [
+        { text: "Flaps – 0° to 15°" },
+        { text: "Props – High RPM" },
+        { text: "Mixture – Best Power" },
+        { text: "Fuel Pumps – On" },
+        { text: "Heading Bug" },
+        { text: "XPDR – Alt + Sqwk" },
+        { text: "Doors / Windows" },
+        { text: "Pitot Heat – As Req." },
+        { text: "Landing Light – On" },
+        { text: "Strobes – On" },
+        { text: "Time – Note" },
+        { text: "Brakes – Release" },
+        { text: "ABORT PLAN – READY", tooltip: "Brief abort decision criteria before brake release: below Vmc abort, above Vmc with runway remaining land, airborne with no runway flight-out at Vyse" },
+      ],
+    },
+    {
+      id: "takeoff", label: "TAKEOFF", next: "climb",
+      items: [
+        { text: "Full Throttle" },
+        { text: "2700 RPM (Max)" },
+        { text: "Manifold Pressure" },
+        { text: "Oil Pressure" },
+        { text: "Rotate * 78 (90)", tooltip: "Vr = 78 KIAS / 90 MPH at gross. Counter-rotating prop variant: 70/80." },
+        { text: "Vy – 97 (112)", tooltip: "Best rate of climb both engines, 97 KIAS / 112 MPH" },
+        { text: "Gear – Up" },
+        { text: "Flaps – Up" },
+      ],
+    },
+    {
+      id: "climb", label: "CLIMB", next: "cruise",
+      items: [
+        { text: "113 (130)", tooltip: "Cruise climb speed: 113 KIAS / 130 MPH" },
+        { text: "Throttles – 24\" MP" },
+        { text: "Props – 2400 RPM" },
+        { text: "Mixture – As Req." },
+        { text: "Fuel Pumps – As Req." },
+        { text: "Cowl Flaps – As Req." },
+        { text: "Instruments" },
+        { text: "Taxi / Land Light – Off" },
+        { text: "Flight Plan – Open" },
+      ],
+    },
+    {
+      id: "cruise", label: "CRUISE", next: "descent",
+      items: [
+        { text: "Throttles" },
+        { text: "Props" },
+        { text: "Mixture" },
+        { text: "Fuel Pumps – As Req." },
+        { text: "Cowl Flaps – As Req." },
+        { text: "Instruments" },
+        { text: "Oxygen" },
+        { text: "Fuel – Proper Tanks" },
+      ],
+    },
+    {
+      id: "descent", label: "DESCENT", next: "pre-landing",
+      items: [
+        { text: "Power – As Req." },
+        { text: "Mixture – Richen" },
+        { text: "Fuel – Mains" },
+        { text: "Cowl Flaps – Close" },
+        { text: "ATIS / AWOS" },
+        { text: "Altimeter" },
+        { text: "Defroster" },
+        { text: "Instruments" },
+      ],
+    },
+    {
+      id: "pre-landing", label: "PRE-LANDING", next: "landing",
+      items: [
+        { text: "Brakes / Pedal Test" },
+        { text: "Landing Light – On" },
+        { text: "Autopilot – Off" },
+        { text: "Seat Belts / Harness" },
+        { text: "Mixture – Best Power" },
+        { text: "Fuel Pumps – On" },
+        { text: "Fuel – Mains" },
+        { text: "Gear – Down (Green)" },
+        { text: "Brake Pedal – Test" },
+        { text: "Flaps – As Req." },
+      ],
+    },
+    {
+      id: "landing", label: "LANDING", next: "after-landing",
+      items: [
+        { text: "Gear – Down (Green)" },
+        { text: "Flaps – 27° Or As Req." },
+        { text: "Prop – >2400 RPM" },
+        { text: "Speed * 83 (95)", tooltip: "Short final: 83 KIAS / 95 MPH" },
+        { text: "G.U.M.P.F.S.", tooltip: "Gas, Undercarriage, Mixture, Props, Flaps, Switches/Seatbelts" },
+        { text: "— GO-AROUND —" },
+        { text: "Power – Full" },
+        { text: "Positive Rate Climb" },
+        { text: "Flaps – Up" },
+        { text: "Gear – Up" },
+        { text: "Cowl Flaps – Open" },
+      ],
+    },
+    {
+      id: "after-landing", label: "AFTER LANDING", next: "securing",
+      items: [
+        { text: "Flaps – Up" },
+        { text: "Fuel Pumps – Off" },
+        { text: "Cowl Flaps – Open" },
+        { text: "Strobes – Off" },
+        { text: "Landing Light – Off" },
+        { text: "Taxi Light – As Req." },
+        { text: "Props – High RPM" },
+        { text: "Pitot Heat – Off" },
+        { text: "Heater – Fan" },
+        { text: "Mixture – As Req." },
+        { text: "Trim – Takeoff" },
+        { text: "XPDR – Alt + Sqwk" },
+      ],
+    },
+    {
+      id: "securing", label: "SECURING", next: null,
+      items: [
+        { text: "ELT – Verify Silent" },
+        { text: "Avionics – Off" },
+        { text: "Mixture – Full Lean" },
+        { text: "Mags – Off" },
+        { text: "Master – Off" },
+        { text: "Lights – Off" },
+        { text: "Cowl Flaps – Closed" },
+        { text: "Hobbs / Tach Time" },
+        { text: "Secure Yoke" },
+        { text: "Chocks" },
+        { text: "Tie Downs" },
+        { text: "Pitot Cover" },
+        { text: "Baggage Doors" },
+        { text: "Cabin Doors" },
+      ],
+    },
+  ],
+};
+
+// ---------- EMERGENCY (10 procedures from CheckMate) ----------
+const EMERGENCY = {
+  intro: "PA-30 emergency procedures from CheckMate. Read in order, top to bottom. These are not checklists — execute the steps as fast as the situation requires.",
+  procedures: [
+    {
+      id: "power-loss-takeoff",
+      label: "Power Loss During Takeoff",
+      subtitle: "(If Unable to Abort Takeoff)",
+      severity: "critical",
+      steps: [
+        "THROTTLES – CLOSE BOTH IMMEDIATELY",
+        "BRAKES – AS REQUIRED / STOP STRAIGHT AHEAD (Unlatch Doors)",
+        "* IF INSUFFICIENT RUNWAY REMAINS FOR STOPPING:",
+        "* FUEL SELECTORS – OFF",
+        "* MASTER / MAGS – OFF",
+      ],
+    },
+    {
+      id: "one-engine-after-takeoff",
+      label: "One Engine Immediately After Takeoff",
+      subtitle: ">78 KIAS (90 MPH) · Also One Engine Go-Around — Avoid If Possible",
+      severity: "critical",
+      steps: [
+        "MAINTAIN SAFE AIRSPEED  (Quality Landing Area Ahead?)",
+        "GEAR / FLAPS – UP",
+        "DIRECTIONAL CONTROL – MAINTAIN",
+        "IDENTIFY",
+        "VERIFY – CLOSE THROTTLE  (Inop. Engine)",
+        "PROP – FEATHER  (Inop. Engine, Above 1000 RPM)",
+        "ACCELERATE TO 91 KIAS (105 MPH)  (3°-5° Bank & ½ Ball to Good Engine)",
+      ],
+    },
+    {
+      id: "one-engine-in-flight",
+      label: "One Engine In Flight",
+      severity: "high",
+      steps: [
+        "CONTROL AIRPLANE – MAINTAIN SAFE AIRSPEED >84 KIAS (97 MPH)",
+        "INOPERATIVE ENGINE – IDENTIFY",
+        "OPERATIVE ENGINE – ADJUST",
+        "THROTTLE – AS NEEDED TO MAINTAIN CONTROL",
+        "— TROUBLESHOOT —",
+        "Fuel On / Crossfeed, Fuel Pump-On, Mixture, Prop, Throttle, Master / Gen., Mags",
+        "— IF NO RESTART – SECURE DEAD ENGINE —",
+        "Retard Throttle, Feather Prop, Mixture-Idle Cutoff, Fuel Pump Off, Fuel Off, Mag/Gen Off, Close Cowl Flap",
+        "COWL FLAP (Operative Engine) – AS REQUIRED",
+        "FUEL PUMP (Operative Engine) – AS REQUIRED  (Consider Xfeed)",
+      ],
+    },
+    {
+      id: "one-engine-landing",
+      label: "One Engine Landing",
+      severity: "high",
+      steps: [
+        "SECURE INOP. ENGINE – MAINTAIN SAFE AIRSPEED",
+        "FLAPS – AS NEEDED",
+        "LOWER GEAR – WHEN FIELD ASSURED",
+        "FINAL APPROACH – 91 KIAS (105 MPH)",
+        "FULL FLAPS – WHEN COMMITTED TO LAND",
+      ],
+    },
+    {
+      id: "both-engines-out",
+      label: "Both Engines Out / Landing",
+      severity: "critical",
+      steps: [
+        "MAINTAIN BEST GLIDE – 96 KIAS (110 MPH)  (Full Gross)",
+        "PROPS – FEATHER",
+        "MIXTURE – FULL LEAN / IDLE CUTOFF",
+        "FUEL SELECTORS – OFF",
+        "SQUAWK 7700",
+        "DECLARE EMERGENCY  (TWR, APP, Unicom, 121.5)",
+        "SEATBELTS / HARNESS",
+        "FLAPS – AS NEEDED  (Full Flaps When Field Assured)",
+        "GEAR – DOWN  (Up If Very Rough or Soft Terrain)",
+        "MASTER / MAGS – OFF",
+        "UNLATCH DOORS / PROTECT BODY",
+      ],
+    },
+    {
+      id: "electrical-fire",
+      label: "Electrical Fire In Flight",
+      severity: "critical",
+      steps: [
+        "ALL ELECTRICAL DEVICES + MASTER / GEN – OFF  (Pull CB's, Mags On)",
+        "CABIN HEAT & AIR – OFF  (Vents – Closed)",
+        "IF FIRE OUT TRY MASTER ON ONLY  (Vents – Open)",
+        "THEN ONE ESSENTIAL ELECTRICAL DEVICE AT A TIME",
+        "RESET CIRCUIT BREAKER(S) ONLY IF CRITICAL – LAND ASAP",
+      ],
+    },
+    {
+      id: "engine-fire-flight",
+      label: "Engine Fire In Flight",
+      severity: "critical",
+      steps: [
+        "FUEL SELECTOR – OFF TO AFFECTED ENGINE",
+        "CLOSE THROTTLE / FEATHER PROP",
+        "MIXTURE – FULL LEAN / IDLE CUTOFF",
+        "COWL FLAP – OPEN",
+        "HEATER / DEFROSTER – OFF",
+        "INCREASE AIRSPEED TO EXTINGUISH – LAND ASAP",
+      ],
+    },
+    {
+      id: "engine-fire-start",
+      label: "Engine Fire During Start",
+      severity: "high",
+      steps: [
+        "MIXTURE – FULL LEAN / IDLE CUTOFF",
+        "CONTINUE CRANKING ENGINE / THROTTLE – FULL OPEN",
+        "FUEL SELECTOR / FUEL PUMPS – OFF",
+        "MASTER – OFF",
+        "SHUTDOWN OTHER ENGINE",
+        "EVACUATE / FIRE EXTINGUISHER",
+      ],
+    },
+    {
+      id: "icing",
+      label: "Icing",
+      severity: "high",
+      steps: [
+        "PITOT HEAT – ON",
+        "MANUAL ALTERNATE AIR – AS NEEDED",
+        "CABIN HEAT & DEFROST – MAXIMUM",
+        "STRONGLY CONSIDER 180° TURN",
+        "ATTAIN HIGHER OR LOWER ALTITUDE",
+        "INCREASE ENGINE & PROP SPEED",
+        "FULL FLAPS NOT RECOMMENDED FOR LANDING",
+        "LAND FASTER AS NEEDED",
+      ],
+    },
+    {
+      id: "manual-gear-extension",
+      label: "Manual Gear Extension",
+      severity: "moderate",
+      steps: [
+        "AIRSPEED – 87 KIAS (100 MPH) OR LESS",
+        "LOWER GEAR LEVER OR IF 3 POSITION SWITCH – CENTER OFF",
+        "DISENGAGE MOTOR – RAISE RELEASE ARM & PUSH FORWARD",
+        "PLACE HANDLE IN LEFT SOCKET – LOCK & EXTEND HANDLE",
+        "(If Left Socket Not Clear Use Right Socket, Twist Clockwise To Lock, Then Left Socket)",
+        "ROTATE FORWARD FULL TRAVEL – VERIFY GREEN LIGHT",
+      ],
+    },
+  ],
+};
 
 // ---------- N1100L — actual aircraft panel familiarization ----------
 const AIRCRAFT = {
@@ -2322,37 +2769,49 @@ function Header({ progress, view, setView, userId, syncStatus }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <button className={`me-button ${view === "home" ? "active" : ""}`} onClick={() => setView("home")}>
-            <ListChecks size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Syllabus
-          </button>
-          <button className={`me-button ${view === "aircraft" || view === "aircraftquiz" ? "active" : ""}`} onClick={() => setView("aircraft")}>
-            <Plane size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />N1100L
-          </button>
-          <button className={`me-button ${view === "performance" || view === "performancequiz" ? "active" : ""}`} onClick={() => setView("performance")}>
-            <BarChart3 size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Perf
-          </button>
-          <button className={`me-button cyan ${view === "maneuvers" || view === "maneuverquiz" ? "active" : ""}`} onClick={() => setView("maneuvers")}>
-            <ClipboardCheck size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Maneuvers
-          </button>
-          <button className={`me-button cyan ${view === "oral" ? "active" : ""}`} onClick={() => setView("oral")}>
-            <MessageSquare size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Oral
-          </button>
-          <button className={`me-button cyan ${view === "reference" ? "active" : ""}`} onClick={() => setView("reference")}>
-            <FileText size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Reference
-          </button>
-          <button className={`me-button cyan ${view === "drillall" ? "active" : ""}`} onClick={() => setView("drillall")}>
-            <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Drill All
-          </button>
-          <button className={`me-button cyan ${view === "vspeeds" ? "active" : ""}`} onClick={() => setView("vspeeds")}>
-            <Gauge size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />V-Speeds
-          </button>
-          <button className={`me-button cyan ${view === "vmctable" ? "active" : ""}`} onClick={() => setView("vmctable")}>
-            <AlertTriangle size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Table
-          </button>
-          <button className={`me-button cyan ${view === "vmc-mastery" || view === "vmc-mastery-drill" ? "active" : ""}`} onClick={() => setView("vmc-mastery")}>
-            <Award size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Mastery
-          </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button className={`me-button ${view === "home" ? "active" : ""}`} onClick={() => setView("home")}>
+              <ListChecks size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Syllabus
+            </button>
+            <button className={`me-button ${view === "aircraft" || view === "aircraftquiz" ? "active" : ""}`} onClick={() => setView("aircraft")}>
+              <Plane size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />N1100L
+            </button>
+            <button className={`me-button cyan ${view === "vmctable" ? "active" : ""}`} onClick={() => setView("vmctable")}>
+              <AlertTriangle size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Table
+            </button>
+            <button className={`me-button cyan ${view === "vmc-mastery" || view === "vmc-mastery-drill" ? "active" : ""}`} onClick={() => setView("vmc-mastery")}>
+              <Award size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Vmc Mastery
+            </button>
+            <button className={`me-button ${view === "performance" || view === "performancequiz" ? "active" : ""}`} onClick={() => setView("performance")}>
+              <BarChart3 size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Perf
+            </button>
+            <button className={`me-button cyan ${view === "maneuvers" || view === "maneuverquiz" ? "active" : ""}`} onClick={() => setView("maneuvers")}>
+              <ClipboardCheck size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Maneuvers
+            </button>
+            <button className={`me-button cyan ${view === "oral" ? "active" : ""}`} onClick={() => setView("oral")}>
+              <MessageSquare size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Oral
+            </button>
+            <button className={`me-button cyan ${view === "drillall" ? "active" : ""}`} onClick={() => setView("drillall")}>
+              <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Drill All
+            </button>
+            <button className={`me-button cyan ${view === "reference" ? "active" : ""}`} onClick={() => setView("reference")}>
+              <FileText size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Reference
+            </button>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 9, letterSpacing: "0.18em", color: TEXT_DIM, fontWeight: 700, alignSelf: "center" }}>OPERATIONAL</span>
+            <button className={`me-button cyan ${view === "checklist" || view === "checklist-phase" ? "active" : ""}`} onClick={() => setView("checklist")}>
+              <ListChecks size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Checklist
+            </button>
+            <button className={`me-button cyan ${view === "emergency" || view === "emergency-procedure" ? "active" : ""}`} onClick={() => setView("emergency")}>
+              <AlertOctagon size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Emergency
+            </button>
+            <button className={`me-button cyan ${view === "speeds" ? "active" : ""}`} onClick={() => setView("speeds")}>
+              <Gauge size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Speeds
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2379,38 +2838,503 @@ function Header({ progress, view, setView, userId, syncStatus }) {
   );
 }
 
-function VSpeedsView({ onBack }) {
+function SpeedsView({ onBack }) {
   return (
     <div className="me-panel" style={{ padding: 20 }}>
       <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
         <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
       </button>
-      <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4 }}>V-SPEED REFERENCE</div>
-      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
-        PA-30 TWIN COMANCHE — VERIFY ALL VALUES AGAINST AIRCRAFT POH
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>SPEEDS</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 14, letterSpacing: "0.15em" }}>
+        N1100L · PA-30 TWIN COMANCHE · KTS + MPH
       </div>
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ fontSize: 12.5, color: TEXT_DIM, marginBottom: 20, lineHeight: 1.6, fontStyle: "italic" }}>
+        {SPEEDS.intro}
+      </div>
+
+      {/* V-SPEEDS TABLE */}
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 10 }}>V-SPEEDS</div>
+      <div style={{ overflowX: "auto", marginBottom: 24 }}>
         <table className="me-table">
           <thead>
             <tr>
-              <th style={{ width: 70 }}>Speed</th>
+              <th style={{ width: 80 }}>Code</th>
               <th>Definition</th>
-              <th style={{ width: 90 }}>Value</th>
-              <th>ASI Marking</th>
+              <th style={{ width: 70, textAlign: "center" }}>KTS</th>
+              <th style={{ width: 70, textAlign: "center" }}>MPH</th>
+              <th>Note</th>
             </tr>
           </thead>
           <tbody>
-            {VSPEEDS.map((v, i) => (
-              <tr key={i}>
-                <td><span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 13 }}>{v.code}</span></td>
-                <td>{v.name}</td>
-                <td className="me-glow-cyan" style={{ fontWeight: 700 }}>{v.val}</td>
-                <td style={{ color: TEXT_DIM, fontSize: 11 }}>{v.marking || "—"}</td>
-              </tr>
-            ))}
+            {SPEEDS.vSpeeds.map((v, i) => {
+              const accent = v.accent === "blue" ? "#4a9eff" : v.accent === "red" ? RED : "transparent";
+              return (
+                <tr key={i} style={{ borderLeft: v.accent ? `3px solid ${accent}` : undefined }}>
+                  <td>
+                    <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 13 }}>{v.code}</span>
+                  </td>
+                  <td style={{ fontWeight: 500 }}>{v.label}</td>
+                  <td style={{ textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 700, color: v.accent === "blue" ? "#4a9eff" : v.accent === "red" ? RED : CYAN }}>{v.kts}</td>
+                  <td style={{ textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontWeight: 700, color: TEXT }}>{v.mph}</td>
+                  <td style={{ color: TEXT_DIM, fontSize: 11 }}>{v.note || "—"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
+
+      {/* DEPARTURE / CRUISE / ARRIVAL CARDS */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12, marginBottom: 22 }}>
+        <SpeedsCard
+          title="DEPARTURE"
+          accent={CYAN}
+          rows={SPEEDS.departure.map((d) => ({
+            label: d.phase,
+            primary: `${d.kts} kts / ${d.mph} mph`,
+            secondary: `Flaps ${d.flaps}`,
+          }))}
+          notes={SPEEDS.departureNotes}
+        />
+        <SpeedsCard
+          title="CRUISE"
+          accent={AMBER}
+          rows={SPEEDS.cruise.map((c) => ({
+            label: c.mode,
+            primary: `${c.kts} kts / ${c.mph} mph`,
+            secondary: c.note,
+          }))}
+          notes={SPEEDS.cruiseNotes}
+        />
+        <SpeedsCard
+          title="ARRIVAL"
+          accent={"#4a9eff"}
+          rows={SPEEDS.arrival.map((a) => ({
+            label: a.phase,
+            primary: `${a.kts} kts / ${a.mph} mph`,
+            secondary: `Flaps ${a.flaps} · ${a.note}`,
+          }))}
+          notes={[]}
+        />
+      </div>
+
+      {/* COUNTER-ROTATING NOTE */}
+      <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${TEXT_DIM}`, borderRadius: "0 3px 3px 0", padding: "12px 14px", fontSize: 12.5, lineHeight: 1.6, color: TEXT_DIM }}>
+        <span style={{ fontWeight: 700, color: TEXT, letterSpacing: "0.05em" }}>Counter-Rotating Variant: </span>
+        Vmca = 70 KIAS / 80 MPH (PA-39 only — N1100L is a conventional twin, both props rotate clockwise from cockpit view).
+      </div>
+    </div>
+  );
+}
+
+function SpeedsCard({ title, accent, rows, notes }) {
+  return (
+    <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${accent}`, borderRadius: "0 3px 3px 0", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.15em", color: accent, fontWeight: 700, marginBottom: 4 }}>{title}</div>
+      {rows.map((r, i) => (
+        <div key={i} style={{ paddingTop: i === 0 ? 0 : 6, paddingBottom: 6, borderTop: i === 0 ? "none" : `1px dashed ${BORDER}` }}>
+          <div style={{ fontSize: 12, color: TEXT_DIM, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 2 }}>{r.label}</div>
+          <div className="me-glow-amber" style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 14, fontWeight: 700 }}>{r.primary}</div>
+          {r.secondary && (
+            <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2, lineHeight: 1.45 }}>{r.secondary}</div>
+          )}
+        </div>
+      ))}
+      {notes && notes.length > 0 && (
+        <div style={{ marginTop: 4, paddingTop: 8, borderTop: `1px solid ${BORDER}` }}>
+          {notes.map((n, i) => (
+            <div key={i} style={{ fontSize: 10.5, color: TEXT_DIM, lineHeight: 1.5, marginBottom: i === notes.length - 1 ? 0 : 4, fontStyle: "italic" }}>
+              {n}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChecklistView({ onBack, checklistProgress, onSelectPhase }) {
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>CHECKLIST</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 14, letterSpacing: "0.15em" }}>
+        PA-30 TWIN COMANCHE · 14 PHASES · TAP A PHASE TO BEGIN
+      </div>
+      <div style={{ fontSize: 12.5, color: TEXT_DIM, marginBottom: 20, lineHeight: 1.6, fontStyle: "italic" }}>
+        {CHECKLIST.intro}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+        {CHECKLIST.phases.map((phase, idx) => {
+          const progress = checklistProgress?.[phase.id] || {};
+          const checks = progress.checks || {};
+          const checkable = phase.items.filter((it) => !it.text.startsWith("—"));
+          const checkedCount = checkable.filter((_, i) => {
+            const realIdx = phase.items.indexOf(_);
+            return checks[realIdx];
+          }).length;
+          const totalCheckable = checkable.length;
+          const allDone = totalCheckable > 0 && checkedCount === totalCheckable;
+          const lastCompleted = progress.lastCompletedAt;
+          const accent = allDone ? "#40dc8c" : checkedCount > 0 ? AMBER : BORDER;
+          return (
+            <button
+              key={phase.id}
+              onClick={() => onSelectPhase(phase.id)}
+              style={{
+                background: PANEL_2,
+                border: `1px solid ${BORDER}`,
+                borderLeft: `4px solid ${accent}`,
+                borderRadius: "0 3px 3px 0",
+                padding: "14px 16px",
+                cursor: "pointer",
+                color: TEXT,
+                fontFamily: "JetBrains Mono, monospace",
+                textAlign: "left",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em" }}>{String(idx + 1).padStart(2, "0")}</span>
+                <span style={{ fontSize: 10, color: allDone ? "#40dc8c" : checkedCount > 0 ? AMBER : TEXT_DIM, letterSpacing: "0.1em", fontWeight: 700 }}>
+                  {totalCheckable === 0 ? "" : `${checkedCount}/${totalCheckable}${allDone ? " ✓" : ""}`}
+                </span>
+              </div>
+              <div className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{phase.label}</div>
+              <div style={{ fontSize: 10.5, color: TEXT_DIM, lineHeight: 1.4 }}>
+                {allDone && lastCompleted ? `Last completed: ${formatRelativeTime(lastCompleted)}` : checkedCount > 0 ? "In progress" : "Not started"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function formatRelativeTime(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function ChecklistPhaseView({ phaseId, checklistProgress, setChecklistProgress, onBack, onSelectPhase }) {
+  const phase = CHECKLIST.phases.find((p) => p.id === phaseId);
+  const [openTooltip, setOpenTooltip] = useState(null);
+  if (!phase) return null;
+  const progress = checklistProgress?.[phaseId] || {};
+  const checks = progress.checks || {};
+  const checkableItems = phase.items.filter((it) => !it.text.startsWith("—"));
+  const checkableTotal = checkableItems.length;
+  const checkedTotal = phase.items.filter((it, i) => !it.text.startsWith("—") && checks[i]).length;
+  const allDone = checkableTotal > 0 && checkedTotal === checkableTotal;
+  const nextPhase = phase.next ? CHECKLIST.phases.find((p) => p.id === phase.next) : null;
+
+  function toggleItem(idx) {
+    setChecklistProgress((prev) => {
+      const cur = prev?.[phaseId] || { checks: {}, lastCompletedAt: null };
+      const newChecks = { ...(cur.checks || {}) };
+      if (newChecks[idx]) delete newChecks[idx];
+      else newChecks[idx] = true;
+      const allChecked = checkableItems.every((it) => newChecks[phase.items.indexOf(it)]);
+      return {
+        ...(prev || {}),
+        [phaseId]: {
+          checks: newChecks,
+          lastCompletedAt: allChecked ? Date.now() : cur.lastCompletedAt,
+        },
+      };
+    });
+  }
+
+  function markAllComplete() {
+    setChecklistProgress((prev) => {
+      const newChecks = {};
+      phase.items.forEach((it, i) => {
+        if (!it.text.startsWith("—")) newChecks[i] = true;
+      });
+      return {
+        ...(prev || {}),
+        [phaseId]: { checks: newChecks, lastCompletedAt: Date.now() },
+      };
+    });
+  }
+
+  function clearPhase() {
+    if (!confirm(`Clear all checks in ${phase.label}?`)) return;
+    setChecklistProgress((prev) => ({
+      ...(prev || {}),
+      [phaseId]: { checks: {}, lastCompletedAt: null },
+    }));
+  }
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16, gap: 8, flexWrap: "wrap" }}>
+        <button className="me-button" onClick={onBack}>
+          <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back to Phases
+        </button>
+        <button className="me-button" onClick={clearPhase} style={{ borderColor: BORDER, color: TEXT_DIM }}>
+          <RotateCcw size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Clear
+        </button>
+      </div>
+
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>{phase.label}</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 6, letterSpacing: "0.15em" }}>
+        {checkedTotal} / {checkableTotal} COMPLETE
+      </div>
+      {phase.blurb && (
+        <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 16, fontStyle: "italic" }}>{phase.blurb}</div>
+      )}
+      {allDone && progress.lastCompletedAt && (
+        <div style={{ fontSize: 11, color: "#40dc8c", marginBottom: 16, letterSpacing: "0.1em", fontWeight: 700 }}>
+          ✓ COMPLETED · {formatRelativeTime(progress.lastCompletedAt)}
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 18 }}>
+        {phase.items.map((item, i) => {
+          const isDivider = item.text.startsWith("—");
+          if (isDivider) {
+            return (
+              <div key={i} style={{ padding: "10px 0 4px", fontSize: 10, color: TEXT_DIM, letterSpacing: "0.18em", fontWeight: 700, textAlign: "center" }}>
+                {item.text}
+              </div>
+            );
+          }
+          const checked = !!checks[i];
+          return (
+            <div key={i} style={{ position: "relative" }}>
+              <button
+                onClick={() => toggleItem(i)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "9px 12px",
+                  background: checked ? "rgba(64,220,140,0.08)" : PANEL_2,
+                  border: `1px solid ${BORDER}`,
+                  borderLeft: `3px solid ${checked ? "#40dc8c" : AMBER}`,
+                  borderRadius: "0 3px 3px 0",
+                  cursor: "pointer",
+                  color: TEXT,
+                  fontFamily: "JetBrains Mono, monospace",
+                  fontSize: 13.5,
+                  textAlign: "left",
+                  fontWeight: 500,
+                  opacity: checked ? 0.75 : 1,
+                  textDecoration: checked ? "line-through" : "none",
+                }}
+              >
+                {checked ? (
+                  <CheckSquare size={16} style={{ color: "#40dc8c", flexShrink: 0 }} />
+                ) : (
+                  <Square size={16} style={{ color: TEXT_DIM, flexShrink: 0 }} />
+                )}
+                <span style={{ flex: 1 }}>{item.text}</span>
+                {item.tooltip && (
+                  <span
+                    onClick={(e) => { e.stopPropagation(); setOpenTooltip(openTooltip === i ? null : i); }}
+                    style={{
+                      flexShrink: 0,
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      border: `1px solid ${CYAN}`,
+                      color: CYAN,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      background: openTooltip === i ? "rgba(93,213,230,0.15)" : "transparent",
+                    }}
+                  >
+                    ?
+                  </span>
+                )}
+              </button>
+              {item.tooltip && openTooltip === i && (
+                <div style={{
+                  marginTop: 4,
+                  marginLeft: 28,
+                  padding: "10px 12px",
+                  background: PANEL,
+                  borderLeft: `3px solid ${CYAN}`,
+                  borderRadius: "0 3px 3px 0",
+                  fontSize: 12.5,
+                  lineHeight: 1.6,
+                  color: TEXT,
+                }}>
+                  {item.tooltip}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {!allDone && (
+          <button className="me-button cyan" onClick={markAllComplete}>
+            <Check size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Mark All Complete
+          </button>
+        )}
+        {nextPhase && (
+          <button className="me-button" onClick={() => onSelectPhase(nextPhase.id)}>
+            Next: {nextPhase.label} <ChevronRight size={11} style={{ display: "inline", marginLeft: 4, verticalAlign: "-2px" }} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmergencyView({ onBack, emergencyLastViewed, onSelectProcedure }) {
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>EMERGENCY</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 14, letterSpacing: "0.15em" }}>
+        PA-30 EMERGENCY PROCEDURES · TAP TO EXPAND
+      </div>
+      <div style={{ fontSize: 12.5, color: TEXT_DIM, marginBottom: 20, lineHeight: 1.6, fontStyle: "italic" }}>
+        {EMERGENCY.intro}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10 }}>
+        {EMERGENCY.procedures.map((proc) => {
+          const accent = proc.severity === "critical" ? RED : proc.severity === "high" ? AMBER : CYAN;
+          const lastViewed = emergencyLastViewed?.[proc.id];
+          return (
+            <button
+              key={proc.id}
+              onClick={() => onSelectProcedure(proc.id)}
+              style={{
+                background: PANEL_2,
+                border: `1px solid ${BORDER}`,
+                borderLeft: `4px solid ${accent}`,
+                borderRadius: "0 3px 3px 0",
+                padding: "14px 16px",
+                cursor: "pointer",
+                color: TEXT,
+                fontFamily: "JetBrains Mono, monospace",
+                textAlign: "left",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              <div style={{ fontSize: 10, color: accent, letterSpacing: "0.15em", fontWeight: 700, textTransform: "uppercase" }}>
+                {proc.severity}
+              </div>
+              <div className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.3 }}>{proc.label}</div>
+              {proc.subtitle && (
+                <div style={{ fontSize: 11, color: TEXT_DIM, lineHeight: 1.4 }}>{proc.subtitle}</div>
+              )}
+              {lastViewed && (
+                <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 2 }}>
+                  Last viewed: {formatRelativeTime(lastViewed)}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function EmergencyProcedureView({ procedureId, emergencyLastViewed, setEmergencyLastViewed, onBack }) {
+  const proc = EMERGENCY.procedures.find((p) => p.id === procedureId);
+
+  useEffect(() => {
+    if (!proc) return;
+    setEmergencyLastViewed((prev) => ({ ...(prev || {}), [proc.id]: Date.now() }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [procedureId]);
+
+  if (!proc) return null;
+  const accent = proc.severity === "critical" ? RED : proc.severity === "high" ? AMBER : CYAN;
+  const lastViewed = emergencyLastViewed?.[proc.id];
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back to Emergencies
+      </button>
+
+      <div style={{ fontSize: 10, letterSpacing: "0.18em", color: accent, fontWeight: 700, marginBottom: 4, textTransform: "uppercase" }}>
+        <AlertOctagon size={12} style={{ display: "inline", marginRight: 6, verticalAlign: "-2px" }} />
+        {proc.severity}
+      </div>
+      <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4, letterSpacing: "0.04em", lineHeight: 1.2 }}>
+        {proc.label.toUpperCase()}
+      </div>
+      {proc.subtitle && (
+        <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 18, fontStyle: "italic" }}>{proc.subtitle}</div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18 }}>
+        {(() => {
+          let stepNum = 0;
+          return proc.steps.map((step, i) => {
+            const isDivider = step.startsWith("—");
+            const isSubStep = step.startsWith("*");
+            if (isDivider) {
+              return (
+                <div key={i} style={{ padding: "12px 0 6px", fontSize: 11, color: TEXT_DIM, letterSpacing: "0.18em", fontWeight: 700, textAlign: "center" }}>
+                  {step}
+                </div>
+              );
+            }
+            if (!isSubStep) stepNum += 1;
+            const num = isSubStep ? "→" : `${stepNum}.`;
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  padding: isSubStep ? "8px 12px 8px 32px" : "10px 12px",
+                  background: PANEL_2,
+                  border: `1px solid ${BORDER}`,
+                  borderLeft: `3px solid ${isSubStep ? TEXT_DIM : accent}`,
+                  borderRadius: "0 3px 3px 0",
+                  fontFamily: "JetBrains Mono, monospace",
+                  fontSize: isSubStep ? 13 : 14,
+                  lineHeight: 1.5,
+                  color: TEXT,
+                  fontWeight: isSubStep ? 400 : 600,
+                }}
+              >
+                <span style={{ color: isSubStep ? TEXT_DIM : accent, flexShrink: 0, fontWeight: 700 }}>{num}</span>
+                <span>{isSubStep ? step.replace(/^\*\s*/, "") : step}</span>
+              </div>
+            );
+          });
+        })()}
+      </div>
+
+      {lastViewed && (
+        <div style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em", textAlign: "center" }}>
+          LAST VIEWED · {formatRelativeTime(lastViewed)}
+        </div>
+      )}
     </div>
   );
 }
@@ -4891,6 +5815,10 @@ export default function App() {
   });
   const [perTopicProgress, setPerTopicProgress] = useState({});
   const [vmcMastery, setVmcMastery] = useState({});
+  const [checklistProgress, setChecklistProgress] = useState({});
+  const [emergencyLastViewed, setEmergencyLastViewed] = useState({});
+  const [activeChecklistPhase, setActiveChecklistPhase] = useState(null);
+  const [activeEmergencyProc, setActiveEmergencyProc] = useState(null);
   const [syncStatus, setSyncStatus] = useState("loading"); // "loading" | "synced" | "saving" | "offline"
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -4905,7 +5833,9 @@ export default function App() {
       if (remote.ok && remote.progress) {
         if (remote.progress.perTopicProgress) setPerTopicProgress(remote.progress.perTopicProgress);
         if (remote.progress.vmcMastery) setVmcMastery(remote.progress.vmcMastery);
-        if (!remote.progress.perTopicProgress && !remote.progress.vmcMastery) setShowWelcome(true);
+        if (remote.progress.checklistProgress) setChecklistProgress(remote.progress.checklistProgress);
+        if (remote.progress.emergencyLastViewed) setEmergencyLastViewed(remote.progress.emergencyLastViewed);
+        if (!remote.progress.perTopicProgress && !remote.progress.vmcMastery && !remote.progress.checklistProgress) setShowWelcome(true);
         setSyncStatus("synced");
         return;
       }
@@ -4914,6 +5844,8 @@ export default function App() {
         // Remote unreachable — restore from local cache, mark offline
         if (local.perTopicProgress) setPerTopicProgress(local.perTopicProgress);
         if (local.vmcMastery) setVmcMastery(local.vmcMastery);
+        if (local.checklistProgress) setChecklistProgress(local.checklistProgress);
+        if (local.emergencyLastViewed) setEmergencyLastViewed(local.emergencyLastViewed);
         setSyncStatus("offline");
         return;
       }
@@ -4928,7 +5860,7 @@ export default function App() {
   // Save progress on change (debounced). Always write localStorage, then try remote.
   useEffect(() => {
     if (syncStatus === "loading") return;
-    const payload = { perTopicProgress, vmcMastery };
+    const payload = { perTopicProgress, vmcMastery, checklistProgress, emergencyLastViewed };
     saveProgressLocal(userId, payload);
     const handle = setTimeout(async () => {
       setSyncStatus("saving");
@@ -4937,7 +5869,7 @@ export default function App() {
     }, 500);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [perTopicProgress, vmcMastery, userId]);
+  }, [perTopicProgress, vmcMastery, checklistProgress, emergencyLastViewed, userId]);
 
   // Total topic count
   const allTopics = useMemo(() => {
@@ -4991,6 +5923,8 @@ export default function App() {
     if (confirm("Clear all progress for this account? This affects every device using this URL.")) {
       setPerTopicProgress({});
       setVmcMastery({});
+      setChecklistProgress({});
+      setEmergencyLastViewed({});
     }
   }
 
@@ -5075,8 +6009,39 @@ export default function App() {
         {view === "drillall" && (
           <DrillAllView onBack={() => setView("home")} />
         )}
-        {view === "vspeeds" && (
-          <VSpeedsView onBack={() => setView("home")} />
+        {view === "speeds" && (
+          <SpeedsView onBack={() => setView("home")} />
+        )}
+        {view === "checklist" && (
+          <ChecklistView
+            onBack={() => setView("home")}
+            checklistProgress={checklistProgress}
+            onSelectPhase={(id) => { setActiveChecklistPhase(id); setView("checklist-phase"); }}
+          />
+        )}
+        {view === "checklist-phase" && activeChecklistPhase && (
+          <ChecklistPhaseView
+            phaseId={activeChecklistPhase}
+            checklistProgress={checklistProgress}
+            setChecklistProgress={setChecklistProgress}
+            onBack={() => setView("checklist")}
+            onSelectPhase={(id) => setActiveChecklistPhase(id)}
+          />
+        )}
+        {view === "emergency" && (
+          <EmergencyView
+            onBack={() => setView("home")}
+            emergencyLastViewed={emergencyLastViewed}
+            onSelectProcedure={(id) => { setActiveEmergencyProc(id); setView("emergency-procedure"); }}
+          />
+        )}
+        {view === "emergency-procedure" && activeEmergencyProc && (
+          <EmergencyProcedureView
+            procedureId={activeEmergencyProc}
+            emergencyLastViewed={emergencyLastViewed}
+            setEmergencyLastViewed={setEmergencyLastViewed}
+            onBack={() => setView("emergency")}
+          />
         )}
         {view === "vmctable" && (
           <VmcTableView onBack={() => setView("home")} />
