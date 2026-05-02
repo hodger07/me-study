@@ -945,161 +945,502 @@ const MANEUVERS = {
 
 // ---------- ORAL EXAM PREP ----------
 const ORAL = {
-  areas: [
+  intro: "These topics map directly to the Raider Aviation Multi-Engine Oral Exam Guide. Master these and you've covered what your examiner will actually ask.",
+  groups: [
     {
-      id: "certs-docs",
-      name: "Certificates, Documents & Currency",
-      questions: [
-        { q: "What documents must be in the aircraft for legal flight?", a: "AROW: Airworthiness certificate (displayed visibly), Registration, Operating limitations (POH/AFM and placards), Weight & balance current data." },
-        { q: "What inspections must be current for IFR flight?", a: "Annual (12 calendar months); 100-hour if for hire; transponder + altimeter/static + encoder all 24 calendar months; VOR check 30 days; ELT 12 months for inspection plus battery replacement at 50% useful life or after 1 hour cumulative use." },
-        { q: "Currency to act as PIC of a multi-engine airplane carrying passengers?", a: "61.57(a): 3 takeoffs and landings to a full stop in the preceding 90 days, in the same category and class. Multi-engine is its own class — single-engine T/Os don't count toward AMEL currency. Tailwheel needs full-stop landings; nosewheel can be touch-and-go." },
-        { q: "After this checkride, do you need a written knowledge test for AMEL?", a: "No. 61.63(c): adding a class rating at the same certificate level requires no additional knowledge test, no additional aeronautical experience minimums, and no additional aeronautical knowledge — just the practical test." },
-        { q: "How long is your medical valid for private privileges?", a: "Class 3 medical: 60 calendar months under 40 years old, 24 calendar months 40 and older. BasicMed is also valid for private privileges if you meet the requirements." },
-        { q: "Endorsements required for this checkride?", a: "Per 61.31(a) and 61.63: training completion endorsement (proficiency in required tasks), recommendation for the practical test. CFI's logbook endorsements demonstrating both." },
-        { q: "If the examiner finds one task unsatisfactory, what happens?", a: "Examiner has discretion. May discontinue (you complete remaining tasks on retest) or continue. On retest, only the unsatisfactory task plus anything affected by it. Existing PPL not affected — only the AMEL add-on attempt fails." },
+      id: "core-oral",
+      label: "CORE ORAL — RAIDER PDF",
+      blurb: "The 9 topics your CFI explicitly told you to know cold.",
+      topics: [
+        {
+          id: "critical-engine",
+          title: "Critical Engine",
+          raiderQuote: "The engine whose failure most adversely affects the performance and handling of the airplane. On a conventional twin that doesn't have counter-rotating props, this will be the left engine.",
+          definition: "The critical engine is the engine whose failure most adversely affects the performance and handling of the airplane. On a conventional twin (both props rotating clockwise from the pilot's view, like the PA-30), it's the LEFT engine.",
+          keyPoints: [
+            "On a conventional twin with both props rotating clockwise (cockpit view), the LEFT engine is critical.",
+            "Why: PAST puts each engine's effective thrust line on its right side. The right engine's thrust acts on a longer arm from centerline.",
+            "Lose the LEFT engine → surviving right engine produces a yawing moment on a longer arm = larger yaw, harder to control.",
+            "Lose the RIGHT engine → surviving left engine has a shorter arm = smaller yaw, easier to control.",
+            "Counter-rotating twins (e.g., PA-39) have NO critical engine — descending blades are inboard, thrust geometry is symmetric.",
+            "'Most adversely affects' means BOTH performance (larger yawing moment costs more rudder/drag) AND handling (harder to maintain heading).",
+          ],
+          quiz: [
+            { q: "Define critical engine.", a: ["Whichever engine fails first", "The engine whose failure most adversely affects the performance and handling of the airplane", "The bigger of the two engines", "The right engine in all twins"], correct: 1, explain: "The Raider/FAA definition: the engine whose failure most adversely affects the airplane's performance and handling qualities." },
+            { q: "On a PA-30 (both props rotate clockwise from the pilot's view), which engine is critical?", a: ["Right", "Left", "Either — depends on weight", "Neither"], correct: 1, explain: "LEFT engine. PAST geometry makes the right engine's thrust line farther from centerline, so losing the left leaves the surviving right engine producing yaw on a longer arm — harder to control." },
+            { q: "Why is the LEFT engine the critical engine on a conventional twin?", a: ["The left engine has more horsepower", "PAST factors put the right engine's effective thrust line farther from centerline; losing the left leaves a larger yawing arm", "The left engine drives the alternator", "It's just FAA convention"], correct: 1, explain: "The four left-yawing tendencies (P-factor, Accelerated slipstream, Spiraling slipstream, Torque) all shift each engine's effective thrust line to its RIGHT side. That puts the right engine's thrust farther from centerline, so losing the LEFT means the right engine's longer-arm thrust produces a bigger yaw." },
+            { q: "On a counter-rotating twin (e.g., PA-39), which engine is critical?", a: ["Left", "Right", "Neither — counter-rotation cancels the asymmetry", "Both"], correct: 2, explain: "Counter-rotating props mirror PAST effects, so each engine's effective thrust acts symmetrically about centerline. Neither engine has a longer moment arm; neither is critical." },
+            { q: "When the examiner says 'most adversely affects performance AND handling,' the phrase covers:", a: ["Only climb rate", "Only directional control", "Both: a larger yaw arm hurts climb (more drag/rudder) and hurts handling (more rudder needed to fly straight)", "Only fuel burn"], correct: 2, explain: "PAST puts both performance and handling penalties on the same engine. Losing the engine OPPOSITE the longer-arm side means the surviving longer-arm engine produces both more drag-from-rudder (perf) and more yaw demand (handling)." },
+            { q: "If you swap the PA-30 for a PA-39 (counter-rotating), what happens to the critical-engine concept?", a: ["Critical engine swaps to the right side", "Both engines become critical", "There is no critical engine — neither has thrust on a longer arm", "Critical engine analysis still applies but Vmc doubles"], correct: 2, explain: "Counter-rotation makes thrust geometry symmetric. With no engine having a longer effective thrust arm, neither qualifies as 'most adversely affects' the airplane on failure." },
+            { q: "On a conventional twin, the descending propeller blade of EACH engine is on:", a: ["The left side of each engine", "The right side of each engine", "The top of each engine", "The bottom of each engine"], correct: 1, explain: "Both props turn clockwise from the cockpit view. As each blade comes down on the right side of its engine, P-factor produces more thrust there — shifting effective thrust line to the right of each engine." },
+            { q: "Trick framing: 'Why isn't the RIGHT engine critical on a PA-30?' The answer:", a: ["It is — examiners often misstate this", "Losing the right engine leaves the LEFT (shorter-arm) engine as the survivor — smaller yawing moment, easier to control", "Right engine has more power so it's never critical", "The right engine drives the autopilot"], correct: 1, explain: "If you lose the right engine, the left's effective thrust line is closer to centerline → smaller yaw moment → easier handling. Critical engine = the one whose failure makes things WORST. That's the engine on the OPPOSITE side from the longer-arm survivor." },
+            { q: "Which is NOT a reason the left engine is critical?", a: ["P-factor shifts thrust right on each engine", "Spiraling slipstream off the left engine helps with yaw control", "The left engine has different displacement than the right engine", "Asymmetric thrust would act on a longer arm via the right engine"], correct: 2, explain: "Both engines have identical displacement on a PA-30. The left engine's criticality comes purely from PAST geometry, not engine differences." },
+          ],
+        },
+        {
+          id: "past",
+          title: "PAST — The 4 Factors",
+          raiderQuote: "P-factor, Accelerated slipstream, Spiraling slipstream, Torque",
+          definition: "PAST = the four left-yawing tendencies that act on every propeller airplane. On a conventional twin, all four shift each engine's effective thrust line to its RIGHT side, which is why the LEFT engine is critical.",
+          keyPoints: [
+            "**P-factor:** the descending blade produces more thrust than the ascending blade. With clockwise rotation (cockpit view), the descending blade is on the RIGHT side of each engine, shifting effective thrust right.",
+            "**Accelerated slipstream:** same geometry as P-factor — the high-velocity slipstream behind the descending blade hits the wing on the right side, producing more lift/drag asymmetry on the right of each engine.",
+            "**Spiraling slipstream:** prop wash spirals back around the fuselage and strikes the LEFT side of the vertical stabilizer, producing a left-yaw force. This is the only PAST factor that doesn't depend on which engine is failed — it's always a left-yaw input.",
+            "**Torque:** Newton's third law — prop spinning right (cockpit view) twists the airframe LEFT.",
+            "All four shift effective thrust line on each engine to its RIGHT side, except torque (whole-airframe yaw).",
+            "Net result: lose the LEFT engine → surviving right engine's longer-arm thrust = larger yawing moment to the LEFT (toward the dead engine). Vmc rises, handling degrades.",
+          ],
+          quiz: [
+            { q: "PAST stands for:", a: ["Power, Air, Spin, Trim", "P-factor, Asymmetric thrust, Slipstream, Torque", "P-factor, Accelerated slipstream, Spiraling slipstream, Torque", "Pitch, Angle, Speed, Thrust"], correct: 2, explain: "P-factor, Accelerated slipstream, Spiraling slipstream, Torque — the four left-yawing tendencies in any propeller airplane." },
+            { q: "P-factor is caused by:", a: ["Cold engine compensation", "The descending blade producing more thrust than the ascending blade at high AOA", "Air pressure differences in the fuselage", "Magnetic compass deviation"], correct: 1, explain: "At high AOA, the descending blade has a higher relative AOA than the ascending blade, producing more thrust. With clockwise rotation, the descending blade is on the right side of the engine — thrust shifts right." },
+            { q: "Accelerated slipstream effect:", a: ["Air slows behind the prop", "High-velocity prop wash hits the wing/fuselage asymmetrically, producing more lift/drag on the right side of each engine", "Crosswind compensation", "Engine cooling effect"], correct: 1, explain: "The propeller throws air backward at high velocity. Where that fast air strikes the wing or fuselage, it generates extra lift and drag. The asymmetric pattern (more from the descending-blade side) shifts effective thrust line right on each engine." },
+            { q: "Spiraling slipstream wraps around the fuselage and strikes:", a: ["The left side of the vertical stabilizer, producing a left-yaw force", "The right side of the rudder, helping yaw control", "The horizontal stabilizer only", "Nothing — it dissipates"], correct: 0, explain: "Prop wash spirals back around the fuselage and impacts the LEFT side of the vertical fin, pushing the tail right and the nose left. This is one of the four left-yawing factors." },
+            { q: "Torque (Newton's third law) on a single-engine airplane causes:", a: ["The engine to spin in the opposite direction of the prop", "The airframe to roll/yaw to the LEFT (props turning right from cockpit view)", "Increased power output", "No effect on handling"], correct: 1, explain: "If the prop spins right (clockwise from cockpit view), Newton's reaction is the airframe wanting to twist LEFT. Pilot must counteract with right rudder/aileron." },
+            { q: "On a conventional twin, all four PAST factors shift each engine's effective thrust line to:", a: ["The left side of each engine", "The right side of each engine", "Wherever the wind pushes it", "Centerline of the aircraft"], correct: 1, explain: "P-factor: descending blade on right. Accelerated slipstream: max velocity on right (where descending blade is). Spiraling slipstream: independent of engine but augments left yaw. Torque: airframe yaws left (opposite of prop rotation). Net: each engine's effective thrust acts on the RIGHT side of its own centerline." },
+            { q: "Which PAST factor is LEAST sensitive to which engine has failed?", a: ["P-factor", "Accelerated slipstream", "Spiraling slipstream (it's a fixed left-yaw force regardless of which engine quits)", "Torque"], correct: 2, explain: "Spiraling slipstream is generated by the LIVE engine and always strikes the same side of the vertical stab. Whether you lose the left or right engine, the surviving engine's spiral always tries to yaw the nose left." },
+            { q: "Why is P-factor especially relevant on a twin?", a: ["It only matters in twins", "Combined with the other PAST factors, it shifts effective thrust line outboard on the right engine, making losing the left engine yield a larger yawing moment", "It cancels in twins", "Twins are immune to P-factor"], correct: 1, explain: "Singles experience P-factor too. In twins, P-factor on each engine pushes thrust right of each engine's centerline. The right engine's thrust line ends up farther from aircraft centerline (longer moment arm) — that's what makes losing the LEFT engine 'critical.'" },
+            { q: "Counter-rotating twins eliminate the critical-engine concept because:", a: ["Their props are larger", "Each engine's PAST shifts thrust INBOARD instead of outboard, making thrust geometry symmetric about centerline", "They have more rudder authority", "PAST doesn't apply to counter-rotating engines"], correct: 1, explain: "On counter-rotating props, the descending blades are on the inboard sides of each engine. Effective thrust lines point inward symmetrically. Neither engine has a longer-arm advantage — no critical engine." },
+            { q: "Mnemonic test: which of these is NOT one of the four PAST factors?", a: ["Spiraling slipstream", "Accelerated slipstream", "Slipstream drag (made-up term)", "P-factor"], correct: 2, explain: "PAST = P-factor + Accelerated slipstream + Spiraling slipstream + Torque. 'Slipstream drag' isn't a standard PAST factor — it's a distractor." },
+          ],
+        },
+        {
+          id: "vmc",
+          title: "Vmc — Definition & N1100L",
+          raiderQuote: "Minimum controllable airspeed with one engine inoperative. Know what speed this is for your training aircraft.",
+          definition: "Vmc is the minimum airspeed at which the airplane is directionally controllable with the critical engine inoperative, the operating engine at maximum power, and the airplane in the certification configuration. For N1100L (PA-30): Vmc = 80 mph IAS, marked as the RED radial line.",
+          keyPoints: [
+            "**N1100L Vmc: 80 mph IAS** (red radial line on the ASI). Memorize cold.",
+            "Below Vmc with one engine out at full power, rudder cannot overcome asymmetric thrust → airplane yaws and rolls toward the dead engine = Vmc roll.",
+            "Vmc is a FLOOR, not a target. Never operate at or near Vmc with engine failure threat.",
+            "Recovery from imminent Vmc loss-of-control: REDUCE power on the operating engine + LOWER the nose to gain airspeed. Counterintuitive — adding power makes it worse.",
+            "Mnemonic: 'Red = Dead' (below Vmc with engine out = airplane is dead). 'Blue = Best' (Vyse = best single-engine climb).",
+            "Real-world Vmc varies: lower at altitude (less power), lower with feathered prop, higher with bank toward dead engine. The painted red line is for cert conditions only.",
+          ],
+          quiz: [
+            { q: "Define Vmc.", a: ["Maximum cruise speed with one engine", "Minimum controllable airspeed with one engine inoperative", "Vmin coordination", "Maximum certification speed"], correct: 1, explain: "Vmc = the minimum airspeed at which directional control is maintainable with the critical engine inoperative and the operating engine at max power, in the certification configuration." },
+            { q: "N1100L's Vmc is:", a: ["70 mph", "80 mph IAS (red radial line)", "90 mph", "105 mph"], correct: 1, explain: "PA-30 Vmc is 80 mph IAS — marked as the RED radial line on the ASI. Memorize this number for the oral." },
+            { q: "Vmc is marked on the airspeed indicator as the:", a: ["Top of the green arc", "Red radial line", "Bottom of the white arc", "Blue radial line"], correct: 1, explain: "RED radial line. Mnemonic: Red = Dead (below Vmc with engine out = uncontrollable). Blue = Best (Vyse, single-engine best climb)." },
+            { q: "What happens if airspeed drops below Vmc with one engine inoperative at takeoff power?", a: ["Nothing — engines compensate", "Loss of directional control: airplane yaws and rolls toward the dead engine (Vmc roll)", "Climb rate increases", "Engines automatically reduce thrust"], correct: 1, explain: "Below Vmc, the rudder cannot generate enough side force to counter the asymmetric thrust from the operating engine. The airplane yaws and rolls into the dead engine — a Vmc roll, often unrecoverable at low altitude." },
+            { q: "First action when you encounter loss of directional control approaching Vmc:", a: ["Add full power on the operating engine", "Pull the nose up sharply", "Reduce power on the operating engine and lower the nose", "Bank toward the dead engine"], correct: 2, explain: "REDUCE POWER on the operating engine (less asymmetric thrust = less yaw demand = controllable again). LOWER THE NOSE to gain airspeed back above Vmc. Adding power or pitching up makes the situation worse." },
+            { q: "Why is reducing power on the operating engine the correct Vmc recovery?", a: ["It prevents engine damage", "It lowers asymmetric thrust, which lowers actual Vmc and reduces rudder demand", "It saves fuel", "It signals ATC"], correct: 1, explain: "Less power = less PAST = less asymmetric thrust = less rudder needed = the airplane regains directional control. Combined with lower nose for airspeed, you climb back above Vmc and re-establish control." },
+            { q: "Vmc represents a FLOOR, not a target. This means:", a: ["Always operate exactly at Vmc", "Never operate at or near Vmc with engine-failure threat — give yourself airspeed margin (Vyse)", "Vmc is the same as best climb", "Vmc is irrelevant in cruise"], correct: 1, explain: "Vmc is the minimum below which control is impossible. You always want margin above it. The operational speed after engine failure is Vyse (blue line), well above Vmc." },
+            { q: "Real-world Vmc compared to the published red line:", a: ["Always exactly the same", "Can be LOWER (at altitude, with feathered prop) or HIGHER (with bank toward dead engine, etc.) — published is conservative for cert conditions", "Always higher in flight", "Doesn't apply once airborne"], correct: 1, explain: "Published Vmc is calibrated for the certification standard (sea level standard day, max power, windmilling prop, aft CG, etc.). Real-world Vmc varies. The painted red line is a fixed reference; actual Vmc shifts with conditions." },
+            { q: "If you're at 8,000 ft DA with the dead prop feathered, your actual Vmc is likely:", a: ["Higher than 80 mph", "About 80 mph", "Lower than 80 mph (less power available + less drag from windmilling)", "Zero"], correct: 2, explain: "Less power available at altitude → less PAST → lower Vmc. Feathered prop → less drag/asymmetric force → lower Vmc. Both push real Vmc below the published red line. The trap: real Vmc may even drop below stall speed at high DA — stall warning could come BEFORE any yaw warning." },
+            { q: "Easy memory aid for Vmc red and Vyse blue:", a: ["Both are decoration only", "Red = Dead (below = uncontrollable). Blue = Best (single-engine climb)", "Red = Right, Blue = Left", "Colors have no meaning"], correct: 1, explain: "Red = Dead, Blue = Best. Below the red line you're dead (Vmc roll). At the blue line you climb best on one engine. These are the two most important radial lines on a multi-engine airspeed indicator." },
+          ],
+        },
+        {
+          id: "vmc-cert-conditions",
+          title: "Vmc Certification Conditions",
+          raiderQuote: "Standard day at sea-level. Max power on the operating engine. Aft CG. Critical engine windmilling. Flaps and gear up. Up to 5 degrees of bank. Most unfavorable weight.",
+          definition: "Per AC 23-8C / 14 CFR §23.149, the published Vmc is determined under a SPECIFIC set of worst-case conditions. Knowing these is core oral content — they explain why real-world Vmc can be lower than the painted red line.",
+          keyPoints: [
+            "**Standard day at sea level.** Max engine power available — biggest asymmetric thrust possible.",
+            "**Operating engine at maximum takeoff power.** Worst-case PAST.",
+            "**Critical engine windmilling.** Maximum drag and asymmetric force from the failed side.",
+            "**Most unfavorable weight.** For Vmc, that means LIGHTER (less inertia, less horizontal lift component when banked).",
+            "**Most unfavorable CG (aft).** Shorter rudder arm = less rudder authority.",
+            "**Flaps in takeoff position, gear UP.** Clean (less keel/fin effect resisting yaw).",
+            "**Up to 5° bank toward the operating engine.** This LOWERS the determined Vmc — without this allowance, published Vmc would be unworkably high.",
+            "**Why this matters:** real-world conditions almost always deviate from cert (heavier, forward CG, feathered prop, altitude), so actual Vmc is usually LOWER than the published red line. The exception: bank toward the DEAD engine raises real Vmc above published.",
+          ],
+          quiz: [
+            { q: "What atmospheric condition is assumed for Vmc certification?", a: ["High DA (10,000 ft)", "Standard day at sea level (max power available)", "Service ceiling of the aircraft", "Density altitude doesn't matter"], correct: 1, explain: "Standard day, sea level. Where the engine produces full rated power, generating maximum asymmetric thrust — the worst-case for Vmc." },
+            { q: "Per cert, the operating engine power setting is:", a: ["Idle", "Cruise", "Maximum takeoff power", "75% power"], correct: 2, explain: "Maximum takeoff power = maximum PAST = maximum rudder demand = highest Vmc. Worst-case assumption." },
+            { q: "Per cert, the inoperative engine is assumed to be:", a: ["Feathered (best case)", "Windmilling (worst-case drag)", "At idle", "Stopped completely"], correct: 1, explain: "Windmilling = maximum drag from the dead side, maximum asymmetric force. Cert assumes the worst case. Feathering in real life lowers actual Vmc below published — that's why feathering is so important." },
+            { q: "Per cert, what weight is assumed for Vmc determination?", a: ["Maximum gross", "Most unfavorable (typically LIGHTER — less inertia, less horizontal lift)", "Empty weight", "Mid-range"], correct: 1, explain: "Counterintuitive: lighter weight is WORSE for Vmc (less inertia resisting yaw, less horizontal lift component when banked). Cert uses 'most unfavorable' which for Vmc is the lighter weight." },
+            { q: "Per cert, CG is assumed to be:", a: ["Forward limit", "Most unfavorable (typically AFT — shorter rudder arm)", "Mid-range", "Wherever empty CG sits"], correct: 1, explain: "Aft CG shortens the moment arm between CG and rudder = less rudder authority for the same deflection = higher Vmc. Cert uses the most-unfavorable case." },
+            { q: "Gear and flap configuration assumed for cert:", a: ["Gear DOWN, flaps full", "Gear UP, flaps in takeoff position", "Gear UP, flaps UP", "Gear DOWN, flaps UP"], correct: 1, explain: "Gear UP, flaps in TAKEOFF position. Represents the most-likely engine-failure scenario (just after liftoff). Less keel/fin area than gear-down = less directional stability = higher Vmc." },
+            { q: "Maximum bank angle allowed in the cert standard?", a: ["0° (wings level)", "Up to 5° toward the OPERATING engine", "10° toward the dead engine", "15° wings level"], correct: 1, explain: "14 CFR §23.149 allows up to 5° bank toward the OPERATING engine. The horizontal lift component this produces lowers the determined Vmc. Without this allowance, published Vmc would be much higher." },
+            { q: "Why is the published Vmc considered conservative for normal ops?", a: ["FAA pads it by 10%", "Real-world conditions almost always deviate from cert in ways that LOWER actual Vmc (heavier, more forward CG, feathered, at altitude)", "It isn't conservative", "Manufacturers add a safety margin themselves"], correct: 1, explain: "Cert uses worst-case combinations. Real flight typically has heavier weight (more inertia), more forward CG (more rudder arm), feathered prop (less drag), and higher altitude (less power). All of these lower real Vmc below published. Bank toward the DEAD engine is the ONE deviation that raises real Vmc." },
+            { q: "Operating engine at MAX POWER raises Vmc because:", a: ["More fuel burn", "More PAST = more asymmetric thrust = more rudder needed = higher airspeed required to generate that rudder force", "Engine vibration", "Manufacturer requirement"], correct: 1, explain: "More power = more asymmetric thrust = more rudder force needed to counter the yaw = higher airspeed required to generate that rudder force. That's why Vmc recovery starts with REDUCING power on the operating engine." },
+            { q: "Bank up to 5° toward the OPERATING engine LOWERS Vmc because:", a: ["It changes wing camber", "The horizontal lift component physically opposes the asymmetric-thrust yaw, reducing rudder demand", "It increases stall margin", "It saves fuel"], correct: 1, explain: "When banked, lift has a horizontal component. Banked toward the live engine, that horizontal component pulls the airplane toward the operating engine — which OPPOSES the asymmetric yaw caused by the dead engine. Less rudder needed = lower Vmc." },
+          ],
+        },
+        {
+          id: "vyse",
+          title: "Vyse — Definition & N1100L",
+          raiderQuote: "Best rate of climb on a single engine — or maybe the least amount of descent. Know what speed this is for your training aircraft.",
+          definition: "Vyse is the airspeed that produces the best RATE of climb (most altitude per unit time) with the critical engine inoperative. For N1100L: Vyse = 105 mph IAS, marked as the BLUE radial line. At high DA where single-engine climb is zero or negative, Vyse becomes the speed for least rate of descent.",
+          keyPoints: [
+            "**N1100L Vyse: 105 mph IAS** (blue radial line). Memorize cold.",
+            "Vyse is your operational target after engine failure: above Vmc, above stall, gives best climb performance on one engine.",
+            "Off-speed in either direction reduces climb rate. Below Vyse: more induced drag + closer to Vmc. Above Vyse: more parasite drag.",
+            "Slowing below Vyse with an engine out is hazardous — you trade climb performance AND lose Vmc margin.",
+            "**The 'or maybe least descent' caveat:** at high DA above the single-engine service ceiling (50 fpm climb @ ~7,100 ft DA on PA-30), the airplane can't climb single-engine. Vyse then becomes least-descent speed.",
+            "After identify-verify-feather-secure, Vyse is your ONLY pitch target until you have terrain or maneuvering reasons to deviate.",
+          ],
+          quiz: [
+            { q: "Define Vyse.", a: ["Maximum gear extension speed", "Best RATE of climb on a single engine (or least rate of descent if climb isn't possible)", "Best ANGLE of climb single engine", "Stall speed"], correct: 1, explain: "Vyse = best rate of climb (greatest altitude per unit time) on one engine. At high DA where climb isn't available, it's the least-descent speed." },
+            { q: "N1100L's Vyse is:", a: ["80 mph", "90 mph", "105 mph IAS (blue radial line)", "112 mph"], correct: 2, explain: "PA-30 Vyse = 105 mph IAS, marked as the BLUE radial line. Memorize for the oral." },
+            { q: "Vyse is marked on the airspeed indicator as:", a: ["Red radial", "Blue radial line", "Top of the white arc", "Top of the green arc"], correct: 1, explain: "BLUE radial line. Mnemonic: Blue = Best (single-engine best rate of climb)." },
+            { q: "After identify-verify-feather, your sole pitch target is:", a: ["Vmc", "Vy (multi-engine)", "Vyse (blue line)", "Vne"], correct: 2, explain: "Vyse — best single-engine climb. Vy is for both engines. Vmc is a limit, not a target. Vne is a max." },
+            { q: "If you slow below Vyse single-engine:", a: ["Climb rate stays the same", "Climb rate decreases (more induced drag) AND you reduce Vmc margin", "Climb rate increases", "No effect on safety"], correct: 1, explain: "Below Vyse you generate more induced drag (climb suffers) AND you're closer to Vmc (less control margin). Both bad. Stay AT Vyse precisely." },
+            { q: "If you fly above Vyse single-engine:", a: ["Climb rate stays the same", "Climb rate decreases (more parasite drag, but you have more Vmc margin)", "Climb rate increases", "You always climb better the faster you go"], correct: 1, explain: "Above Vyse you incur more parasite drag, reducing climb rate. The Vmc margin is bigger, but the trade-off is performance. Vyse is precisely the optimum." },
+            { q: "What's the 'or maybe least amount of descent' caveat in Vyse's definition?", a: ["Vyse is always a climb speed", "At high DA above the single-engine service ceiling, the aircraft can't climb single-engine — Vyse becomes the speed for least rate of descent", "It refers to gear extension", "The caveat doesn't apply to PA-30"], correct: 1, explain: "Vyse is the airspeed that maximizes performance (climb when possible, least descent when climb isn't). On a hot day at gross weight where DA is above the SE service ceiling, the airplane can't maintain altitude single-engine — Vyse minimizes the descent rate to give you the most time/distance." },
+            { q: "PA-30 single-engine service ceiling at gross weight is approximately:", a: ["3,000 ft DA", "5,000 ft DA", "~7,100 ft DA (climb = 50 fpm)", "12,000 ft DA"], correct: 2, explain: "About 7,100 ft DA at gross. That's where single-engine climb degrades to 50 fpm. On hot Lubbock days, DA can push or exceed this — meaning engine failure on departure leaves no climb capability." },
+            { q: "Which speed do you climb at if BOTH engines are running normally during initial climb?", a: ["Vyse", "Vy (best multi-engine climb)", "Vmc", "Vfe"], correct: 1, explain: "Vy with both engines (about 112 mph in PA-30). Vyse is only relevant after engine failure. Don't fly Vyse with both engines running — you'd be climbing slower than necessary." },
+            { q: "What's an acceptable airspeed margin above Vmc for engine-out maneuvering?", a: ["Vmc itself is fine", "At least Vyse (well above Vmc with safety margin AND best climb)", "Vmc + 5 mph", "Vne minus 10"], correct: 1, explain: "Vyse (blue line) gives both adequate Vmc margin AND best climb performance. Operating at or near Vmc with engine out is dangerous — even small turbulence can drop you below Vmc and into a roll." },
+          ],
+        },
+        {
+          id: "accelerate-stop",
+          title: "Accelerate-Stop Distance",
+          raiderQuote: "The amount of runway needed to accelerate to takeoff speed, lose the critical engine, and come to a stop. Be able to calculate accelerate stop distance and add a safety buffer to come up with your personal minimum on runway length.",
+          definition: "Accelerate-stop distance is the runway length required to accelerate to decision speed (per POH, typically Vr or Vmc), simulate critical-engine failure, then bring the airplane to a complete stop on the remaining runway. Key go/no-go input for every multi-engine takeoff.",
+          keyPoints: [
+            "Computed from POH chart inputs: pressure altitude, OAT, weight, headwind/tailwind, surface, slope.",
+            "If accelerate-stop distance exceeds runway available, you have NO abort margin — engine failure on takeoff roll = unsurvivable on that runway.",
+            "Add a personal-minimum buffer (commonly 10-25% margin) so you don't fly to the chart's edge.",
+            "Factors that INCREASE accelerate-stop distance: high DA, high weight, tailwind, slope down (uphill to abort = longer roll-out), wet/grass surface.",
+            "Factors that DECREASE: cool air, light weight, headwind, paved/dry, slight downhill in abort direction.",
+            "Lubbock note: KLBB's 11,500 ft runway dwarfs typical PA-30 needs. F49's 4,600 ft is the constraint — math it carefully on warm afternoons at gross.",
+            "On the checkride, the examiner wants to see you treating runway length as a calculation, not a feeling.",
+          ],
+          quiz: [
+            { q: "Define accelerate-stop distance.", a: ["Distance from V1 to V2", "Runway length needed to accelerate to takeoff/decision speed, lose the critical engine, and stop on the remaining runway", "Single-engine landing distance", "Distance from rotation to clear of 50 ft obstacle"], correct: 1, explain: "Accel-stop = the runway length required to abort safely if the critical engine fails on the takeoff roll. The Raider definition." },
+            { q: "Why is accelerate-stop the critical takeoff calculation in a twin?", a: ["FAA requires it", "It defines whether engine failure on the takeoff roll is survivable on the runway you have", "It determines fuel burn", "It sets approach speeds"], correct: 1, explain: "If accel-stop exceeds runway available, you can't abort safely. Below Vmc with one engine out, you can't fly out either. So you need accel-stop ≤ runway length minus your personal buffer to even commit to the takeoff." },
+            { q: "Personal minimum on runway length for the PA-30 in your operations:", a: ["Always 5,000 ft", "Accelerate-stop distance + a safety buffer (commonly 10-25%) per your CFI's guidance", "Whatever the runway is", "POH minimum exactly"], correct: 1, explain: "Accelerate-stop from POH plus a personal buffer. The exact buffer depends on your CFI's standard and your comfort level — but flying to the chart's edge leaves no margin for any unanticipated factor." },
+            { q: "Which of these INCREASES accelerate-stop distance the most?", a: ["Cool morning, paved runway, headwind", "High DA + tailwind + grass surface + max gross weight", "Slight headwind, near-sea-level field", "Light weight, cool air"], correct: 1, explain: "All four factors stack: high DA (less acceleration), tailwind (need more runway to accelerate, less wind to slow), grass (more rolling resistance), gross weight (longer to accelerate AND longer to stop). Worst-case combo for accel-stop." },
+            { q: "F49 (Slaton) runway is 4,600 ft. On an 85°F day at gross weight, accelerate-stop is approximately:", a: ["1,500 ft (always under runway)", "~3,800-4,000 ft (margin ~600-800 ft, tight but legal)", "8,000 ft (cannot operate)", "Not applicable"], correct: 1, explain: "Roughly 3,800-4,000 ft from typical PA-30 charts at ~5,500 ft DA, gross weight, no wind. That's tight against 4,600 ft of runway. Headwind helps; tailwind kills it." },
+            { q: "If accelerate-stop > runway available, your decision is:", a: ["Try anyway", "Reduce weight (one less passenger or partial fuel) to bring accel-stop within runway, or wait for cooler temps, or scrub", "Take off with maximum power", "Take off and circle back if the engine fails"], correct: 1, explain: "Below Vmc you can't fly out, and above Vmc on the runway you can't stop in remaining runway. The fix: reduce a controllable variable — usually weight — until accel-stop is within runway minus margin. Or scrub." },
+            { q: "Lubbock-specific: which Lubbock airport is most likely the binding constraint for accelerate-stop?", a: ["KLBB (11,500 ft runway dwarfs PA-30 needs)", "F49 Slaton (4,600 ft — the binding constraint on hot days at gross)", "Both equally", "Neither — runway never matters in Lubbock"], correct: 1, explain: "KLBB's 11,500 ft easily covers any PA-30 takeoff. F49's 4,600 ft is where you have to math out accel-stop on warm afternoons at gross weight. Examiner will probe this specifically." },
+            { q: "What input from the POH chart gets you accel-stop distance?", a: ["Just runway length and OAT", "Pressure altitude, OAT, weight, headwind/tailwind, surface, slope (all the takeoff distance inputs)", "Just OAT", "Just weight"], correct: 1, explain: "Same input set as takeoff distance, but the chart returns accelerate-stop. POH PA-30 has a dedicated accelerate-stop chart. Read inputs carefully." },
+            { q: "If you compute accel-stop = 4,500 ft on a 4,600 ft runway, your action:", a: ["Go", "Treat margin as inadequate (only 100 ft / 2%) — reduce weight or wait for cooler temps", "Add full power and rotate at Vmc", "Skip the calculation"], correct: 1, explain: "100 ft margin on 4,500 ft is ~2% — wildly inadequate. Personal minimums (commonly 10-25%) would require 4,950-5,625 ft. Reduce weight or scrub." },
+            { q: "Examiner asks 'How does runway slope affect accel-stop?' Best answer:", a: ["No effect", "Downhill takeoff direction = faster acceleration but longer roll-out for abort. Uphill takeoff = slower acceleration but shorter roll-out. Both need to be considered, slope is in the chart.", "Uphill always means abort", "Slope only matters at high DA"], correct: 1, explain: "Slope acts in opposite directions for takeoff and abort. Most POHs include a slope correction. The examiner wants you to understand the dual effect, not just blindly apply a number." },
+          ],
+        },
+        {
+          id: "abort-plan",
+          title: "Before-Takeoff Abort Plan",
+          raiderQuote: "Any engine failure on takeoff before rotation or before the gear is up: throttles to idle and stop or land straight ahead. An engine failure after the gear is in transit: maintain directional control, identify/verify/feather.",
+          definition: "Every multi-engine takeoff requires committing to a specific decision before brake release. Three zones: (1) BEFORE rotation OR before gear is up → ABORT (throttles idle, stop or land straight ahead). (2) AFTER gear is up airborne → maintain control, identify/verify/feather. The gear-up callout is the practical pivot.",
+          keyPoints: [
+            "**Brief the abort BEFORE brake release**, every takeoff. 'If anything happens before rotation or gear up, throttles idle, stop or land straight ahead. Past gear up, climb at blue line, identify-verify-feather, return.'",
+            "**Below rotation / gear in transit / runway remaining → ABORT.** No exceptions, no negotiation. Throttles idle, max braking, maintain centerline.",
+            "**Airborne, no usable runway → fly the aircraft.** Pitch blue line (Vyse), rudder, ~2° bank toward live engine. THEN identify, verify, feather, secure, declare, return.",
+            "Below Vmc you cannot fly out. Doesn't matter how much runway is ahead of you airborne — if you're below Vmc with one engine at takeoff power, you're going down.",
+            "Once airborne with the gear up and no runway remaining, the runway BEHIND you is unusable — terrain, trees, distance prevent it.",
+            "Examiner wants to hear this brief before taxi for departure. Brief out loud, every time. It commits you to the right action and signals to the examiner you're disciplined.",
+          ],
+          quiz: [
+            { q: "Engine fails BEFORE rotation, runway remaining. Action?", a: ["Continue takeoff", "Abort: throttles idle, max braking, maintain centerline", "Climb out single-engine", "Bank toward dead engine"], correct: 1, explain: "Below rotation = below Vmc + still on the ground. ABORT. Throttles idle, brakes, maintain directional control. Land straight ahead if you've already lifted off." },
+            { q: "Engine fails AFTER rotation but BEFORE gear is up, with runway remaining. Action?", a: ["Climb out at Vyse", "Abort/land straight ahead — gear DOWN if not yet retracted, throttles idle, brake to stop", "Pitch up sharply", "Bank toward dead engine"], correct: 1, explain: "Per Raider's guidance: any failure before gear is up means abort/land. Use remaining runway. Don't try to fly out when you have a runway." },
+            { q: "Engine fails AFTER gear retraction, no usable runway ahead. Action sequence?", a: ["Identify-Verify-Feather first, then control", "Maintain control (pitch Vyse, rudder, bank toward live engine), THEN identify-verify-feather, secure, declare, return", "Add full power and circle back", "Pitch up to clear obstacles"], correct: 1, explain: "AVIATE first. Always. Pitch blue line, manage yaw, ~2° bank toward operating engine. Configuration and identification come AFTER control is established. Skipping aviate = Vmc roll." },
+            { q: "Why is the runway BEHIND you (after airborne) considered unusable?", a: ["FAA prohibits returning to runway", "Distance, terrain, and trees make it impractical to spiral back single-engine at low altitude — descent rate vs distance doesn't work", "It's reserved for incoming traffic", "Insurance regulations"], correct: 1, explain: "Once airborne and past the runway with gear up, attempting to return single-engine usually means a low-altitude turn that you can't complete safely. The 'impossible turn' problem is well-documented for singles and just as bad in twins single-engine. Land ahead or commit to single-engine departure." },
+            { q: "When do you brief the abort plan?", a: ["Once a year during flight review", "Before brake release on EVERY takeoff", "Only on training flights", "Only at unfamiliar airports"], correct: 1, explain: "Every. Takeoff. Briefing the abort commits you to the correct action and prevents hesitation when seconds matter. Examiner expects to hear it." },
+            { q: "Engine fails 5 mph BELOW Vmc with 5,000 ft of runway ahead. Action?", a: ["Continue, climb out single-engine", "Abort — throttles idle, max braking", "Add full power on operating engine and lift off", "Pull mixtures to idle"], correct: 1, explain: "Below Vmc, no amount of runway ahead changes the fact that you cannot fly with one engine at takeoff power. ABORT. The runway is your friend on the ground; airborne below Vmc, runway is irrelevant." },
+            { q: "Engine fails 10 mph ABOVE Vmc with 2,000 ft runway remaining. Best action?", a: ["Climb out, declare, return", "Land straight ahead — runway remaining is your safety net", "Increase power on the operating engine", "Bank away from dead engine"], correct: 1, explain: "Above Vmc + runway remaining = LAND. Don't try to fly out of a problem when there's runway to land on. Examiner wants to hear this exact reasoning." },
+            { q: "After brake release, your mental model becomes:", a: ["'I'm committed to taking off no matter what'", "'Below rotation/gear-up: abort. Above gear-up no runway: control first, then IVF.'", "'Whatever feels right'", "'Just rotate at the right speed'"], correct: 1, explain: "Two clear decision zones with explicit actions. The brief commits you. Anything ambiguous or improvised in this phase = bad outcome. Discipline = practiced abort decision." },
+            { q: "Why is 'maintain directional control' the FIRST action airborne after engine failure?", a: ["Because the checklist says so", "Because below Vmc you cannot fly — losing control = Vmc roll. You must establish/maintain control before doing anything else.", "Because it sounds professional", "Because ATC requires it"], correct: 1, explain: "Aviate is first because losing control kills you instantly. Identify, verify, feather all happen AFTER you've established positive control with rudder, blue line pitch, and bank toward the live engine." },
+            { q: "Pre-takeoff brief contents (minimum):", a: ["Runway and weather only", "Runway, abort logic (below rotation/gear in transit = abort; airborne no runway = blue line + IVF), departure plan", "Just the runway number", "Just the V-speeds"], correct: 1, explain: "Brief commits you to actions before you're under stress. Cover the abort logic explicitly so the decision is pre-made when (not if) something happens." },
+          ],
+        },
+        {
+          id: "engine-failure-drill",
+          title: "Engine Failure Drill (Raider 8-Step Flow)",
+          raiderQuote: "Reduce angle of attack. Maintain directional control - set zero sideslip. Mixtures as required. Props forward. Throttles forward. Gear up - flaps up. Identify - verify. 3000' AGL - Fix or feather: Fix - get the checklist out and troubleshoot if you are above 3000' AGL. Feather - bring the correct prop control all the way back to feather if you are below 3000' AGL.",
+          definition: "Raider's 8-step flow for any in-flight engine failure. Memorize the EXACT order. Each step is sequenced for a reason: aviate before identify, configure before feather, fix or feather decided by altitude.",
+          keyPoints: [
+            "**1. Reduce angle of attack** — pitch for blue line (Vyse), trade altitude for airspeed if needed.",
+            "**2. Maintain directional control — set zero sideslip** (½ ball + ~2° bank toward live engine, not centered).",
+            "**3. Mixtures as required** — typically forward to rich (best power), unless POH says otherwise.",
+            "**4. Props forward** — both prop controls forward (high RPM available on the live engine; dead engine doesn't matter yet because not feathered).",
+            "**5. Throttles forward** — both throttles forward to max climb power.",
+            "**6. Gear up, flaps up** — clean up drag.",
+            "**7. Identify – verify** — DEAD FOOT, DEAD ENGINE (the foot you're not pressing rudder against = the side that failed). Then VERIFY by slowly pulling the suspected dead throttle back. If yaw doesn't change, you've got the right one.",
+            "**8. 3,000 ft AGL — fix or feather:** ABOVE 3,000 ft AGL, troubleshoot first (get the checklist out, try restart). BELOW 3,000 ft AGL, feather the dead engine immediately — no time for troubleshooting.",
+            "The exact order matters: control before configure, configure before identify, identify before feather. Skipping ahead can shut down the working engine.",
+          ],
+          quiz: [
+            { q: "Step 1 of Raider's engine failure drill:", a: ["Identify the dead engine", "Reduce angle of attack (pitch for blue line)", "Feather immediately", "Add full power"], correct: 1, explain: "Reduce AOA first. Pitch for blue line / Vyse to maintain controllable airspeed. AVIATE before everything else." },
+            { q: "Step 2 of Raider's drill:", a: ["Pull the dead-side mixture", "Maintain directional control — set zero sideslip (½ ball, ~2° bank toward live engine)", "Verify before identify", "Feather"], correct: 1, explain: "Establish zero sideslip immediately after pitching for Vyse. Half ball deflection toward operating engine, up to 5° bank (typically ~2°). Wings level + ball centered is WRONG and reduces climb." },
+            { q: "Correct order of steps 3-6 (configure):", a: ["Throttles, mixtures, props, gear/flaps", "Mixtures, props, throttles, gear up/flaps up", "Gear up, mixtures, throttles, props", "Flaps, gear, mixtures, throttles"], correct: 1, explain: "Mixtures forward → props forward → throttles forward → gear up, flaps up. The 'forward' sequence (mixtures, props, throttles) is muscle memory. Then clean up drag (gear, flaps)." },
+            { q: "Step 7 (identify-verify): how do you identify the dead engine?", a: ["Look at the engine instruments", "Dead foot = dead engine: the foot you're NOT pressing rudder with identifies the failed side", "Listen for which engine is quieter", "Check the EGT"], correct: 1, explain: "Dead foot, dead engine. The asymmetric thrust pushes you toward the failed side; you instinctively press the OPPOSITE rudder. The foot you're NOT pressing = the dead side. Fast and reliable." },
+            { q: "After identifying with dead-foot rule, how do you VERIFY?", a: ["Just feather based on identification", "Slowly retard the throttle on the suspected dead side. If yaw doesn't change, you've got it right. If yaw worsens, you grabbed the WORKING engine — push that throttle forward.", "Look at the manifold pressure gauges", "Pull the dead-side mixture"], correct: 1, explain: "Verify before feather. Slowly retard the suspected dead throttle. No yaw change = correct identification (already dead). Yaw worsens = you grabbed the LIVE engine; push it back forward immediately. Verify prevents shutting down the working engine." },
+            { q: "At 5,000 ft AGL, engine fails. Per Raider's drill: fix or feather?", a: ["Feather immediately", "FIX — above 3,000 ft AGL, get the checklist out and troubleshoot (try fuel selector, mixture, mags, restart)", "Land immediately", "Cycle the prop"], correct: 1, explain: "Above 3,000 ft AGL you have time to troubleshoot. Common fixes: wrong fuel tank selector, mixture too lean, primer left out, magneto issue. Try them before committing to feather, which is irreversible without electrical assist (and often impossible to unfeather without gear-driven oil pressure)." },
+            { q: "At 1,500 ft AGL, engine fails. Per Raider's drill: fix or feather?", a: ["Try to fix first (use checklist)", "FEATHER — below 3,000 ft AGL there's no time for troubleshooting. Feather the correct prop and secure.", "Land immediately without feathering", "Add power on the dead engine"], correct: 1, explain: "Below 3,000 ft AGL feather immediately after IDENTIFY-VERIFY. Drag from windmilling prop is enormous; you don't have altitude/time to troubleshoot. Feather buys back climb performance and lowers Vmc — buys you time to handle the rest." },
+            { q: "Why does the drill have you do CONFIGURE (mixtures-props-throttles-gear-flaps) BEFORE identify-verify?", a: ["No reason — could be reversed", "Gives you maximum performance from the live engine and reduces drag while you take the second to identify the dead one. Saves altitude during identification.", "FAA requirement", "Cosmetic"], correct: 1, explain: "Configure first puts the LIVE engine at max power and cleans up drag. That preserves altitude/airspeed during the brief moments you spend identifying and verifying. Skipping configure first = bleeding altitude unnecessarily." },
+            { q: "What's the danger of feathering BEFORE verifying?", a: ["No danger", "You might feather the WORKING engine. If you misidentified and shut down the live one, you have no power at all and you're now a glider.", "Just slows you down", "Only matters above 5,000 ft"], correct: 1, explain: "Verify is the safety check before feathering. Misidentification + immediate feather = shut down the only working engine. Industry-known fatal accident pattern. Always verify with throttle pull first." },
+            { q: "Memorize Raider's exact order: which sequence is correct?", a: ["Reduce AOA → Mixtures → Props → Throttles → Identify → Verify → Feather", "Reduce AOA → Zero sideslip → Mixtures → Props → Throttles → Gear/flaps up → Identify-Verify → Fix or feather", "Identify → Verify → Feather → Configure → Aviate", "Aviate → Identify → Feather → Configure"], correct: 1, explain: "AOA → zero sideslip → forward (mixtures, props, throttles) → up (gear, flaps) → identify-verify → fix-or-feather. 8 steps in this exact order. The examiner may quiz you on the order specifically." },
+            { q: "After feathering, the next checklist phase is:", a: ["Land at the nearest airport — no further checks", "Secure the dead engine (mixture cutoff, mags off, fuel selector off, alt/pump off on dead side), declare emergency, divert to nearest suitable airport", "Try to restart immediately", "Climb to cruise altitude"], correct: 1, explain: "After feather: SECURE the dead engine (prevents fuel/electrical issues), declare emergency to ATC, divert to nearest SUITABLE airport. The Raider drill ends at feather; SECURE is the immediate follow-on." },
+          ],
+        },
+        {
+          id: "zero-sideslip",
+          title: "Zero Sideslip & Maneuvering OEI",
+          raiderQuote: "Half ball deflection towards the operating engine. Up to 5 degrees of bank towards the operating engine (raise the dead). Be able to explain what zero sideslip does and why we use it in OEI situations. When is it OK to make turns into the dead engine?",
+          definition: "Zero sideslip is the bank/rudder configuration where the airplane's relative wind is parallel to its longitudinal axis — minimum drag. With one engine inoperative, this means: ½ ball deflected TOWARD the operating engine, ~2-5° bank TOWARD the operating engine (raise the dead). Single-engine performance roughly DOUBLES vs wings-level ball-centered.",
+          keyPoints: [
+            "**Setup:** ½ ball toward the live engine (NOT centered), ~2° bank (max 5°) toward the live engine.",
+            "**'Raise the dead' memory aid:** the dead engine's wing wants to drop (loss of lift, asymmetric drag). Raise it = bank toward the live engine.",
+            "**Why it works:** banking toward the live engine produces a horizontal lift component that opposes the asymmetric-thrust yaw → less rudder needed → less rudder-induced drag.",
+            "**Performance gain:** zero sideslip can roughly DOUBLE single-engine climb rate vs wings-level + ball-centered. Huge difference for survival.",
+            "**Vmc effect:** zero sideslip also LOWERS actual Vmc — the bank's horizontal lift contribution is the entire reason cert allows up to 5° bank.",
+            "**Turns into the dead engine:** generally avoid at low altitude (Vmc considerations + asymmetric drag during turn). OK at altitude with Vyse + margin — you're not bank-limited, just careful about coordination.",
+            "Wings-level + ball-centered after engine failure is a CLASSIC ROOKIE ERROR — feels coordinated, actually generates max sideslip drag.",
+          ],
+          quiz: [
+            { q: "Zero sideslip with one engine out: where's the ball?", a: ["Perfectly centered", "Half ball deflected toward the OPERATING engine", "Half ball deflected toward the dead engine", "Fully deflected toward operating engine"], correct: 1, explain: "Half ball toward the operating (live) engine. NOT centered — that's the trap. The ball gives you a precise reference for zero sideslip." },
+            { q: "Zero sideslip bank angle:", a: ["0° (wings level)", "About 2° toward the operating engine (up to 5° max)", "5° toward the dead engine", "Whatever feels right"], correct: 1, explain: "Approximately 2° toward the live engine, with 5° as the max allowed in cert standards. Small but critical." },
+            { q: "Mnemonic 'raise the dead' means:", a: ["Restart the failed engine", "Raise the wing on the DEAD-engine side, which means banking TOWARD the live (operating) engine", "Pitch the nose up", "Restart radio communications"], correct: 1, explain: "Raise the dead (engine's) wing. The dead engine's wing wants to drop — lift it by banking toward the live side. Same as 'bank toward the live engine.'" },
+            { q: "Performance benefit of zero sideslip vs wings-level/ball-centered:", a: ["Same — just more comfortable", "Roughly DOUBLES single-engine climb rate (less drag from sideslip)", "10% improvement", "Only matters at high altitude"], correct: 1, explain: "Wings level + ball centered with one engine out = maximum sideslip = maximum drag. Zero sideslip eliminates that drag. Climb rate roughly doubles — life-or-death difference at high DA." },
+            { q: "Why does zero sideslip also LOWER Vmc?", a: ["It doesn't", "The bank toward the live engine produces a horizontal lift component that helps counter the asymmetric-thrust yaw — less rudder needed = lower Vmc", "Magic", "Reduced parasite drag"], correct: 1, explain: "Banking toward the live engine: lift has a horizontal component pulling toward the live side. That horizontal component opposes the asymmetric yaw caused by the dead engine. Less rudder force needed = lower Vmc." },
+            { q: "Wings-level + ball-centered after engine failure is:", a: ["The correct configuration", "A common rookie error — looks coordinated but is actually maximum sideslip = maximum drag", "Required by FAA", "Best for stability"], correct: 1, explain: "Classic rookie trap. Centered ball is what you train for in normal flight, but with one engine out it produces sideslip — the airplane is flying sideways through the air. Half-ball-toward-live-engine is correct." },
+            { q: "When are turns INTO the dead engine acceptable?", a: ["Never", "Generally avoided at low altitude/low airspeed (Vmc considerations); acceptable at higher altitude with adequate Vyse margin and careful coordination — required for some procedures (e.g., circle-to-land)", "Always required", "Only above 10,000 ft"], correct: 1, explain: "At altitude with airspeed margin, turns into the dead engine are routine — just watch coordination and don't reduce airspeed. At low altitude with engine failure threat, avoid turns toward the dead engine because they aggravate the yaw." },
+            { q: "After identify-verify-feather, your maneuvering technique is:", a: ["Wings level, ball centered, fly to airport", "Establish and HOLD zero sideslip (½ ball toward live, ~2° bank toward live), maintain Vyse, fly to nearest suitable airport", "Bank away from dead engine for visibility", "No special technique needed"], correct: 1, explain: "Hold zero sideslip throughout. Any deviation back toward 'feels coordinated' wings-level instantly costs you climb performance. Train this as muscle memory." },
+            { q: "Bank TOWARD the dead engine after engine failure:", a: ["Recommended for visibility", "WORST option — adds horizontal lift in the SAME direction as the asymmetric yaw, raises Vmc, kills climb", "Same as bank toward live engine", "Used for landing"], correct: 1, explain: "Banking toward the dead engine creates a horizontal lift component that AUGMENTS the asymmetric yaw rather than opposing it. Raises Vmc significantly. Recipe for loss of control. Never do this." },
+            { q: "Zero sideslip works AT ANY weight, AT ANY altitude. The principle is:", a: ["Only works at sea level", "Generic — bank toward the live engine puts horizontal lift opposing asymmetric yaw, regardless of altitude or weight", "Only works at gross weight", "Only works at high DA"], correct: 1, explain: "The physics applies at every weight and altitude. The exact angle (~2°) may vary slightly by aircraft, but the principle is universal. Bank toward live + ½ ball toward live = least drag, lowest Vmc, best climb." },
+          ],
+        },
       ],
     },
     {
-      id: "systems",
-      name: "Aircraft Systems (PA-30)",
-      questions: [
-        { q: "Describe the propeller system on N1100L.", a: "Hartzell constant-speed, full-feathering, hydraulic. Oil pressure drives blades to LOW pitch (high RPM); springs and counterweights drive blades to FEATHER when oil pressure is interrupted. That's why a failed engine can still feather — physics drives it." },
-        { q: "Why do you cycle the prop controls during runup?", a: "To circulate WARM oil into the propeller hub. Feathering requires oil pressure changes that work properly only with warm oil. Cold oil delays feather — sometimes by enough to matter." },
-        { q: "How does the fuel system work — what tanks, and how do you use them?", a: "Two main tanks (one per side) feeding their respective engines normally. Two auxiliary tanks (one per side) typically restricted to LEVEL CRUISE only — not for takeoff, landing, or single-engine ops per POH. Crossfeed allows feeding either engine from either side's mains — primary purpose is feeding the operating engine from the dead side's fuel after engine failure." },
-        { q: "Describe the electrical system.", a: "Dual alternators (one per engine), single battery typical. Master switch controls battery + alternator field. Each alternator switch independent. Loss of one alternator = the other carries load (consider load-shedding non-essentials). Loss of both = battery only — limited time, land soonest." },
-        { q: "What instruments are on vacuum, and which on electric?", a: "On N1100L: dual Garmin G5s are ELECTRIC with internal battery backup — primary attitude and HSI. Turn coordinator electric. Steam altimeter and ASI are pitot/static (mechanical). Vacuum loss in N1100L would only kill any remaining vacuum-driven backup AI/DG (if installed) — not catastrophic with the dual G5 setup." },
-        { q: "What's the alternate air system, and when do you use it?", a: "Manual control on the panel — must be PULLED FULL ON by pilot. Used when induction air blockage is suspected (impact icing, freezing rain, etc.). PA-30 is fuel-injected so no carb ice, but induction icing in the air intake can still occur. Manual = pilot action required." },
+      id: "pa30-systems",
+      label: "PA-30 SYSTEMS",
+      blurb: "Systems coverage from Raider PDF page 2. The DPE will ask about these.",
+      topics: [
+        {
+          id: "landing-gear",
+          title: "Landing Gear",
+          raiderQuote: "Know how the gear works, what to do if it doesn't extend, and the speed limitations.",
+          definition: "PA-30 has electric-hydraulic retractable landing gear. Hydraulic pressure (driven by an electric pump) actuates extension and retraction. Emergency manual extension is via a hand pump or mechanical release per POH.",
+          keyPoints: [
+            "**Vlo (max gear OPERATING speed) = 150 mph** — never EXTEND or RETRACT above this.",
+            "**Vle (max gear EXTENDED speed) = 150 mph** — never FLY with gear down above this. (Same number on most PA-30s; verify in this aircraft's POH.)",
+            "**Three green lights** — confirms gear down and locked. NO GREEN = NO LANDING. Use emergency extension.",
+            "**Gear warning horn** — sounds when throttle is reduced below a threshold with gear up (often ~12-14 inches MP) — alerts you that you're in approach config without gear.",
+            "**Emergency extension procedure (per POH):** verify gear circuit breaker IN, attempt normal extension, then use the hand pump or mechanical release per POH. Maintain Vle margin.",
+            "**Gear won't retract on takeoff:** likely a microswitch issue, hydraulic pump failure, or squat-switch (weight-on-wheels) not seeing transition. Continue at reduced speed below Vle, troubleshoot, return for landing.",
+          ],
+          quiz: [
+            { q: "PA-30's Vle (max gear extended speed) is:", a: ["100 mph", "125 mph", "150 mph", "175 mph"], correct: 2, explain: "Vle = 150 mph. Don't fly with gear down above this. Same number as Vlo on PA-30 (max gear OPERATING). Verify in this aircraft's POH." },
+            { q: "Three green lights tell you:", a: ["The engines are running", "All three landing gear are DOWN and LOCKED", "The autopilot is engaged", "The transponder is squawking"], correct: 1, explain: "Each gear has a position-indicator microswitch. All three green = all three down and locked. Critical pre-landing check: 'Gear down, three green.'" },
+            { q: "If you don't see three green on short final, your action is:", a: ["Land anyway", "Go around — verify gear circuit breaker, try normal extension again, use emergency extension procedure if needed", "Add full power and circle indefinitely", "Tap the gauge"], correct: 1, explain: "NO GREEN = NO LANDING. Go around at safe altitude, troubleshoot. PA-30 has manual emergency extension — typically a hand pump or mechanical release per POH. Verify CB, retry, then use emergency procedure." },
+            { q: "Gear warning horn sounds when:", a: ["Throttle is reduced below approximately 12-14 inches MP with gear UP — alerts you to gear-up approach", "Mixture is set to lean", "ATC commands it", "Master switch is on"], correct: 0, explain: "Throttle threshold + gear-up condition = horn. Designed to catch the 'forgot gear' approach. If you hear it, lower the gear — or if intentional (low-pass etc.), expect the horn." },
+            { q: "Maximum airspeed for raising the gear (Vlo)?", a: ["100 mph", "125 mph", "150 mph", "Same as Vne"], correct: 2, explain: "Vlo on PA-30 = 150 mph. Don't operate the gear above this. (Same as Vle on most PA-30s; some POHs differentiate. Always verify.)" },
+            { q: "If gear won't retract after positive rate on takeoff:", a: ["Force the lever harder", "Continue at reduced airspeed below Vle, troubleshoot — likely microswitch, hydraulic pump, or squat-switch issue, return for landing", "Climb to high altitude before troubleshooting", "Cycle the master switch"], correct: 1, explain: "Don't exceed Vle with gear extended. Climb at reduced airspeed, troubleshoot calmly: gear circuit breaker, position indicator microswitches, possible hydraulic pump failure. Plan a return for landing — running cross-country with gear down is a fuel/airspeed disaster." },
+            { q: "Emergency manual gear extension typically requires:", a: ["Just leaving the gear handle down", "Following the POH procedure: typically pull a release handle and/or use a hand pump to manually drive hydraulic pressure", "Pulling the master switch", "Calling ATC"], correct: 1, explain: "PA-30 has a manual extension procedure per POH — usually involving a release lever and/or hand pump. Practice this procedure mentally. Examiner will ask you to walk through it." },
+            { q: "What single component drives the normal gear extension/retraction?", a: ["Pure mechanical linkage", "An electric-driven hydraulic pump (with backup gravity assist for emergency extension)", "Compressed air", "Cable-and-pulley system"], correct: 1, explain: "Electric-hydraulic. Electric pump pressurizes hydraulic fluid which drives the gear actuators. Emergency extension uses a manual pump and/or gravity (gear free-falls into down position with manual unlock)." },
+            { q: "After landing rollout on a short-field, the action is:", a: ["Retract gear handle to clean up", "Retract FLAPS (verify gear handle visually) — never reach for gear handle on rollout", "Pull mixture to idle cutoff", "Apply takeoff power for go-around"], correct: 1, explain: "Reaching for gear handle on rollout is how pilots collapse gear on the runway. Verify visually you're touching the FLAP handle. Flaps come up to transfer weight to wheels for braking. Gear handle stays put." },
+            { q: "If the gear position-indicator lights are extinguished but the gear feels solid down on touchdown, what's the likely issue?", a: ["The gear is up", "Microswitch or indicator-light failure (the gear itself is down) — verify with mirror check or low pass with tower observer if available", "Hydraulic failure", "Battery dead"], correct: 1, explain: "Light failure ≠ gear failure. Common scenario: bulb out, microswitch out of adjustment, or wiring issue. Confirmation methods: mirror, tower fly-by, partial extension test. Brief the field; some airports have tower visual confirmation services." },
+          ],
+        },
+        {
+          id: "fuel-system",
+          title: "Fuel System & Cross-Feed",
+          raiderQuote: "Know your tanks, when you can use them, and how cross-feed works.",
+          definition: "PA-30 has 4 fuel tanks: L MAIN, R MAIN, L AUX, R AUX. Each engine normally feeds from its same-side main. Cross-feed allows feeding either engine from the OPPOSITE side's tanks — primary use is balancing fuel after engine failure. Aux tanks are restricted to LEVEL CRUISE only per POH.",
+          keyPoints: [
+            "**4 tanks: L MAIN / R MAIN / L AUX / R AUX.** Selectors are on the floor between the seats (typical PA-30).",
+            "**Mains feed each engine on takeoff, climb, descent, landing.** Standard normal-ops position.",
+            "**Aux tanks: level cruise only.** Per POH — not for takeoff, landing, or single-engine ops. Geometry of pickup tubes doesn't work in high pitch attitudes or banked flight.",
+            "**Cross-feed:** allows the LEFT engine to feed from the RIGHT side's tanks (or vice versa). Used after engine failure to consume fuel from the dead-side tanks via the live engine.",
+            "**Boost pumps:** electric pumps assist during start, takeoff, landing, fuel-tank changes, and per POH for engine-failure scenarios. Position depends on phase of flight.",
+            "**Fuel pressure indications:** monitor on the engine cluster. Sudden drop on one engine = check fuel selector first (wrong tank?), then boost pump, then engine-driven pump.",
+            "**Restart troubleshooting:** wrong fuel selector position is a top reason for engine 'failure.' Always verify selector before declaring the engine actually failed.",
+          ],
+          quiz: [
+            { q: "How many fuel tanks does the PA-30 have?", a: ["2 (one per engine)", "4 (L MAIN, R MAIN, L AUX, R AUX)", "6", "1 large tank"], correct: 1, explain: "Four tanks: each engine has a main and an aux on its side. Selectors typically on the floor between the seats." },
+            { q: "Aux tank usage limitation per POH?", a: ["No limitation", "LEVEL CRUISE only — NOT for takeoff, landing, or single-engine operation", "Above 5,000 ft only", "First 30 minutes of flight only"], correct: 1, explain: "Aux pickup tubes don't work in high pitch attitudes (takeoff/climb), banked flight, or single-engine ops. Cruise level flight only. Verify exact wording in this aircraft's POH." },
+            { q: "Primary purpose of cross-feed?", a: ["Increase total fuel burn", "After engine failure, feed the operating engine from the dead-side fuel — balances fuel and uses fuel that would otherwise be stranded", "Required during start", "Increases endurance dramatically"], correct: 1, explain: "Cross-feed lets the live engine consume fuel from the dead-side tanks. Without it, fuel on the dead side would be unusable. Critical for long single-engine flights to a divert airport." },
+            { q: "On takeoff, the fuel selectors should be on:", a: ["L AUX and R AUX", "L MAIN and R MAIN", "Both on cross-feed", "OFF"], correct: 1, explain: "Mains for takeoff, landing, climb, descent — anywhere geometry of tank pickup matters. Aux is cruise-only." },
+            { q: "Engine fails. You suspect fuel exhaustion. First troubleshooting step before declaring failure?", a: ["Feather immediately", "Verify fuel selector is on a tank with fuel — wrong selector position is a common cause", "Pull the mixture to idle cutoff", "Restart immediately"], correct: 1, explain: "Wrong selector position is one of the top reasons for engine 'failure' in flight. Above 3,000 ft AGL (per Raider's drill), check selector before committing to feather. Below 3,000 ft, feather first — but flagging selector error in your post-event review." },
+            { q: "Boost pumps are typically ON during:", a: ["All phases of flight", "Start, takeoff, landing, fuel tank changes, and per POH for engine-failure procedures", "Cruise only", "Never"], correct: 1, explain: "Boost pumps assist when fuel pressure could be marginal: start (cold engine), takeoff and landing (high power demand), tank changes (avoid air bubble in line), engine failure (per POH)." },
+            { q: "After engine failure, you want to use the dead-side fuel. Action?", a: ["Cross-feed the operating engine from the dead-side tanks", "Don't bother — the fuel is unusable", "Switch the dead engine to its own aux", "Pull all mixtures"], correct: 0, explain: "Cross-feed enables the live engine to consume the dead side's mains. Otherwise that fuel is lost. Important for long single-engine flights to divert." },
+            { q: "Aux tank rule of thumb in PA-30:", a: ["Use aux first to balance load", "Use aux only in level cruise — switch back to mains for any takeoff, climb, descent, landing, or single-engine op", "Use aux only at altitude above 10,000 ft", "Aux is decorative"], correct: 1, explain: "Level cruise = aux usable. Anywhere else = mains. Selector discipline is examiner-watched. Wrong tank in critical phase = enrichment fault, possibly engine failure." },
+            { q: "The fuel system selectors on a PA-30 are typically located:", a: ["On the panel above the throttle quadrant", "On the floor between the pilot and copilot seats", "In the baggage compartment", "In the engine nacelles"], correct: 1, explain: "Floor-mounted between the seats on most PA-30s. Easy reach but make sure your fuel-selector check is part of every cockpit flow." },
+            { q: "If you switch to an aux tank in cruise and the engine begins to roughen 30 seconds later, the most likely cause is:", a: ["Engine failure", "Air in the line / aux tank pickup issue / contaminated aux fuel — switch back to main, monitor", "Pilot error in throttle setting", "Cross-feed left on"], correct: 1, explain: "Tank changes can introduce air bubbles or expose problems with the new tank (water, sediment). If issues develop after a tank change, switch back to a known-good tank, monitor for resolution. Don't trust the aux blindly." },
+          ],
+        },
+        {
+          id: "constant-speed-prop",
+          title: "Constant-Speed Propeller",
+          raiderQuote: "Know how the prop works, how feathering works, and what the prop check on runup verifies.",
+          definition: "A constant-speed propeller maintains a chosen RPM by varying blade pitch via a governor. Increase MP without changing RPM by changing pitch (more bite when more power). For multi-engine: feathering allows the dead-engine prop to be aligned edge-into-relative-wind, eliminating ~80% of windmilling drag.",
+          keyPoints: [
+            "**Governor maintains RPM:** flyweights spin proportionally to RPM; centrifugal force balances against a control spring. Spring tension is set by the BLUE prop control. Governor varies blade pitch via oil pressure to keep flyweights in balance with spring → constant RPM.",
+            "**Cruise: high pitch / low RPM.** Better fuel economy, less wear. Climb: low pitch / high RPM (more bite, more thrust at climb power).",
+            "**Feathering mechanism:** counterweights and a spring drive the blades to FEATHER (edge-into-wind) when oil pressure is interrupted. Pulling the BLUE control fully aft beyond a detent commands feather. PHYSICS drives feather, not pilot strength.",
+            "**Why oil-pressure works on counterweights:** governor oil pressure normally counters the springs/counterweights, holding blades in low pitch (high RPM). Loss of oil pressure (engine quit, governor fail) → counterweights/springs win → blades go to feather.",
+            "**Unfeathering:** governor accumulator (some PA-30s have one) or starter cranking generates oil pressure to drive blades back to a workable pitch. Without an accumulator, restart in flight requires significant cranking.",
+            "**Prop check on runup:** cycle each prop control toward low-RPM 2-3 times. WHY: circulates warm oil into the prop hub. Cold oil delays feather — sometimes by enough to matter in real engine failure.",
+            "**Feather check on runup:** briefly pull each prop toward feather, observe RPM drop (~300 RPM decrease), return to normal. Confirms the feather mechanism works. DON'T go to full feather on the ground.",
+          ],
+          quiz: [
+            { q: "Constant-speed propeller maintains RPM by:", a: ["Varying engine throttle", "Varying blade pitch via a governor (oil pressure adjusts blade angle to keep RPM constant for a given prop control setting)", "Varying mixture", "Cycling magnetos"], correct: 1, explain: "Governor uses oil pressure to vary blade pitch. Higher MP/airspeed = governor commands more pitch (more bite) to keep RPM at the set value." },
+            { q: "If you reduce throttle in cruise without changing prop control, what happens?", a: ["RPM drops", "RPM stays the same; governor reduces blade pitch to maintain RPM with less power; MP drops", "Engine shuts down", "Prop feathers"], correct: 1, explain: "Constant-speed prop holds RPM. The governor responds by reducing blade pitch (less bite needed for the same RPM at lower power). MP drops because you closed the throttle." },
+            { q: "Feathering on engine failure is driven by:", a: ["Pilot pulling the prop control aft", "Counterweights and a spring (mechanical) — pilot's prop-control lever just ALLOWS them to win when oil pressure goes away", "Electric motor", "Centrifugal force from prop rotation"], correct: 1, explain: "Springs and counterweights ALWAYS want to drive blades to feather. Normally, governor oil pressure overpowers them and holds low pitch (high RPM). When oil pressure goes away, springs/counterweights win — blades go to feather. Pilot's blue control commands the governor to ALLOW this transition." },
+            { q: "Cruise prop setting on PA-30 typically:", a: ["Low pitch / high RPM", "High pitch / low RPM (better economy, less wear)", "Feathered", "Maximum reverse"], correct: 1, explain: "Cruise: high pitch (large blade angle, more bite per revolution) and low RPM. More efficient than running RPM higher than necessary. Climb is the opposite: low pitch + high RPM for max thrust." },
+            { q: "Why do you cycle the prop controls during runup?", a: ["Test the magnetos", "Circulate WARM oil into the propeller hub — cold oil delays feathering in actual engine failure", "Lubricate the cabin heater", "Save fuel"], correct: 1, explain: "Cycling moves oil into the hub. Warm oil = quick feather response when needed. Cold oil = delayed feather = drag persists for longer = climb performance worse during the crucial first seconds of engine failure." },
+            { q: "Feather check on runup involves:", a: ["Going to full feather and stopping the prop", "Briefly pulling the prop toward feather, observing the RPM drop, returning to normal — confirms the mechanism works without stopping the prop", "Just listening to the engine", "Checking blade pitch visually"], correct: 1, explain: "Brief move toward feather: RPM drops a few hundred. Confirms the feather mechanism works. Going to FULL feather on the ground would stop the prop, requiring starter to break free. Brief check only." },
+            { q: "What physically aligns the blades when feathered?", a: ["Pilot strength via the prop control", "Counterweights and a spring drive blades to edge-into-wind (~80° pitch) when oil pressure is interrupted", "Hydraulic ram", "Electric motor"], correct: 1, explain: "Counterweights + spring = the feathering force. The pilot commands feather by pulling the blue control past a detent, which removes governor oil pressure resistance. Mechanical force does the work." },
+            { q: "Approximate drag reduction from feathering vs windmilling?", a: ["10%", "About 80% — feathered prop has minimal drag; windmilling is enormous (more than gear-down)", "100% — no drag", "Negligible"], correct: 1, explain: "Windmilling drag is enormous, roughly equivalent to flat-paddle drag — more than gear extended. Feathering eliminates ~80% of that drag. Single-engine climb performance roughly returns to chart values; Vmc drops back toward published. Highest-leverage post-failure action." },
+            { q: "Unfeathering in flight (after a precautionary feather, not an actual failure):", a: ["Easy — just push prop control forward", "Requires governor oil pressure restoration (cranking the engine via starter, or accumulator if equipped); without an accumulator can take significant time", "Always automatic", "Impossible"], correct: 1, explain: "To unfeather, you need oil pressure back on the governor. Some PA-30s have an accumulator (stores hydraulic pressure for restart help). Without one, you crank the engine via starter to spin the prop until it catches air, restart, and oil pressure builds. Time-consuming and stressful in flight." },
+            { q: "If the BLUE prop control is full forward, you've commanded:", a: ["Feather", "Maximum RPM (low pitch — max governor oil pressure overcoming counterweights)", "Idle cutoff", "Mid-range RPM"], correct: 1, explain: "Forward = max RPM = low pitch. Governor oil pressure max-pushes against counterweights. Setting for takeoff and climb (max thrust available)." },
+          ],
+        },
+        {
+          id: "pitot-static",
+          title: "Pitot-Static System & Errors",
+          raiderQuote: "Know which instruments use which port, what happens when a port is blocked, and the alternate static source.",
+          definition: "Three primary instruments use the pitot-static system: ASI (uses BOTH pitot ram-air pressure and static), Altimeter (uses ONLY static), VSI (uses ONLY static). Pitot or static blockage produces specific erroneous indications you must recognize and compensate for. Alternate static source is the panel-mounted backup.",
+          keyPoints: [
+            "**ASI uses BOTH:** pitot supplies ram (dynamic + static) air; static supplies static reference. ASI shows the difference (dynamic pressure) which is airspeed.",
+            "**Altimeter uses ONLY static.** Pressure altitude = static pressure converted to altitude.",
+            "**VSI uses ONLY static.** It compares current static pressure to a small calibrated leak; the rate of change = vertical speed.",
+            "**Pitot blockage (e.g., bug or ice in pitot tube):** ASI behaves like an ALTIMETER. Climbs INCREASE indicated airspeed (lower static, but trapped pitot pressure stays same → larger differential). Descents DECREASE indicated airspeed.",
+            "**Static blockage:** ASI reads LOW in climbs (rising true airspeed but trapped static pressure makes pitot side relatively smaller compared to ambient → differential too small) and HIGH in descents. Altimeter FREEZES at the altitude of blockage. VSI freezes at zero.",
+            "**Alternate static source:** small panel valve. Opens to cabin static pressure. Cabin static is typically LOWER than ambient (Bernoulli effect over cabin). Result: ASI reads SLIGHTLY HIGHER than actual. Altimeter reads HIGHER than actual.",
+            "**On the runup, briefly verify pitot heat works** (if equipped) — listen for current draw or feel pitot tube warm. Pitot heat is the primary defense against in-flight pitot icing.",
+          ],
+          quiz: [
+            { q: "Which instruments use BOTH pitot and static?", a: ["Airspeed indicator only", "Airspeed indicator (uses both); altimeter and VSI use static only", "All three use both", "Only the altimeter"], correct: 1, explain: "ASI: pitot (ram + static) and static (reference) → differential = airspeed. Altimeter: static only. VSI: static only." },
+            { q: "Pitot tube blockage. ASI behavior:", a: ["Reads correctly", "Behaves like an ALTIMETER: increases in climb, decreases in descent", "Reads zero", "Reads max"], correct: 1, explain: "Pitot blockage traps pressure in the pitot line. As you climb, ambient static drops, so the trapped pitot pressure now creates a LARGER differential vs static — indicated airspeed climbs (incorrectly). Reverse for descent." },
+            { q: "Static port blockage. ASI behavior in a climb:", a: ["Reads correctly", "Reads LOW (trapped static pressure stays the same as you climb; pitot ram pressure drops with thinner air, so differential decreases incorrectly)", "Reads HIGH", "Reads zero"], correct: 1, explain: "Static blockage traps the static reference. As you climb, true outside static drops, but the static line stays at the blockage-altitude reading. Pitot pressure (ram + ambient static) drops. The differential the ASI sees is too small → indicated airspeed reads LOW. Reverse for descent." },
+            { q: "Static blockage in a descent. ASI reads:", a: ["Correctly", "HIGH (trapped static pressure too low compared to actual; pitot pressure increases as you descend; differential too big)", "LOW", "Zero"], correct: 1, explain: "Reverse of climb. Trapped static is too low compared to actual ambient (which is higher at lower altitudes). Pitot side gets more ram pressure. Differential too big → ASI over-reads. Same trapped-air principle, opposite direction." },
+            { q: "Static port blockage. Altimeter behavior:", a: ["Continues to indicate correctly", "FREEZES at the altitude of blockage", "Reads zero", "Reads max"], correct: 1, explain: "Altimeter is purely static-driven. Trapped static = trapped altitude reading. Frozen until you open the alternate static source." },
+            { q: "Static port blockage. VSI behavior:", a: ["Reads correctly", "Reads zero (no rate of change in trapped static pressure)", "Reads max climb", "Reads max descent"], correct: 1, explain: "VSI shows rate of static-pressure change. Static is trapped → no change → VSI reads zero throughout the climb or descent." },
+            { q: "Alternate static source effect on indicated airspeed?", a: ["No effect", "Slightly INCREASES indicated airspeed (cabin static is lower than ambient due to Bernoulli effect, making the differential larger)", "Decreases by 10 mph", "ASI reads zero"], correct: 1, explain: "Cabin static is typically slightly lower than ambient (airflow over the fuselage reduces cabin pressure). Pitot pressure measured against a slightly lower static reference → larger differential → slightly HIGHER indicated airspeed. The altimeter likewise reads slightly higher than actual." },
+            { q: "When would you open the alternate static source?", a: ["Every flight", "Only when you suspect static port blockage (frozen altimeter, frozen VSI, ASI reading wrong)", "Above 10,000 ft", "Never"], correct: 1, explain: "Alternate static is for static blockage emergencies. If altimeter freezes or VSI reads zero in a climb/descent, open the alternate. Calibration error from cabin pressure is acceptable for the troubleshooting case." },
+            { q: "Pitot heat is primarily for:", a: ["Cabin warmth", "Preventing ice from forming inside the pitot tube — primary defense against pitot-tube icing in flight", "Preventing engine icing", "Cosmetic"], correct: 1, explain: "Pitot tube exposed to outside air can ice over in icing conditions. Pitot heat melts/prevents ice. Required for IFR flight in icing conditions per 91.205. Verify on runup." },
+            { q: "If you're in IMC and notice your altimeter has frozen but VSI continues to register changes, the likely issue is:", a: ["Static port blockage", "Pitot blockage (altimeter is static-only, so it shouldn't freeze if static works; but VSI likewise depends on static — this combination is anomalous)", "Both pitot and static blocked", "Loss of vacuum"], correct: 2, explain: "Both pitot and static problems cause specific patterns. Frozen altimeter + working VSI is anomalous because both are static-driven. More likely scenario: partial static blockage with intermittent flow. Consider alternate static + cross-check. The question highlights why understanding what each instrument uses matters for diagnosis." },
+          ],
+        },
+        {
+          id: "electrical",
+          title: "Electrical System",
+          raiderQuote: "Know your alternators, what's on each bus, and what to do if you lose one.",
+          definition: "PA-30 has DUAL alternators (one driven by each engine), single battery, master switch, and per-engine alternator switches. Loss of one alternator: the other carries full load (consider load-shedding non-essentials). Loss of both: battery only, limited time, land soonest.",
+          keyPoints: [
+            "**14V DC system** (verify against POH — some PA-30s are 14V).",
+            "**Dual alternators**, one per engine. Each with its own switch and indicator on the panel/CGR-30C.",
+            "**Single battery** (typical), engine-cranking and emergency reservoir.",
+            "**Master switch** controls battery + alternator field. Avionics master typically separate.",
+            "**One alternator fails:** the other handles full electrical load. Consider load-shedding (non-essential lights, second COM, etc.) for safety margin and battery preservation.",
+            "**Both alternators fail:** battery only. Limited time (~30 minutes of full panel before voltage drops). LAND ASAP at nearest suitable airport. Load-shed aggressively to extend battery.",
+            "**Alternator failure annunciation:** typically an ammeter reading zero or a low-voltage warning. CGR-30C shows individual alternator output.",
+            "**N1100L specifics:** dual G5s have internal battery backup (~4 hr) — they survive total electrical loss. GNS 430W and other panel mount avionics do NOT have battery backup.",
+          ],
+          quiz: [
+            { q: "PA-30 electrical system voltage?", a: ["12V DC", "14V DC", "24V DC", "115V AC"], correct: 1, explain: "14V DC system on most PA-30s. Verify against this aircraft's POH — voltage matters for replacing components and understanding load capacity." },
+            { q: "Number of alternators on a PA-30?", a: ["One (shared)", "Two (one per engine)", "Three", "None — magneto-only"], correct: 1, explain: "Dual alternators, one driven by each engine. Each has its own switch. Provides redundancy: lose one engine, you still have one alternator on the live engine." },
+            { q: "If LEFT alternator fails in flight, your action?", a: ["Land immediately", "Continue using the right alternator (handles full load); consider load-shedding non-essentials; troubleshoot when convenient", "Pull all circuit breakers", "Shut down the right alternator"], correct: 1, explain: "One alternator can handle full electrical load. Continue safely. Load-shed non-essentials (extra lights, second radio, DME) to protect battery in case of second failure. Document and address on ground." },
+            { q: "If BOTH alternators fail (rare), the immediate action is:", a: ["Continue to original destination", "Land at nearest suitable airport — battery alone gives ~30 min of full panel; load-shed aggressively", "Cycle the master switch", "Add full power"], correct: 1, explain: "Battery only. Time is short — turn off non-essentials immediately (one COM only, extinguish nav lights if VFR, transponder to standby for short stretches if not under ATC). Land soonest." },
+            { q: "What does loss of vacuum cost you on N1100L (dual G5 panel)?", a: ["Both attitude indicators", "Loss of any vacuum-driven backup AI/DG IF installed; G5s are electric and unaffected — vacuum loss is annoying, not catastrophic in N1100L", "All instruments", "Engine instruments"], correct: 1, explain: "On N1100L: dual G5s are ELECTRIC with battery backup. Turn coordinator is electric. Vacuum loss only affects any vacuum-driven steam AI/DG (if still present as backup). Far less critical than in a vacuum-only panel." },
+            { q: "Master switch position effect:", a: ["No effect on alternators", "Master ON enables battery and alternator field; OFF kills both", "Master only controls cabin lights", "Master only controls avionics"], correct: 1, explain: "Master switch energizes the battery contactor AND the alternator field circuit. Off = battery and alternators offline (engine still runs on its mags). Pre-flight master-off check confirms stall warning is INOP without master — that's why the placard." },
+            { q: "Both alternator gauges read 0.0 amps in the parked photo of N1100L. What's the likely interpretation?", a: ["Catastrophic dual failure", "Engines are OFF (alternators only output when engines are running) — normal for parked condition", "Battery dead", "Master fuse blown"], correct: 1, explain: "Engines off = alternators not turning = no output. Both showing 0.0 with engines off is NORMAL. The N1100L cockpit photo shows this — examiner trick question to make sure you understand alternators only work when engines run." },
+            { q: "G5 internal battery backup on N1100L provides approximately:", a: ["10 minutes", "~4 hours of attitude/HSI data after loss of all aircraft electrical power", "10 hours", "Indefinite — no battery limit"], correct: 1, explain: "G5 backup battery is rated ~4 hours. Critical for survival in dual-alternator failure scenarios — even after the aircraft battery dies and panel goes dark, your G5 attitude and HSI keep working long enough to land." },
+            { q: "Load-shed priorities in dual-alternator failure (battery-only):", a: ["Keep everything on, you'll be fine", "Turn off non-essential: extra lights, second COM, DME, reduce transponder use; KEEP essential: G5s, GNS 430W (for nav), one COM", "Turn off the master switch", "Increase electrical loads"], correct: 1, explain: "Strict prioritization: keep nav (GNS 430W), one comm (talk to ATC), G5 attitude (fly the airplane). Shed lights, DME, second COM. Buys battery time for landing." },
+            { q: "Why is the alternator FIELD circuit important?", a: ["It's not", "Alternators don't produce power without field current. Master switch controls field — without master, alternators are dead even if engines turn.", "It controls fuel flow", "It's only for night flight"], correct: 1, explain: "Modern alternators need DC field current to generate AC (which is then rectified to DC for the bus). Master switch energizes the field. No field = no output. That's why master-off kills all alternator output even with engines running." },
+          ],
+        },
+        {
+          id: "heater",
+          title: "Combustion Heater",
+          raiderQuote: "PA-30 has a Janitrol or similar combustion heater. Know how it works, the CO risk, and the operational limits.",
+          definition: "PA-30 has a gasoline-burning combustion heater (Janitrol or South Wind type) drawing fuel from the airplane's fuel system. Provides cabin heat in flight. Fuel consumption is roughly 0.5-1 GPH while operating. Over-temperature switch shuts it off automatically. CO awareness is critical.",
+          keyPoints: [
+            "**Combustion heater = burns gasoline** in a small combustion chamber to heat cabin air. Different from exhaust-shroud heaters used in many singles.",
+            "**Fuel source:** drawn from the airplane's main fuel system. Adds to total fuel burn at ~0.5-1 GPH while running.",
+            "**Operation:** typically a switch + thermostat. Igniter starts combustion; sustained operation requires fuel flow + ignition.",
+            "**CO risk:** any combustion in close proximity to the cabin = CO leak risk. Carry a CO detector in the cockpit. CO is odorless, colorless, deadly. Headache + drowsiness = land immediately.",
+            "**Overheat switch:** safety feature. If combustion chamber gets too hot, shuts off the heater automatically. Manual reset typically required.",
+            "**Operational limits:** continuous-run limits per POH (often unlimited for cabin heat at altitude where ambient is cold; specific procedures for ground operation). Verify in this aircraft's POH.",
+            "**If heater quits or smells off (smoke, fuel smell):** turn OFF immediately. Use cabin vents for fresh air. Open windows if necessary. Consider it an emergency if smoke or strong smells.",
+            "**Pre-flight:** verify combustion heater fuel line integrity, no smell of fuel in cabin, drain checks.",
+          ],
+          quiz: [
+            { q: "PA-30 cabin heater type?", a: ["Exhaust-shroud heater (heat from engine exhaust)", "Gasoline combustion heater (Janitrol or similar) — burns fuel from the airplane's fuel system", "Electric resistance heater", "Steam heater"], correct: 1, explain: "Combustion heater. Burns fuel in a dedicated combustion chamber to heat cabin air. Adds to fuel burn at roughly 0.5-1 GPH while operating." },
+            { q: "Typical fuel consumption of the cabin heater while operating?", a: ["No fuel consumed", "About 0.5-1 GPH (small but not negligible on long flights)", "5 GPH", "10 GPH"], correct: 1, explain: "Roughly 0.5-1 GPH. Negligible for short flights, can matter on long cross-countries when planning fuel reserves." },
+            { q: "Primary safety concern with combustion heaters?", a: ["Excess cabin heat", "CO (carbon monoxide) leak — odorless, colorless, deadly. Always carry a CO detector and recognize symptoms (headache, drowsiness, nausea)", "Excessive noise", "Fuel pressure surge"], correct: 1, explain: "Any combustion near the cabin = CO leak risk. CO is undetectable without a detector. Symptoms: headache, drowsiness, nausea, confusion. Carry a CO detector. If symptoms or alarm: heater OFF, vents OPEN, land soonest." },
+            { q: "Overheat protection on a combustion heater:", a: ["None", "An overheat switch shuts off the heater automatically if combustion-chamber temperature exceeds a threshold; manual reset typically required", "The pilot must monitor temperature gauges constantly", "Ice crystals form to prevent overheat"], correct: 1, explain: "Overheat switch is the safety mechanism. If it triggers, heater shuts off; you typically need to cycle a switch or the system manually before it'll run again. Don't assume the heater is functional after an overheat event without troubleshooting." },
+            { q: "If you smell fuel in the cabin during combustion-heater operation, your action?", a: ["Continue normally", "Heater OFF immediately. Vents open for fresh air. Treat as potentially serious — fuel leak in heater can mean fire risk. Land at nearest suitable airport.", "Increase heater output", "Cycle the heater on and off"], correct: 1, explain: "Fuel smell = potential fuel line leak in the heater system. Combustion chamber is hot. Risk of fire or explosion. Heater OFF, ventilate, treat as urgent — land soonest. Investigate on ground; do NOT troubleshoot in flight." },
+            { q: "Symptoms of CO poisoning:", a: ["No symptoms — it's harmless", "Headache, drowsiness, nausea, confusion, eventually loss of consciousness", "Sneezing only", "Sharp pain"], correct: 1, explain: "Insidious progression: mild headache → drowsiness → confusion → unconsciousness → death. By the time you're confused you may not be able to make good decisions. Carry a CO detector." },
+            { q: "What's the operational difference between a Janitrol-style combustion heater and an exhaust-shroud heater?", a: ["No difference", "Exhaust-shroud heater uses heat from engine exhaust gases (no extra fuel burn, but no heat with engine off and CO risk if exhaust system leaks). Combustion heater burns its own fuel (independent of engine, but adds fuel burn).", "Combustion heater is electric", "Exhaust-shroud heater requires no engines"], correct: 1, explain: "Singles often use exhaust-shroud heaters: free heat from engine exhaust, but tied to engine operation and dependent on exhaust system integrity (leak = CO into cabin). Combustion heaters in twins burn their own fuel and operate independently — different failure modes, different fuel costs." },
+            { q: "Does the heater consume fuel from a specific tank?", a: ["No, it has its own fuel reservoir", "It draws from the airplane's main fuel system — counts toward total fuel consumption planning", "Only from aux tanks", "It uses oil instead of fuel"], correct: 1, explain: "Heater draws from the main fuel system. Plan fuel reserves accordingly on long, cold flights." },
+            { q: "Pre-flight inspection of the heater system should include:", a: ["Just turning it on", "Checking for fuel leaks at heater fuel line/pump, no fuel smell in cabin, drain checks per POH, verify ducts and vents are clear", "Only ground operations", "Nothing — heaters are sealed"], correct: 1, explain: "Pre-flight: walk the heater area on the airframe, look for fuel leaks, check the heater drain (per POH), verify ducts/vents in the cabin are unobstructed, sniff for fuel smell. Catches leaks before they become in-flight emergencies." },
+            { q: "If the heater quits in cruise on a cold day, your reaction:", a: ["Try to relight repeatedly until it works", "Heater off, cabin layered with extra clothing, plan a divert if cabin temp drops to safety-impacting levels (cold-fingers = poor flight controls)", "Land immediately", "Increase engine power for radiant heat"], correct: 1, explain: "Heater fails in cruise: don't attempt repeated relights (multiple ignition cycles increase fuel pooling/combustion-chamber risk). Bundle up, plan a divert if conditions deteriorate. Cold cockpit = degraded pilot performance — treat as a real factor in ADM." },
+          ],
+        },
       ],
     },
     {
-      id: "performance",
-      name: "Performance & Limitations",
-      questions: [
-        { q: "What is Vmc and where is it marked on the airspeed indicator?", a: "Vmc = minimum control speed with the critical engine inoperative. Red radial line on the ASI. Below this speed with one engine out, the rudder cannot overcome the asymmetric thrust — directional control is lost, leading to a Vmc roll." },
-        { q: "What conditions are assumed in the Vmc certification?", a: "Per 14 CFR §23.149: critical engine windmilling, operating engine at max takeoff power, most unfavorable weight, most unfavorable CG (aft), gear up, flaps in takeoff position, up to 5° bank toward operating engine, standard day at sea level." },
-        { q: "What's the effect of high density altitude on Vmc?", a: "Vmc DECREASES at higher altitude. Less air = less power available from the operating engine = less asymmetric thrust = less rudder needed. The trap: actual Vmc may drop below stall speed, meaning the airplane STALLS before losing directional control. The published red line gives no warning of this." },
-        { q: "What's Vyse and why does it matter?", a: "Vyse = best rate of climb single engine. Marked as the BLUE radial line. After engine failure, your sole pitch target is blue line — that's the airspeed that gives the best climb (or least descent) on the remaining engine." },
-        { q: "How do you compute density altitude on the ramp without a chart?", a: "Pressure altitude + (ISA deviation × ~120 ft per °C, or ~70 ft per °F). At KLBB: field elevation 3,282 ft. ISA temp at 3,282 ft ≈ 8°C / 47°F. So 85°F day = 38°F above ISA × 70 = +2,650 ft → DA ≈ 5,930 ft." },
-        { q: "PA-30 single-engine service ceiling at gross weight?", a: "Approximately 7,100 ft (where single-engine climb degrades to 50 fpm). Above this, climb capability is essentially zero. On a hot Lubbock afternoon (DA pushing 6,000-7,000 ft), single-engine climb margin is thin — ADM consideration." },
+      id: "scenarios",
+      label: "CROSS-TOPIC SCENARIOS",
+      blurb: "Applied integration — multi-step examiner-style scenarios.",
+      topics: [
+        {
+          id: "hot-day-f49",
+          title: "Hot Day at F49",
+          raiderQuote: null,
+          setup: "It's late May at F49 (Slaton). 2 PM local. OAT 92°F. Field elevation 3,124 ft. Runway 4,600 ft. Wind 180 at 18 kt. You're at gross weight (3,600 lbs). Your destination is KAUS (Austin), 4 hours away.",
+          crossTopics: ["performance", "vmc-aerodynamics", "adm"],
+          questions: [
+            "Density altitude for these conditions?",
+            "Single-engine climb rate at gross weight from the chart?",
+            "What's accelerate-stop distance? Margin against runway available?",
+            "Engine fails on takeoff roll at 60 mph — action?",
+            "Engine fails airborne at 200 ft AGL with half the runway still ahead — action?",
+            "Engine fails airborne at 1,000 ft AGL after liftoff with no runway remaining — action?",
+            "Could you legally take off? Should you?",
+          ],
+        },
+        {
+          id: "ifr-engine-out",
+          title: "IFR Engine-Out to Lubbock",
+          raiderQuote: null,
+          setup: "You're cruising at 8,000 ft IFR from Albuquerque to Lubbock. 50 NM west of KLBB, in IMC, the right engine starts running rough then loses oil pressure and seizes. Weather at KLBB: 600 OVC, 3 SM visibility, ILS 17R available.",
+          crossTopics: ["vmc-aerodynamics", "ifr", "adm", "performance"],
+          questions: [
+            "Walk me through your procedure from the moment you notice the failure.",
+            "Why right engine — was it the critical engine?",
+            "What's your altitude after feather and zero sideslip established?",
+            "How do you brief the ILS in this situation?",
+            "On the approach, you're slightly above glidepath at the FAF but performance is degrading. What's your decision?",
+            "If you go missed at minimums, what's your plan?",
+          ],
+        },
+        {
+          id: "passenger-emergency",
+          title: "Passenger Medical Emergency",
+          raiderQuote: null,
+          setup: "You're VFR at 6,500 ft, 30 NM north of Lubbock, returning from a $300 hamburger trip with 2 passengers. Your front-seat passenger has a sudden severe chest pain and difficulty breathing.",
+          crossTopics: ["adm", "regulations", "ifr"],
+          questions: [
+            "Walk me through your decision-making.",
+            "What ATC service do you use, and what do you say?",
+            "Emergency descent procedure?",
+            "If KLBB has a 30 minute hold for arrivals due to weather, what do you do?",
+            "Could you declare a medical emergency on flight following frequency, or do you need a different freq?",
+          ],
+        },
+        {
+          id: "thunderstorm-divert",
+          title: "Thunderstorm Pop-Up",
+          raiderQuote: null,
+          setup: "VFR cross-country, 30 minutes from F49 (Slaton). You see a fast-developing line of thunderstorms 25 NM ahead, blocking your route. Forecast didn't call for them. Fuel: 1.5 hours.",
+          crossTopics: ["weather", "adm"],
+          questions: [
+            "What's your first action?",
+            "How far do you stay from a thunderstorm?",
+            "What information do you need to make a divert decision?",
+            "If conditions deteriorate to where you can't see ahead, options?",
+          ],
+        },
+        {
+          id: "checkride-day-discontinuance",
+          title: "Checkride Day Decision",
+          raiderQuote: null,
+          setup: "You're on your checkride. Engine failure simulation goes well. You're on the single-engine ILS at KLBB. At 600 ft AGL (200 ft above DA), your simulated dead engine 'comes back' (instructor restoring power). You're slightly low on glidepath and 5 kt slow.",
+          crossTopics: ["adm", "ifr"],
+          questions: [
+            "Continue the approach or go missed?",
+            "If you continue and get back on glidepath by 200 ft AGL, is that a pass?",
+            "What does the examiner look for in this exact situation?",
+          ],
+        },
       ],
-    },
-    {
-      id: "vmc-aerodynamics",
-      name: "Vmc & Aerodynamics",
-      questions: [
-        { q: "Which is the critical engine on a conventional twin and why?", a: "On a twin with both props rotating clockwise (pilot's view) — like a standard PA-30 — the LEFT engine is critical. Reason: P-A-S-T (P-factor, Accelerated slipstream, Spiraling slipstream, Torque). All four factors put the right engine's effective thrust line FARTHER from centerline. So losing the LEFT engine leaves the surviving right engine producing thrust on a longer arm = larger yawing moment = harder to control." },
-        { q: "Walk me through the engine-failure flow.", a: "MAINTAIN CONTROL: pitch for blue line, rudder to stop yaw, ~2° bank toward live engine. CONFIGURE: mixtures/props/throttles forward, flaps up, gear up if airborne. IDENTIFY: dead foot, dead engine. VERIFY: slowly retard throttle on suspected dead engine — if no yaw change, you've got it right. FEATHER: prop control to feather. SECURE: mixture cutoff, mags off, fuel selector off, alt/pump off on dead side. DECLARE and land at nearest suitable airport." },
-        { q: "What's zero sideslip and why does it matter?", a: "Configuration where relative wind is parallel to the longitudinal axis — minimum drag. Achieved by banking ~2° toward the operating engine with rudder such that the inclinometer ball is displaced about ½ ball toward the operating engine. NOT centered — that's the trap. Zero sideslip can roughly DOUBLE single-engine climb rate vs wings-level/ball-centered. Memory aid: 'raise the dead.'" },
-        { q: "Effect on Vmc: lighter weight, aft CG, high DA, full power.", a: "Lighter weight = Vmc UP (less inertia, less horizontal lift when banked). Aft CG = Vmc UP (shorter rudder arm). High DA = Vmc DOWN (less power available, less asymmetric thrust). Full power = Vmc UP (more PAST). Recovery: REDUCE power on operating engine and lower the nose — counterintuitive but correct." },
-        { q: "Why is feathering important?", a: "A windmilling propeller produces enormous drag — more than gear extended. That drag (a) reduces single-engine climb performance dramatically and (b) increases asymmetric force, raising Vmc. Feathering eliminates ~80% of that drag, restoring most of the airplane's single-engine performance and lowering actual Vmc." },
-      ],
-    },
-    {
-      id: "regulations",
-      name: "Regulations (Multi-Engine Specific)",
-      questions: [
-        { q: "Required equipment for VFR day flight per 91.205?", a: "ATOMATOFLAMES: Airspeed indicator, Tachometer, Oil pressure, Manifold pressure (each engine for constant-speed prop), Altimeter, Temperature gauge (each engine), Oil temperature (each air-cooled engine), Fuel gauge (each tank), Landing gear position indicator (retractable), Anti-collision lights (after 1996), Magnetic compass, ELT, Seat belts." },
-        { q: "Additional for VFR night per 91.205(c)?", a: "FLAPS: Fuses or circuit breakers, Landing light (if for hire), Anti-collision light, Position lights, Source of electricity. Add to the day VFR list." },
-        { q: "Additional for IFR per 91.205(d)?", a: "GRABCARDD: Generator/alternator, Radios for ground/airborne navigation, Attitude indicator, Ball (slip/skid), Clock with seconds, Altimeter (sensitive), Rate-of-turn indicator, DME above FL240, Directional gyro." },
-        { q: "How does 91.213 (inoperative equipment) work?", a: "Three-step: (1) Is it required by the type certificate / KOEL? If yes, no fly. (2) Is it required by 91.205 / 91.213(d)(2)? If yes, no fly. (3) Has an MEL been issued? If yes, follow it. If none of the above and item is not required: deactivate, placard 'inoperative,' make logbook entry — okay to fly." },
-        { q: "What's the alcohol rule (91.17)?", a: "8 hours bottle to throttle, BAC below 0.04, no flying while under the influence of any drug that affects faculties." },
-      ],
-    },
-    {
-      id: "weather",
-      name: "Weather",
-      questions: [
-        { q: "What's a TAF? What sources do you use for preflight weather?", a: "TAF: Terminal Aerodrome Forecast — 24-30 hour forecast for an airport. Sources: aviationweather.gov, ForeFlight, 1-800-WX-BRIEF for FSS, ATC for in-flight. Always cross-check multiple sources." },
-        { q: "Density altitude factors and effects?", a: "DA increases with: high field elevation, high temp, low pressure, high humidity. Effects: longer takeoff roll, reduced climb performance, lower service ceiling, less efficient prop. PA-30 single-engine ceiling at gross is ~7,100 ft — a hot Lubbock afternoon can put DA near or above this." },
-        { q: "Thunderstorm hazards?", a: "Hail, severe turbulence, lightning, microburst, severe icing, downdrafts/updrafts strong enough to break airframes. Stay 20+ NM from severe storms. Don't penetrate any cumulonimbus. Embedded thunderstorms in IMC are particularly dangerous." },
-        { q: "Carb ice risk in PA-30?", a: "Trick question — PA-30 is fuel-injected, no carb. But INDUCTION ICING in the air intake can still occur from impact icing or freezing rain. That's why the alternate air control is on the panel." },
-      ],
-    },
-    {
-      id: "ifr",
-      name: "IFR & Instrument Procedures",
-      questions: [
-        { q: "How do you load and brief an approach in the GNS 430W?", a: "PROC button → Select Approach → Choose airport → Choose approach → Choose IAF or vectors → ACTIVATE. Brief: course, altitudes, FAF, MDA/DA, missed approach point, missed approach procedure. For ILS: switch CDI from GPS to VLOC at 430W's prompt. For RNAV: stay on GPS." },
-        { q: "What's a stabilized approach criterion?", a: "By 1,000 ft AGL IFR (500 ft VFR): on glidepath, on speed, configured (gear/flaps as appropriate), in trim, pre-landing checklist complete. If not stabilized → go missed approach." },
-        { q: "Single-engine on an instrument approach: what's different?", a: "MORE power on operating engine to maintain glidepath against asymmetric drag. Delay gear DOWN until landing assured. Be ready to GO MISSED EARLY — single-engine missed at minimums is marginal at best. Configure final stages of flaps later than normal." },
-      ],
-    },
-    {
-      id: "adm",
-      name: "ADM & Risk Management",
-      questions: [
-        { q: "Define ADM.", a: "Aeronautical Decision Making. Systematic approach to mental processes used by pilots to consistently determine the best course of action in response to a given set of circumstances." },
-        { q: "DECIDE model?", a: "Detect a change. Estimate the need to counter or react. Choose a desirable outcome. Identify actions to control the change. Do the necessary action. Evaluate the effect of the action." },
-        { q: "Hazardous attitudes?", a: "Five hazardous attitudes (per FAA): Anti-authority (don't tell me), Impulsivity (do something quickly), Invulnerability (it won't happen to me), Macho (I can do it), Resignation (what's the use). Each has a specific antidote — 'follow the rules,' 'not so fast, think first,' etc." },
-        { q: "PAVE checklist for risk?", a: "Pilot (currency, fatigue, IM SAFE), Aircraft (airworthy, equipped, fueled), enVironment (weather, terrain, airports), External pressures (schedule, get-there-itis)." },
-      ],
-    },
-  ],
-  scenarios: [
-    {
-      id: "hot-day-f49",
-      title: "Hot Day at F49",
-      setup: "It's late May at F49 (Slaton). 2 PM local. OAT 92°F. Field elevation 3,124 ft. Runway 4,600 ft. Wind 180 at 18 kt. You're at gross weight (3,600 lbs). Your destination is KAUS (Austin), 4 hours away.",
-      questions: [
-        "Density altitude for these conditions?",
-        "Single-engine climb rate at gross weight from the chart?",
-        "What's accelerate-stop distance? Margin against runway available?",
-        "Engine fails on takeoff roll at 60 mph — action?",
-        "Engine fails airborne at 200 ft AGL with half the runway still ahead — action?",
-        "Engine fails airborne at 1,000 ft AGL after liftoff with no runway remaining — action?",
-        "Could you legally take off? Should you?",
-      ],
-      crossTopics: ["performance", "vmc-aerodynamics", "adm"],
-    },
-    {
-      id: "ifr-engine-out",
-      title: "IFR Engine-Out to Lubbock",
-      setup: "You're cruising at 8,000 ft IFR from Albuquerque to Lubbock. 50 NM west of KLBB, in IMC, the right engine starts running rough then loses oil pressure and seizes. Weather at KLBB: 600 OVC, 3 SM visibility, ILS 17R available.",
-      questions: [
-        "Walk me through your procedure from the moment you notice the failure.",
-        "Why right engine — was it the critical engine?",
-        "What's your altitude after feather and zero sideslip established?",
-        "How do you brief the ILS in this situation?",
-        "On the approach, you're slightly above glidepath at the FAF but performance is degrading. What's your decision?",
-        "If you go missed at minimums, what's your plan?",
-      ],
-      crossTopics: ["vmc-aerodynamics", "ifr", "adm", "performance"],
-    },
-    {
-      id: "passenger-emergency",
-      title: "Passenger Medical Emergency",
-      setup: "You're VFR at 6,500 ft, 30 NM north of Lubbock, returning from a $300 hamburger trip with 2 passengers. Your front-seat passenger has a sudden severe chest pain and difficulty breathing.",
-      questions: [
-        "Walk me through your decision-making.",
-        "What ATC service do you use, and what do you say?",
-        "Emergency descent procedure?",
-        "If KLBB has a 30 minute hold for arrivals due to weather, what do you do?",
-        "Could you declare a medical emergency on flight following frequency, or do you need a different freq?",
-      ],
-      crossTopics: ["adm", "regulations", "ifr"],
-    },
-    {
-      id: "thunderstorm-divert",
-      title: "Thunderstorm Pop-Up",
-      setup: "VFR cross-country, 30 minutes from F49 (Slaton). You see a fast-developing line of thunderstorms 25 NM ahead, blocking your route. Forecast didn't call for them. Fuel: 1.5 hours.",
-      questions: [
-        "What's your first action?",
-        "How far do you stay from a thunderstorm?",
-        "What information do you need to make a divert decision?",
-        "If conditions deteriorate to where you can't see ahead, options?",
-      ],
-      crossTopics: ["weather", "adm"],
-    },
-    {
-      id: "checkride-day-discontinuance",
-      title: "Checkride Day Decision",
-      setup: "You're on your checkride. Engine failure simulation goes well. You're on the single-engine ILS at KLBB. At 600 ft AGL (200 ft above DA), your simulated dead engine 'comes back' (instructor restoring power). You're slightly low on glidepath and 5 kt slow.",
-      questions: [
-        "Continue the approach or go missed?",
-        "If you continue and get back on glidepath by 200 ft AGL, is that a pass?",
-        "What does the examiner look for in this exact situation?",
-      ],
-      crossTopics: ["adm", "ifr"],
     },
   ],
 };
@@ -1696,20 +2037,13 @@ const CURRICULUM = [
           {
             id: "oral-prep",
             title: "Oral Exam Prep — Hot Topics",
-            summary: "What examiners ask on the Private AMEL add-on oral.",
+            summary: "Bridge — full content lives in the dedicated ORAL section.",
             teach: [
-              "**Aerodynamics & V-speeds:** Vmc certification conditions, factors affecting Vmc, critical engine, zero sideslip.",
-              "**Performance:** accelerate-stop, single-engine service ceiling, climb performance, runway analysis for the day.",
-              "**Systems:** fuel system layout and crossfeed, electrical bus, prop feathering mechanism, gear system & emergency extension.",
-              "**Procedures:** engine failure flow on takeoff (below Vmc, above Vmc, airborne), engine failure in flight, Vmc demo, restart procedure.",
-              "**Regulations:** currency to act as PIC of a multi-engine airplane (you already hold a PPL — focus on the multi-engine class privileges), endorsements required, IACRA requirements.",
-              "**Aircraft-specific:** know your PA-30 inside out — POH limitations, V-speeds memorized, fuel system, electrical system.",
-              "**Examiner format:** scenario-based. *'It's a hot August day in Lubbock at gross weight, what does that mean for your performance and decision-making?'* Connect knowledge to flight planning.",
+              "All oral exam content has been consolidated into the dedicated **ORAL** section in the header.",
+              "Click the **ORAL** button at the top of the page for the full Raider Aviation-aligned curriculum: 9 core topics, 6 PA-30 systems topics, and cross-topic scenarios.",
+              "The current section is preserved here only as a syllabus marker for Day 4 ground lesson sequencing.",
             ],
-            quiz: [
-              { q: "After your Private AMEL add-on, what additional currency requirement applies if you want to carry passengers in a twin?", a: ["No additional currency", "3 takeoffs and landings in a twin in the preceding 90 days (per 61.57)", "Annual flight review only", "10 hours twin time"], correct: 1, explain: "61.57(a): 3 takeoffs/landings in the preceding 90 days IN THE SAME CATEGORY AND CLASS. Multi-engine is a different class than single-engine. ASEL T/Os don't count toward AMEL currency. Tailwheel needs full-stop landings; nosewheel can be touch-and-go." },
-              { q: "Which of these is most likely a scenario question vs a rote question?", a: ["'Define Vmc.'", "'It's hot, you're at gross, runway is 3,500 ft — go or no-go and why?'", "'What color is the Vmc line?'", "'When was the PA-30 certified?'"], correct: 1, explain: "Modern ACS oral exams favor scenario-based questions that tie multiple knowledge areas together. The hot/gross/short scenario tests: density altitude, accelerate-stop, single-engine climb performance, ADM (aeronautical decision making), and PIC authority. One question, five knowledge areas. Be ready." },
-            ],
+            quiz: [],
           },
         ],
       },
@@ -3077,12 +3411,146 @@ function ManeuverQuizView({ taskId, onBack }) {
 }
 
 function OralPrepView({ onBack }) {
-  const [tab, setTab] = useState("areas");
-  const [openArea, setOpenArea] = useState(null);
-  const [openQ, setOpenQ] = useState({});
-  const [openScenario, setOpenScenario] = useState(null);
-  const [openSQ, setOpenSQ] = useState({});
+  const [groupId, setGroupId] = useState("core-oral");
+  const [activeTopicId, setActiveTopicId] = useState(null);
+  const [drillTopicId, setDrillTopicId] = useState(null);
   const [scenarioStatus, setScenarioStatus] = useState({});
+  const [openSQ, setOpenSQ] = useState({});
+
+  const group = ORAL.groups.find((g) => g.id === groupId);
+  const activeTopic = group?.topics.find((t) => t.id === activeTopicId);
+
+  if (drillTopicId) {
+    const drillTopic = group?.topics.find((t) => t.id === drillTopicId);
+    if (drillTopic && drillTopic.quiz && drillTopic.quiz.length > 0) {
+      const topicForDrill = {
+        id: `oral-${groupId}-${drillTopic.id}`,
+        title: drillTopic.title,
+        summary: drillTopic.definition || "",
+        quiz: drillTopic.quiz,
+      };
+      return (
+        <div className="me-panel" style={{ padding: 20 }}>
+          <button className="me-button" onClick={() => setDrillTopicId(null)} style={{ marginBottom: 16 }}>
+            <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back to Topic
+          </button>
+          <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 4 }}>{drillTopic.title.toUpperCase()} · DRILL</div>
+          <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
+            ORAL · 100% REQUIRED · MISSES RE-QUEUE
+          </div>
+          <DrillMode topic={topicForDrill} onQuizComplete={() => {}} />
+        </div>
+      );
+    }
+  }
+
+  if (activeTopic) {
+    const isScenario = groupId === "scenarios";
+    const status = scenarioStatus[activeTopic.id];
+    return (
+      <div className="me-panel" style={{ padding: 20 }}>
+        <button className="me-button" onClick={() => setActiveTopicId(null)} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back to {group.label}
+        </button>
+
+        <div className="me-display" style={{ fontSize: 24, color: AMBER, marginBottom: 6, letterSpacing: "0.04em" }}>{activeTopic.title.toUpperCase()}</div>
+
+        {activeTopic.raiderQuote && (
+          <div style={{ marginBottom: 16, padding: "12px 14px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 6 }}>RAIDER PDF QUOTE</div>
+            <div style={{ fontSize: 13, lineHeight: 1.6, color: TEXT, fontStyle: "italic" }}>"{activeTopic.raiderQuote}"</div>
+          </div>
+        )}
+
+        {!isScenario && activeTopic.definition && (
+          <div style={{ marginBottom: 16, padding: "12px 14px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 6 }}>MODEL ANSWER</div>
+            <div style={{ fontSize: 14, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>{activeTopic.definition}</div>
+          </div>
+        )}
+
+        {!isScenario && activeTopic.keyPoints && activeTopic.keyPoints.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 8 }}>KEY POINTS</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {activeTopic.keyPoints.map((pt, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, fontSize: 13.5, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>
+                  <span className="me-bullet" style={{ flexShrink: 0, fontFamily: "monospace" }}>›</span>
+                  <span><RichText line={pt} /></span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isScenario && activeTopic.setup && (
+          <div style={{ marginBottom: 16, padding: "12px 14px", background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 6 }}>SCENARIO SETUP</div>
+            <div style={{ fontSize: 13, lineHeight: 1.6, color: TEXT, fontStyle: "italic" }}>{activeTopic.setup}</div>
+          </div>
+        )}
+
+        {isScenario && activeTopic.crossTopics && (
+          <div style={{ fontSize: 10, letterSpacing: "0.12em", color: TEXT_DIM, marginBottom: 12 }}>
+            CROSS-TOPICS: <span style={{ color: CYAN, fontWeight: 700 }}>{activeTopic.crossTopics.join(" · ")}</span>
+          </div>
+        )}
+
+        {isScenario && activeTopic.questions && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
+            {activeTopic.questions.map((q, i) => {
+              const key = `${activeTopic.id}__${i}`;
+              const qOpen = !!openSQ[key];
+              return (
+                <div key={i}>
+                  <button
+                    onClick={() => setOpenSQ((prev) => ({ ...prev, [key]: !prev[key] }))}
+                    style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "6px 0", cursor: "pointer", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13.5, lineHeight: 1.5, fontWeight: 500, display: "flex", gap: 8, alignItems: "flex-start" }}
+                  >
+                    <span style={{ color: AMBER, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                    <span>{q}</span>
+                  </button>
+                  {qOpen && (
+                    <div style={{ marginTop: 4, marginLeft: 18, padding: "10px 12px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", fontSize: 12.5, lineHeight: 1.65, color: TEXT_DIM, fontStyle: "italic" }}>
+                      Synthesize topics: <span style={{ color: CYAN, fontStyle: "normal", fontWeight: 700 }}>{(activeTopic.crossTopics || []).join(", ")}</span>. Walk through aloud as if responding to the examiner.
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {isScenario && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button
+              className="me-button"
+              style={{ borderColor: status === "got" ? "#40dc8c" : BORDER, color: status === "got" ? "#40dc8c" : TEXT }}
+              onClick={() => setScenarioStatus((prev) => ({ ...prev, [activeTopic.id]: prev[activeTopic.id] === "got" ? null : "got" }))}
+            >
+              <Check size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />I got this
+            </button>
+            <button
+              className="me-button"
+              style={{ borderColor: status === "review" ? AMBER : BORDER, color: status === "review" ? AMBER : TEXT }}
+              onClick={() => setScenarioStatus((prev) => ({ ...prev, [activeTopic.id]: prev[activeTopic.id] === "review" ? null : "review" }))}
+            >
+              <RotateCcw size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Need to review
+            </button>
+          </div>
+        )}
+
+        {!isScenario && activeTopic.quiz && activeTopic.quiz.length > 0 && (
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <button className="me-button cyan" onClick={() => setDrillTopicId(activeTopic.id)}>
+              <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
+              Drill {activeTopic.title} ({activeTopic.quiz.length} questions)
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="me-panel" style={{ padding: 20 }}>
@@ -3090,128 +3558,78 @@ function OralPrepView({ onBack }) {
         <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
       </button>
       <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>ORAL EXAM PREP</div>
-      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
-        AREAS OF OPERATION + CROSS-TOPIC SCENARIOS
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 12, letterSpacing: "0.15em" }}>
+        RAIDER AVIATION-ALIGNED · 9 CORE + 6 SYSTEMS + SCENARIOS
       </div>
-
-      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-        <button className={`me-button ${tab === "areas" ? "active" : ""}`} onClick={() => setTab("areas")}>
-          Areas of Operation
-        </button>
-        <button className={`me-button cyan ${tab === "scenarios" ? "active" : ""}`} onClick={() => setTab("scenarios")}>
-          Scenarios
-        </button>
-      </div>
-
-      {tab === "areas" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {ORAL.areas.map((area) => {
-            const isOpen = openArea === area.id;
-            return (
-              <div key={area.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${AMBER}`, borderRadius: "0 3px 3px 0" }}>
-                <button
-                  onClick={() => setOpenArea(isOpen ? null : area.id)}
-                  style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontFamily: "JetBrains Mono, monospace", color: TEXT }}
-                >
-                  <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{area.name}</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em" }}>{area.questions.length} Q</span>
-                    <ChevronRight size={14} style={{ color: TEXT_DIM, transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s" }} />
-                  </span>
-                </button>
-                {isOpen && (
-                  <div style={{ padding: "0 14px 14px 14px", borderTop: `1px solid ${BORDER}` }}>
-                    {area.questions.map((qa, i) => {
-                      const key = `${area.id}__${i}`;
-                      const qOpen = !!openQ[key];
-                      return (
-                        <div key={i} style={{ marginTop: 10, paddingTop: 10, borderTop: i === 0 ? "none" : `1px dashed ${BORDER}` }}>
-                          <button
-                            onClick={() => setOpenQ(prev => ({ ...prev, [key]: !prev[key] }))}
-                            style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13.5, lineHeight: 1.55, fontWeight: 600, display: "flex", gap: 8, alignItems: "flex-start" }}
-                          >
-                            <ChevronRight size={12} style={{ color: TEXT_DIM, marginTop: 4, transform: qOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.15s", flexShrink: 0 }} />
-                            <span>{qa.q}</span>
-                          </button>
-                          {qOpen && (
-                            <div style={{ marginTop: 8, marginLeft: 20, padding: "10px 12px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", fontSize: 13, lineHeight: 1.7, color: TEXT, fontWeight: 500 }}>
-                              {qa.a}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      {ORAL.intro && (
+        <div style={{ fontSize: 13, color: TEXT_DIM, lineHeight: 1.6, marginBottom: 18, fontStyle: "italic" }}>
+          {ORAL.intro}
         </div>
       )}
 
-      {tab === "scenarios" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {ORAL.scenarios.map((sc) => {
-            const isOpen = openScenario === sc.id;
-            const status = scenarioStatus[sc.id];
-            return (
-              <div key={sc.id} style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${status === "got" ? "#40dc8c" : status === "review" ? AMBER : CYAN}`, borderRadius: "0 3px 3px 0", padding: "14px 16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
-                  <div className="me-glow-amber" style={{ fontWeight: 700, fontSize: 15 }}>{sc.title}</div>
-                  {status && (
-                    <span style={{ fontSize: 10, color: status === "got" ? "#40dc8c" : AMBER, letterSpacing: "0.12em", fontWeight: 700, textTransform: "uppercase" }}>
-                      {status === "got" ? "✓ Got it" : "⟳ Review"}
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 12.5, color: TEXT_DIM, fontStyle: "italic", lineHeight: 1.55, marginBottom: 12 }}>
-                  {sc.setup}
-                </div>
-                <div style={{ fontSize: 10, letterSpacing: "0.12em", color: TEXT_DIM, marginBottom: 6 }}>
-                  CROSS-TOPICS: <span style={{ color: CYAN, fontWeight: 700 }}>{sc.crossTopics.join(" · ")}</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
-                  {sc.questions.map((q, i) => {
-                    const key = `${sc.id}__${i}`;
-                    const qOpen = !!openSQ[key];
-                    return (
-                      <div key={i}>
-                        <button
-                          onClick={() => setOpenSQ(prev => ({ ...prev, [key]: !prev[key] }))}
-                          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "4px 0", cursor: "pointer", color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 13, lineHeight: 1.5, fontWeight: 500, display: "flex", gap: 8, alignItems: "flex-start" }}
-                        >
-                          <span style={{ color: AMBER, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
-                          <span>{q}</span>
-                        </button>
-                        {qOpen && (
-                          <div style={{ marginTop: 6, marginLeft: 18, padding: "10px 12px", background: PANEL, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", fontSize: 12.5, lineHeight: 1.65, color: TEXT_DIM, fontStyle: "italic" }}>
-                            This scenario requires synthesizing topics: <span style={{ color: CYAN, fontStyle: "normal", fontWeight: 700 }}>{sc.crossTopics.join(", ")}</span>. Walk through your answer out loud as if you were responding to the examiner. Compare your answer to the model when you've worked through it.
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  <button
-                    className="me-button"
-                    style={{ borderColor: status === "got" ? "#40dc8c" : BORDER, color: status === "got" ? "#40dc8c" : TEXT }}
-                    onClick={() => setScenarioStatus(prev => ({ ...prev, [sc.id]: prev[sc.id] === "got" ? null : "got" }))}
-                  >
-                    <Check size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />I got this
-                  </button>
-                  <button
-                    className="me-button"
-                    style={{ borderColor: status === "review" ? AMBER : BORDER, color: status === "review" ? AMBER : TEXT }}
-                    onClick={() => setScenarioStatus(prev => ({ ...prev, [sc.id]: prev[sc.id] === "review" ? null : "review" }))}
-                  >
-                    <RotateCcw size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Need to review
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 }}>
+        {ORAL.groups.map((g) => (
+          <button
+            key={g.id}
+            className={`me-button ${g.id === "core-oral" ? "" : "cyan "}${groupId === g.id ? "active" : ""}`}
+            onClick={() => setGroupId(g.id)}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+
+      {group && (
+        <>
+          <div style={{ fontSize: 12, color: TEXT_DIM, lineHeight: 1.6, marginBottom: 14, fontStyle: "italic" }}>
+            {group.blurb}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {group.topics.map((topic, i) => {
+              const status = scenarioStatus[topic.id];
+              const accent = status === "got" ? "#40dc8c" : status === "review" ? AMBER : (groupId === "scenarios" ? CYAN : AMBER);
+              const qCount = (topic.quiz || []).length;
+              return (
+                <button
+                  key={topic.id}
+                  onClick={() => setActiveTopicId(topic.id)}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    background: PANEL_2,
+                    border: `1px solid ${BORDER}`,
+                    borderLeft: `3px solid ${accent}`,
+                    borderRadius: "0 3px 3px 0",
+                    padding: "12px 14px",
+                    cursor: "pointer",
+                    color: TEXT,
+                    fontFamily: "JetBrains Mono, monospace",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ color: TEXT_DIM, fontSize: 10, letterSpacing: "0.12em" }}>{String(i + 1).padStart(2, "0")}</span>
+                    <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{topic.title}</span>
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {status && (
+                      <span style={{ fontSize: 10, color: status === "got" ? "#40dc8c" : AMBER, letterSpacing: "0.12em", fontWeight: 700 }}>
+                        {status === "got" ? "✓" : "⟳"}
+                      </span>
+                    )}
+                    {qCount > 0 && (
+                      <span style={{ fontSize: 10, color: TEXT_DIM, letterSpacing: "0.12em" }}>{qCount} Q</span>
+                    )}
+                    <ChevronRight size={14} style={{ color: TEXT_DIM }} />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
@@ -3821,6 +4239,20 @@ function buildAllQuestions() {
         _topic: `Vmc Mastery — ${tier.name}`,
         _day: "Vmc Mastery",
         _kind: "vmc-mastery",
+      });
+    });
+  });
+  // Include Raider-aligned ORAL questions
+  ORAL.groups.forEach((group) => {
+    group.topics.forEach((topic) => {
+      (topic.quiz || []).forEach((q, qi) => {
+        all.push({
+          ...q,
+          _id: `oral_${group.id}__${topic.id}__${qi}`,
+          _topic: `Oral — ${topic.title}`,
+          _day: "Oral",
+          _kind: "oral",
+        });
       });
     });
   });
