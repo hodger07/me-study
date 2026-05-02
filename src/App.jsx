@@ -2805,7 +2805,16 @@ function Header({ progress, view, setView, userId, syncStatus }) {
             <button className={`me-button cyan ${view === "checklist" || view === "checklist-phase" ? "active" : ""}`} onClick={() => setView("checklist")}>
               <ListChecks size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Checklist
             </button>
-            <button className={`me-button cyan ${view === "emergency" || view === "emergency-procedure" ? "active" : ""}`} onClick={() => setView("emergency")}>
+            <button
+              className="me-button"
+              onClick={() => setView("emergency")}
+              style={{
+                color: RED,
+                borderColor: RED,
+                fontWeight: 700,
+                background: (view === "emergency" || view === "emergency-procedure") ? "rgba(255,82,82,0.15)" : undefined,
+              }}
+            >
               <AlertOctagon size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Emergency
             </button>
             <button className={`me-button cyan ${view === "speeds" ? "active" : ""}`} onClick={() => setView("speeds")}>
