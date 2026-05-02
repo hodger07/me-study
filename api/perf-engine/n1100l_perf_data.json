@@ -1,0 +1,527 @@
+{
+  "$schema": "n1100l-perf-v1",
+  "aircraft": {
+    "tail_number": "N1100L",
+    "make": "Piper",
+    "model": "PA-30 Twin Comanche",
+    "serial_number": "30-12",
+    "year": 1963,
+    "variant": "normally_aspirated",
+    "tip_tanks": false,
+    "source_afm": "Aircraft Publications PA-30 POH/AFM, Second Issue (1993, rev 1996), serial range 30-1 through 30-2000",
+    "source_wb": "ForeFlight W&B Data sheet by Raider Aviation"
+  },
+  "engines": {
+    "model": "Lycoming IO-320-B1A",
+    "count": 2,
+    "rated_power_hp_each": 160,
+    "rated_rpm": 2700,
+    "compression_ratio": "8.5:1",
+    "fuel_injector": "Bendix RSA-5AD1",
+    "minimum_fuel_grade": "91/96 (100LL acceptable)"
+  },
+  "propellers": {
+    "make": "Hartzell",
+    "hub_model": "HC-E2YL-2",
+    "blade_model": "7663-4",
+    "diameter_in": {"max": 72, "min": 70},
+    "pitch_low_deg": 12.0,
+    "pitch_feathered_deg": 78.0,
+    "rotation": "non_counter_rotating"
+  },
+  "weight_limits_lb": {
+    "ramp_max": 3600,
+    "takeoff_max": 3600,
+    "landing_max": 3600,
+    "zero_fuel_max": 3600,
+    "baggage_max": 200,
+    "empty_weight": 2373.05,
+    "empty_cg_in": 85.717,
+    "empty_moment_in_lb": 203411.42
+  },
+  "cg_envelope": {
+    "datum_description": "79 inches ahead of wing leading edge, station 65.5 longitudinal",
+    "points": [
+      {"weight_lb": 2450, "fwd_limit_in": 81.0, "aft_limit_in": 92.0},
+      {"weight_lb": 3200, "fwd_limit_in": 83.0, "aft_limit_in": 92.0},
+      {"weight_lb": 3600, "fwd_limit_in": 86.5, "aft_limit_in": 92.0}
+    ],
+    "interpolation": "linear"
+  },
+  "stations_in": {
+    "front_seats": 85.0,
+    "fuel_main_inboard": 90.0,
+    "fuel_aux_outboard": 95.0,
+    "aft_seats": 118.5,
+    "baggage": 142.0
+  },
+  "fuel": {
+    "main_inboard_total_gal": 60,
+    "main_inboard_usable_gal": 54,
+    "main_inboard_unusable_gal_per_tank": 3,
+    "aux_outboard_total_gal": 30,
+    "aux_outboard_usable_gal": 30,
+    "tip_aux_total_gal": 0,
+    "tip_aux_usable_gal": 0,
+    "total_usable_gal": 84,
+    "weight_per_gal_lb": 6.0
+  },
+  "structural": {
+    "load_factor_positive_g": 3.80,
+    "load_factor_negative_g": -1.52,
+    "category": "Normal",
+    "inverted_maneuvers_approved": false
+  },
+  "v_speeds_mph_cas": {
+    "Va_3600": 162,
+    "Va_2450": 135,
+    "Vfe": 125,
+    "Vle": 150,
+    "Vlo": 150,
+    "Vmca": 90,
+    "Vne": 230,
+    "Vno": 194,
+    "Vs0_clean_power_off": 76,
+    "Vso_dirty_power_off": 69,
+    "Vyse_blue_line": 105,
+    "demonstrated_xwind_kt": 17,
+    "takeoff_rotation_speed": 80,
+    "takeoff_50ft_speed": 91,
+    "landing_approach": 90,
+    "landing_touchdown": 70,
+    "stall_warning_margin_kt": 5
+  },
+  "v_speeds_mph_ias": {
+    "Va_3600": 162,
+    "Va_2450": 134,
+    "Vfe": 124,
+    "Vle": 149,
+    "Vlo": 149,
+    "Vmca": 88,
+    "Vne": 234,
+    "Vno": 197,
+    "Vs0": 69,
+    "Vs1": 74
+  },
+  "asi_markings_cas": {
+    "red_line_vne_mph": 230,
+    "yellow_arc_mph": [194, 230],
+    "green_arc_mph": [76, 194],
+    "white_arc_flaps_mph": [69, 125],
+    "red_radial_vmca_mph": 90,
+    "blue_radial_vyse_mph": 105
+  },
+  "engine_instrument_limits": {
+    "tach_green_rpm": [500, 2700],
+    "tach_redline_rpm": 2700,
+    "oil_temp_green_F": [120, 245],
+    "oil_temp_yellow_F": [60, 120],
+    "oil_temp_redline_F": 245,
+    "oil_press_green_psi": [60, 90],
+    "oil_press_yellow_psi": [[25, 60], [90, 100]],
+    "oil_press_min_psi": 25,
+    "oil_press_max_psi": 100,
+    "fuel_flow_green_gph": [0, 16],
+    "fuel_flow_redline_gph": 16,
+    "cht_green_F": [200, 500],
+    "cht_min_F": 200,
+    "cht_max_F": 500,
+    "vacuum_green_inHg": [4.8, 5.1]
+  },
+  "flap_limits_deg": {
+    "takeoff_range": [0, 15],
+    "landing_range": [0, 27]
+  },
+
+  "_NOMOGRAM_NOTE": "PA-30 takeoff/landing/accel-stop charts are 3-stage nomograms: (1) PA + OAT -> reference distance at 3600 lb, zero wind; (2) weight correction factor; (3) headwind correction factor. Stored that way for fidelity to AFM construction.",
+
+  "stall_speed_5_05": {
+    "title": "Power-off stall speed vs gross weight (Figure 5-05)",
+    "x_weight_lb": [2600, 2800, 3000, 3200, 3400, 3600],
+    "clean_mph_ias": [64.5, 67, 70, 72.5, 75, 76.5],
+    "clean_kt_ias": [56, 58, 61, 63, 65, 66.5],
+    "dirty_mph_ias": [60, 62, 64, 66, 68, 69.5],
+    "dirty_kt_ias": [52, 54, 56, 57.5, 59, 60.5],
+    "interpolation": "linear",
+    "notes": "Standard atmosphere, power off. Loss of altitude in power-off stall (clean) = 280 ft."
+  },
+
+  "takeoff_ground_run_5_06": {
+    "title": "Takeoff ground run distance (Figure 5-06)",
+    "conditions": "Wing flaps 15 deg, full throttle, max RPM, paved/level/dry, takeoff speed 80 mph IAS",
+    "stage1_reference_table": {
+      "_description": "Ground roll in feet at 3600 lb, zero wind, by pressure altitude (ft) and OAT (deg F)",
+      "_axes": "rows = pressure_altitude_ft, columns = oat_F",
+      "pa_ft": [0, 2000, 4000, 6000, 8000],
+      "oat_F": [0, 20, 40, 60, 80, 100],
+      "ground_roll_ft": [
+        [780,  870,  960, 1060, 1170, 1290],
+        [880,  980, 1080, 1200, 1320, 1450],
+        [990, 1100, 1220, 1350, 1490, 1640],
+        [1120, 1240, 1370, 1520, 1680, 1850],
+        [1260, 1400, 1550, 1720, 1900, 2090]
+      ]
+    },
+    "stage2_weight_factor": {
+      "_description": "Multiply Stage 1 result by this factor for actual takeoff weight",
+      "weight_lb": [2800, 3000, 3200, 3400, 3600],
+      "factor": [0.62, 0.71, 0.80, 0.89, 1.00]
+    },
+    "stage3_headwind_factor": {
+      "_description": "Multiply prior result by this factor for headwind. Tailwind: linearly extrapolate (penalty).",
+      "headwind_kt": [0, 5, 10, 15, 20, 25],
+      "headwind_mph": [0, 6, 11, 17, 23, 29],
+      "factor": [1.00, 0.88, 0.77, 0.67, 0.58, 0.50],
+      "tailwind_penalty_per_kt": 0.05
+    }
+  },
+
+  "takeoff_50ft_5_07": {
+    "title": "Takeoff distance over 50 ft obstacle (Figure 5-07)",
+    "conditions": "Wing flaps 15 deg, full throttle, max RPM, paved/level/dry, attain 91 mph IAS at 50 ft AGL",
+    "stage1_reference_table": {
+      "pa_ft": [0, 2000, 4000, 6000, 8000],
+      "oat_F": [0, 20, 40, 60, 80, 100],
+      "distance_ft": [
+        [1500, 1670, 1850, 2050, 2270, 2510],
+        [1700, 1890, 2090, 2320, 2570, 2840],
+        [1920, 2130, 2370, 2620, 2900, 3210],
+        [2170, 2410, 2680, 2960, 3280, 3630],
+        [2450, 2720, 3020, 3340, 3700, 4100]
+      ]
+    },
+    "stage2_weight_factor": {
+      "weight_lb": [2800, 3000, 3200, 3400, 3600],
+      "factor": [0.62, 0.71, 0.80, 0.89, 1.00]
+    },
+    "stage3_headwind_factor": {
+      "headwind_kt": [0, 5, 10, 15, 20, 25],
+      "headwind_mph": [0, 6, 11, 17, 23, 29],
+      "factor": [1.00, 0.88, 0.78, 0.69, 0.61, 0.54],
+      "tailwind_penalty_per_kt": 0.05
+    }
+  },
+
+  "accelerate_stop_5_08": {
+    "title": "Accelerate-stop distance (Figure 5-08)",
+    "conditions": "Flaps retracted, full throttle and max RPM, accelerate to 90 mph IAS, both throttles closed at decision speed, max braking, paved/level/dry",
+    "stage1_reference_table": {
+      "pa_ft": [0, 2000, 4000, 6000, 8000],
+      "oat_F": [0, 20, 40, 60, 80, 100],
+      "distance_ft": [
+        [1750, 1950, 2160, 2400, 2660, 2950],
+        [1980, 2200, 2440, 2710, 3000, 3320],
+        [2230, 2480, 2750, 3050, 3380, 3740],
+        [2510, 2790, 3090, 3430, 3800, 4210],
+        [2820, 3130, 3470, 3850, 4270, 4730]
+      ]
+    },
+    "stage2_weight_factor": {
+      "weight_lb": [2800, 3000, 3200, 3400, 3600],
+      "factor": [0.65, 0.74, 0.83, 0.91, 1.00]
+    },
+    "stage3_headwind_factor": {
+      "headwind_kt": [0, 5, 10, 15, 20, 25],
+      "headwind_mph": [0, 6, 11, 17, 23, 29],
+      "factor": [1.00, 0.90, 0.81, 0.73, 0.66, 0.60],
+      "tailwind_penalty_per_kt": 0.04
+    }
+  },
+
+  "multi_engine_climb_5_09": {
+    "title": "Multi-engine rate of climb vs density altitude and weight (Figure 5-09)",
+    "conditions": "Cowl flaps open, full throttle and max RPM, optimum airspeed (Vy)",
+    "configurations": {
+      "clean_2800lb": {
+        "da_ft":   [0,    2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000],
+        "roc_fpm": [2030, 1850, 1660, 1480, 1290, 1110,  920,   740,   550,   370,   180]
+      },
+      "clean_3200lb": {
+        "da_ft":   [0,    2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000],
+        "roc_fpm": [1620, 1450, 1280, 1110, 940,  770,   600,   430,   260,   90]
+      },
+      "clean_3600lb": {
+        "da_ft":   [0,    2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000],
+        "roc_fpm": [1280, 1130, 980,  830,  680,  530,   380,   230,   80]
+      },
+      "gear_extended_flaps15_3600lb": {
+        "da_ft":   [0,    2000, 4000, 6000, 8000, 10000, 12000],
+        "roc_fpm": [1050, 920,  780,  650,  510,  380,   240]
+      }
+    }
+  },
+
+  "single_engine_climb_5_10": {
+    "title": "Single-engine rate of climb vs density altitude and weight (Figure 5-10) -- SAFETY-CRITICAL",
+    "conditions": "Left engine inoperative and feathered, right full throttle and max RPM, gear and flaps retracted, optimum airspeed (Vyse)",
+    "lookup_grid_dense": true,
+    "configurations": {
+      "clean_2800lb": {
+        "da_ft":   [0,   1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 10500],
+        "roc_fpm": [510, 460,  410,  360,  310,  260,  210,  160,  110,  60,   10,    0]
+      },
+      "clean_3200lb": {
+        "da_ft":   [0,   1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+        "roc_fpm": [380, 335,  290,  245,  200,  155,  110,  65,   0]
+      },
+      "clean_3600lb": {
+        "da_ft":   [0,   1000, 2000, 3000, 4000, 5000, 5500],
+        "roc_fpm": [255, 210,  165,  120,  80,   40,   0]
+      }
+    },
+    "service_ceilings_ft_da": {
+      "_description": "Density altitude at which single-engine ROC = 50 fpm (FAA service ceiling)",
+      "2800": 10300,
+      "3200": 7800,
+      "3600": 5300
+    },
+    "absolute_ceilings_ft_da": {
+      "_description": "Density altitude at which single-engine ROC = 0 fpm",
+      "2800": 10500,
+      "3200": 8000,
+      "3600": 5500
+    }
+  },
+
+  "vx_vy_5_11": {
+    "title": "Vx and Vy vs density altitude (Figure 5-11)",
+    "gross_weight_lb": 3600,
+    "multi_engine": {
+      "_description": "Vx (best angle) and Vy (best rate) decrease with altitude",
+      "da_ft":      [0,   3000, 6000, 9000, 12000, 15000],
+      "vx_mph_ias": [90,  90,   91,   92,   93,    94],
+      "vx_kt_ias":  [78,  78,   79,   80,   81,    82],
+      "vy_mph_ias": [112, 109,  106,  103,  100,   97],
+      "vy_kt_ias":  [97,  95,   92,   90,   87,    84]
+    },
+    "single_engine": {
+      "_description": "Best single-engine speeds (Vxse, Vyse). Vyse converges with Vxse near absolute ceiling.",
+      "da_ft":        [0,   2000, 4000, 6000, 7000],
+      "vxse_mph_ias": [102, 102,  102,  102,  102],
+      "vxse_kt_ias":  [89,  89,   89,   89,   89],
+      "vyse_mph_ias": [105, 104,  103,  102,  102],
+      "vyse_kt_ias":  [91,  90,   90,   89,   89]
+    }
+  },
+
+  "true_airspeed_5_12": {
+    "title": "True airspeed vs density altitude at various power settings (Figure 5-12)",
+    "conditions": "3600 lb, gear and flaps retracted, mixture best power, cowl flaps closed",
+    "power_settings": {
+      "45_pct": {
+        "da_ft":  [0,   4000, 8000, 12000, 16000],
+        "tas_mph":[140, 140,  140,  140,   140],
+        "tas_kt": [122, 122,  122,  122,   122]
+      },
+      "55_pct": {
+        "da_ft":  [0,   4000, 8000, 12000, 16000],
+        "tas_mph":[155, 156,  158,  160,   161],
+        "tas_kt": [135, 136,  137,  139,   140]
+      },
+      "65_pct": {
+        "da_ft":  [0,   4000, 8000, 12000, 16000],
+        "tas_mph":[170, 173,  176,  178,   180],
+        "tas_kt": [148, 150,  153,  155,   156]
+      },
+      "75_pct": {
+        "da_ft":  [0,   4000, 8000, 12000],
+        "tas_mph":[183, 187,  192,  196],
+        "tas_kt": [159, 162,  167,  170]
+      },
+      "full_throttle_2400rpm": {
+        "da_ft":  [0,   4000, 8000, 12000, 16000],
+        "tas_mph":[193, 195,  197,  186,   162],
+        "tas_kt": [168, 169,  171,  162,   141]
+      },
+      "full_throttle_2700rpm": {
+        "da_ft":  [0,   4000, 8000, 12000, 16000],
+        "tas_mph":[206, 208,  198,  185,   165],
+        "tas_kt": [179, 181,  172,  161,   143]
+      }
+    }
+  },
+
+  "range_5_13": {
+    "title": "Range profile (Figure 5-13)",
+    "conditions": "84 US gal usable, 3600 lb at start, gear/flaps up, best economy mixture. Includes start/taxi/TO/climb/descent + 45 min reserve at max range power.",
+    "warning": "No allowance for wind or navigational errors.",
+    "power_settings": {
+      "45_pct": {"da_ft": [0, 4000, 8000, 12000], "range_sm": [1010, 1030, 1050, 1060], "range_nm": [880, 895, 910, 920]},
+      "55_pct": {"da_ft": [0, 4000, 8000, 12000], "range_sm": [970,  985,  1000, 1010], "range_nm": [840, 855, 870, 880]},
+      "65_pct": {"da_ft": [0, 4000, 8000, 12000], "range_sm": [910,  925,  940,  955],  "range_nm": [790, 805, 820, 830]},
+      "75_pct": {"da_ft": [0, 4000, 8000, 12000], "range_sm": [840,  855,  870,  885],  "range_nm": [730, 745, 755, 770]}
+    }
+  },
+
+  "endurance_5_14": {
+    "title": "Endurance profile (Figure 5-14)",
+    "conditions": "84 US gal usable, 3600 lb at start, best economy mixture. Includes start/taxi/TO/climb/descent + 45 min reserve at max endurance power.",
+    "power_settings": {
+      "45_pct": {"da_ft": [0, 4000, 8000, 12000], "endurance_hr": [7.0, 7.1, 7.2, 7.3]},
+      "55_pct": {"da_ft": [0, 4000, 8000, 12000], "endurance_hr": [5.9, 6.0, 6.1, 6.2]},
+      "65_pct": {"da_ft": [0, 4000, 8000, 12000], "endurance_hr": [5.0, 5.1, 5.2, 5.3]},
+      "75_pct": {"da_ft": [0, 4000, 8000, 12000], "endurance_hr": [4.4, 4.5, 4.6, 4.7]}
+    }
+  },
+
+  "landing_ground_roll_5_15": {
+    "title": "Landing ground roll distance (Figure 5-15)",
+    "conditions": "Flaps 27, throttles closed, max braking, paved/level/dry, approach 90 mph IAS, touchdown 70 mph IAS",
+    "stage1_reference_table": {
+      "_description": "Ground roll at 3600 lb, zero wind",
+      "pa_ft": [0, 2000, 4000, 6000, 8000],
+      "oat_F": [0, 20, 40, 60, 80, 100],
+      "ground_roll_ft": [
+        [620, 650, 680, 710, 740, 770],
+        [680, 710, 745, 775, 810, 845],
+        [745, 780, 815, 850, 885, 925],
+        [815, 855, 890, 930, 970, 1010],
+        [890, 935, 975, 1015, 1060, 1105]
+      ]
+    },
+    "stage2_weight_factor": {
+      "weight_lb": [2800, 3000, 3200, 3400, 3600],
+      "factor": [0.78, 0.83, 0.89, 0.94, 1.00]
+    },
+    "stage3_headwind_factor": {
+      "headwind_kt": [0, 5, 10, 15, 20, 25],
+      "headwind_mph": [0, 6, 11, 17, 23, 29],
+      "factor": [1.00, 0.90, 0.80, 0.71, 0.62, 0.55],
+      "tailwind_penalty_per_kt": 0.06
+    },
+    "standard_landing_factor": {
+      "_description": "AFM ground roll assumes max-effort braking. For normal landing, multiply by ~2.0",
+      "factor": 2.0
+    }
+  },
+
+  "landing_50ft_5_16": {
+    "title": "Landing distance over 50 ft obstacle (Figure 5-16)",
+    "conditions": "Flaps 27, max braking, paved/level/dry, approach 90 mph IAS",
+    "stage1_reference_table": {
+      "pa_ft": [0, 2000, 4000, 6000, 8000],
+      "oat_F": [0, 20, 40, 60, 80, 100],
+      "distance_ft": [
+        [1700, 1770, 1840, 1910, 1990, 2070],
+        [1820, 1890, 1970, 2050, 2130, 2220],
+        [1940, 2020, 2100, 2190, 2280, 2370],
+        [2070, 2160, 2250, 2340, 2440, 2540],
+        [2220, 2310, 2410, 2510, 2610, 2720]
+      ]
+    },
+    "stage2_weight_factor": {
+      "weight_lb": [2800, 3000, 3200, 3400, 3600],
+      "factor": [0.85, 0.89, 0.92, 0.96, 1.00]
+    },
+    "stage3_headwind_factor": {
+      "headwind_kt": [0, 5, 10, 15, 20, 25],
+      "headwind_mph": [0, 6, 11, 17, 23, 29],
+      "factor": [1.00, 0.92, 0.84, 0.76, 0.69, 0.63],
+      "tailwind_penalty_per_kt": 0.05
+    }
+  },
+
+  "power_setting_table_5_17": {
+    "title": "Power setting table (Figure 5-17), Lycoming IO-320-B per engine",
+    "_description": "Table giving manifold pressure (in Hg) required at various RPM and pressure altitude to produce a given % rated power. Per-engine numbers.",
+    "_correction_note": "Correct MP by approximately 0.17 in Hg for each 10F induction air temp variation from standard altitude temp. Add MP for temps above standard, subtract for below.",
+    "_mixture_notes": {
+      "best_economy": "Cruise at peak EGT",
+      "best_power": "Cruise at 100 F rich of peak EGT"
+    },
+    "rated_power_levels": [
+      {
+        "pct_rated": 55,
+        "hp_each": 88,
+        "fuel_gph_each_economy": 6.7,
+        "fuel_gph_each_best_power": 8.0,
+        "rpm_columns": [2100, 2200, 2300, 2400],
+        "pa_ft":         [0,    1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000],
+        "std_temp_F":    [59,   55,   52,   48,   45,   41,   38,   34,   31,   27,   23,    19,    16,    12,    9,     5],
+        "mp_inHg": [
+          [22.4, 21.7, 21.0, 20.4],
+          [22.1, 21.5, 20.7, 20.2],
+          [21.8, 21.2, 20.5, 19.9],
+          [21.6, 20.9, 20.2, 19.7],
+          [21.3, 20.6, 19.9, 19.4],
+          [21.0, 20.4, 19.7, 19.2],
+          [20.8, 20.1, 19.4, 18.9],
+          [20.5, 19.8, 19.1, 18.7],
+          [20.2, 19.5, 18.9, 18.4],
+          [19.9, 19.2, 18.6, 18.2],
+          [19.7, 19.0, 18.3, 17.9],
+          [19.4, 18.7, 18.1, 17.7],
+          [null, 18.4, 17.8, 17.4],
+          [null, null, 17.5, 17.2],
+          [null, null, null, 17.0],
+          [null, null, null, 16.9]
+        ]
+      },
+      {
+        "pct_rated": 65,
+        "hp_each": 104,
+        "fuel_gph_each_economy": 7.6,
+        "fuel_gph_each_best_power": 8.85,
+        "rpm_columns": [2100, 2200, 2300, 2400],
+        "pa_ft":         [0,    1000, 2000, 3000, 4000, 5000, 6000, 7000],
+        "mp_inHg": [
+          [25.0, 24.2, 23.3, 22.7],
+          [24.7, 23.9, 23.0, 22.4],
+          [24.4, 23.6, 22.8, 22.2],
+          [24.1, 23.3, 22.5, 21.9],
+          [23.8, 23.0, 22.2, 21.6],
+          [23.5, 22.7, 21.9, 21.3],
+          [23.2, 22.4, 21.6, 21.1],
+          [null, 22.1, 21.3, 20.8]
+        ]
+      },
+      {
+        "pct_rated": 75,
+        "hp_each": 120,
+        "fuel_gph_each_economy": 8.6,
+        "fuel_gph_each_best_power": 10.0,
+        "rpm_columns": [2200, 2300, 2400],
+        "pa_ft":   [0,    1000, 2000, 3000, 4000],
+        "mp_inHg": [
+          [26.5, 25.6, 24.9],
+          [26.2, 25.3, 24.6],
+          [25.9, 25.0, 24.3],
+          [25.6, 24.7, 24.0],
+          [25.3, 24.3, 23.7]
+        ]
+      }
+    ]
+  },
+
+  "surface_corrections": {
+    "_description": "Adjustments to AFM paved/level/dry numbers. AFM does not publish these; values are FAA AC 91-79A & industry-standard rules of thumb. Editable per-operator.",
+    "takeoff": {
+      "short_dry_grass": {"factor": 1.15, "label": "Short dry grass: +15%"},
+      "tall_dry_grass":  {"factor": 1.25, "label": "Tall dry grass: +25%"},
+      "wet_grass":       {"factor": 1.30, "label": "Wet grass: +30%"},
+      "wet_paved":       {"factor": 1.10, "label": "Wet paved: +10%"},
+      "soft_field":      {"factor": 1.50, "label": "Soft/muddy field: +50%"},
+      "per_pct_upslope": {"factor_per_1pct": 0.10, "label": "Each 1% upslope: +10%"},
+      "per_pct_downslope_credit": {"factor_per_1pct": -0.05, "label": "Each 1% downslope: -5% credit (capped at -15%)", "max_credit": -0.15}
+    },
+    "landing": {
+      "short_dry_grass": {"factor": 1.15, "label": "Short dry grass: +15%"},
+      "tall_dry_grass":  {"factor": 1.20, "label": "Tall dry grass: +20%"},
+      "wet_grass":       {"factor": 1.30, "label": "Wet grass: +30%"},
+      "wet_paved":       {"factor": 1.15, "label": "Wet paved: +15%"},
+      "icy_paved":       {"factor": 2.00, "label": "Icy paved: +100%"},
+      "soft_field":      {"factor": 1.30, "label": "Soft/muddy field: +30%"},
+      "per_pct_downslope": {"factor_per_1pct": 0.10, "label": "Each 1% downslope: +10%"},
+      "per_pct_upslope_credit": {"factor_per_1pct": -0.05, "label": "Each 1% upslope: -5% credit (capped at -15%)", "max_credit": -0.15}
+    }
+  },
+
+  "go_no_go_thresholds": {
+    "_description": "Editable advisory thresholds, not regulatory. Used by app to flag concerns.",
+    "min_runway_margin_factor": 1.25,
+    "min_se_roc_at_field_fpm": 100,
+    "se_service_ceiling_buffer_ft": 1000,
+    "max_xwind_kt": 17,
+    "vmc_high_da_warning_ft": 5000
+  }
+}

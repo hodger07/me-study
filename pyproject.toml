@@ -1,0 +1,6 @@
+[project]
+name = "me-study-perf"
+version = "0.1.0"
+description = "PA-30 N1100L performance engine serverless function"
+requires-python = ">=3.10"
+dependencies = []

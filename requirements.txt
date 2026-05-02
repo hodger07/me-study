@@ -1,0 +1,2 @@
+# N1100L performance engine — pure standard library, no external deps.
+# This file exists so Vercel detects /api/*.py as a Python serverless function.

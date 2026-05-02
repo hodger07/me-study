@@ -2774,7 +2774,7 @@ const VERDICT_COLORS = {
   danger: RED,
 };
 
-function PerformanceView({ onBack, onStartQuiz }) {
+function PerformanceView({ onBack, onStartQuiz, onOpenCalculator }) {
   const [openScenario, setOpenScenario] = useState(null);
   const ctx = PERFORMANCE.context;
   return (
@@ -2782,6 +2782,17 @@ function PerformanceView({ onBack, onStartQuiz }) {
       <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
         <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
       </button>
+
+      {onOpenCalculator && (
+        <button
+          onClick={onOpenCalculator}
+          className="me-button cyan"
+          style={{ width: "100%", padding: "12px", marginBottom: 16, fontSize: 12, letterSpacing: "0.15em" }}
+        >
+          <BarChart3 size={12} style={{ display: "inline", marginRight: 6, verticalAlign: "-2px" }} />
+          OPEN CALCULATOR ↗
+        </button>
+      )}
 
       <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>PERFORMANCE PLANNING</div>
       <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
@@ -4036,6 +4047,400 @@ function Stat({ label, value, color }) {
 }
 
 // =====================================================================
+// PERFORMANCE CALCULATOR (live-updating, calls /api/compute-performance)
+// =====================================================================
+
+const FIELD_PRESETS = [
+  { name: "KLBB", elev: 3282 },
+  { name: "F49", elev: 3124 },
+  { name: "KMAF", elev: 2871 },
+];
+
+function PerformanceCalculator({ onBack }) {
+  const [weight, setWeight] = useState(2800);
+  const [fieldElev, setFieldElev] = useState(3282);
+  const [fieldElevText, setFieldElevText] = useState("3282");
+  const [oat, setOat] = useState(75);
+  const [windKt, setWindKt] = useState(0);
+  const [runwayLen, setRunwayLen] = useState(11500);
+  const [runwaySlope, setRunwaySlope] = useState(0.0);
+
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  function selectPreset(elev) {
+    setFieldElev(elev);
+    setFieldElevText(String(elev));
+  }
+  function handleFieldElevText(v) {
+    setFieldElevText(v);
+    const n = parseInt(v, 10);
+    if (!isNaN(n) && n >= 0 && n <= 14000) setFieldElev(n);
+  }
+
+  function loadScenario(s) {
+    setWeight(s.weight);
+    setFieldElev(s.fieldElev);
+    setFieldElevText(String(s.fieldElev));
+    setOat(s.oat);
+    setWindKt(s.windKt);
+    setRunwayLen(s.runwayLen);
+    setRunwaySlope(s.runwaySlope);
+  }
+
+  // Debounced API call
+  useEffect(() => {
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      setCalculating(true);
+      try {
+        const res = await fetch("/api/compute-performance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scenario: {
+              weight_lbs: weight,
+              field_elevation_ft: fieldElev,
+              oat_f: oat,
+              wind_component_kt: windKt,
+              runway_length_ft: runwayLen,
+              runway_slope_pct: runwaySlope,
+            },
+          }),
+        });
+        if (cancelled) return;
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        if (cancelled) return;
+        setResult(data);
+        setError(null);
+        const verdict = data?.go_no_go?.result || "?";
+        const roc = data?.single_engine_safety?.roc_at_departure_da_fpm;
+        const summary = `${weight.toLocaleString()} lb · ${fieldElev.toLocaleString()} ft · ${oat}°F → ${verdict}${roc != null ? ` ${roc} fpm` : ""}`;
+        setHistory(prev => {
+          const entry = {
+            ts: new Date().toLocaleTimeString(),
+            weight, fieldElev, oat, windKt, runwayLen, runwaySlope,
+            verdict, summary,
+          };
+          // Avoid logging duplicate consecutive scenarios
+          if (prev[0] && prev[0].summary === summary) return prev;
+          return [entry, ...prev].slice(0, 5);
+        });
+      } catch (e) {
+        if (cancelled) return;
+        setError(e.message || "Calculation failed");
+      } finally {
+        if (!cancelled) setCalculating(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(handle); };
+  }, [weight, fieldElev, oat, windKt, runwayLen, runwaySlope]);
+
+  const verdict = result?.go_no_go?.result;
+  const verdictColor = verdict === "GO" ? CYAN : verdict === "CAUTION" ? AMBER : verdict === "NO-GO" ? RED : TEXT_DIM;
+
+  const dep = result?.departure || {};
+  const ses = result?.single_engine_safety || {};
+  const flags = result?.flags || [];
+  const da = dep.da_ft;
+  const seCeiling = ses.service_ceiling_da_ft;
+  const seRoc = ses.roc_at_departure_da_fpm;
+  const aStop = dep.accelerate_stop_ft;
+  const aStopMargin = dep.runway_margin_accel_stop;
+  const toGround = dep.takeoff_ground_roll_ft;
+  const toRwy = dep.runway_length_ft;
+
+  const seCeilingCritical = da != null && seCeiling != null && seCeiling <= da;
+  const seRocCritical = seRoc != null && seRoc < 100;
+  const aStopCritical = toRwy != null && aStop != null && aStop > 0.8 * toRwy;
+
+  return (
+    <div className="me-panel" style={{ padding: 20 }}>
+      <style>{`
+        .perfcalc-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          height: 6px;
+          background: ${PANEL_2};
+          border: 1px solid ${BORDER};
+          border-radius: 3px;
+          outline: none;
+        }
+        .perfcalc-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          background: ${AMBER};
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 0 0 6px rgba(255,184,74,0.4);
+          transition: transform 0.1s;
+        }
+        .perfcalc-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .perfcalc-slider::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          background: ${AMBER};
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 0 0 6px rgba(255,184,74,0.4);
+        }
+        .perfcalc-slider::-moz-range-thumb:hover { transform: scale(1.2); }
+      `}</style>
+      <button className="me-button" onClick={onBack} style={{ marginBottom: 16 }}>
+        <ArrowLeft size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />Back
+      </button>
+
+      <div className="me-display" style={{ fontSize: 26, color: AMBER, marginBottom: 4, letterSpacing: "0.05em" }}>PERFORMANCE CALCULATOR</div>
+      <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.15em" }}>
+        N1100L · PA-30 · LIVE GO/NO-GO
+      </div>
+
+      {/* INPUTS */}
+      <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CYAN}`, borderRadius: "0 3px 3px 0", padding: "16px 18px", marginBottom: 18 }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.15em", color: CYAN, fontWeight: 700, marginBottom: 14 }}>SCENARIO INPUTS</div>
+
+        <PerfSliderRow label="Weight" value={`${weight.toLocaleString()} lb`}>
+          <input type="range" min={2400} max={3600} step={50} value={weight} onChange={(e) => setWeight(parseInt(e.target.value, 10))} className="perfcalc-slider" />
+        </PerfSliderRow>
+
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6, fontSize: 11, letterSpacing: "0.12em", color: TEXT_DIM }}>
+            <span>FIELD ELEVATION</span>
+            <span className="me-glow-amber" style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 13, fontWeight: 700 }}>{fieldElev.toLocaleString()} ft</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+            {FIELD_PRESETS.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => selectPreset(p.elev)}
+                className={`me-button ${fieldElev === p.elev ? "active" : ""}`}
+                style={{ fontSize: 10, padding: "6px 10px" }}
+              >
+                {p.name} · {p.elev.toLocaleString()}'
+              </button>
+            ))}
+            <input
+              type="text"
+              inputMode="numeric"
+              value={fieldElevText}
+              onChange={(e) => handleFieldElevText(e.target.value)}
+              placeholder="custom"
+              style={{
+                flex: 1, minWidth: 90, background: PANEL, border: `1px solid ${BORDER}`,
+                color: TEXT, fontFamily: "JetBrains Mono, monospace", fontSize: 12,
+                padding: "6px 10px", borderRadius: 2, outline: "none",
+              }}
+            />
+          </div>
+        </div>
+
+        <PerfSliderRow label="OAT" value={`${oat}°F`}>
+          <input type="range" min={30} max={110} step={1} value={oat} onChange={(e) => setOat(parseInt(e.target.value, 10))} className="perfcalc-slider" />
+        </PerfSliderRow>
+
+        <PerfSliderRow label="Wind component" value={`${windKt > 0 ? "+" : ""}${windKt} kt${windKt > 0 ? " HW" : windKt < 0 ? " TW" : ""}`}>
+          <input type="range" min={-20} max={30} step={1} value={windKt} onChange={(e) => setWindKt(parseInt(e.target.value, 10))} className="perfcalc-slider" />
+        </PerfSliderRow>
+
+        <PerfSliderRow label="Runway length" value={`${runwayLen.toLocaleString()} ft`}>
+          <input type="range" min={2500} max={13000} step={100} value={runwayLen} onChange={(e) => setRunwayLen(parseInt(e.target.value, 10))} className="perfcalc-slider" />
+        </PerfSliderRow>
+
+        <PerfSliderRow label="Runway slope" value={`${runwaySlope > 0 ? "+" : ""}${runwaySlope.toFixed(1)}%`}>
+          <input type="range" min={-2.0} max={2.0} step={0.1} value={runwaySlope} onChange={(e) => setRunwaySlope(parseFloat(e.target.value))} className="perfcalc-slider" />
+        </PerfSliderRow>
+      </div>
+
+      {/* STATUS */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10, fontSize: 10, color: calculating ? AMBER : TEXT_DIM, letterSpacing: "0.15em" }}>
+        {calculating ? "⟳ CALCULATING…" : error ? `⚠ ${error}` : result ? "✓ UP TO DATE" : "—"}
+      </div>
+
+      {/* RESULTS */}
+      {result && (
+        <>
+          <div style={{
+            background: PANEL_2,
+            border: `2px solid ${verdictColor}`,
+            borderRadius: 4,
+            padding: "16px 20px",
+            marginBottom: 18,
+            textAlign: "center",
+            boxShadow: `0 0 24px ${verdictColor === RED ? "rgba(255,82,82,0.25)" : verdictColor === AMBER ? "rgba(255,184,74,0.25)" : verdictColor === CYAN ? "rgba(93,213,230,0.25)" : "transparent"}`,
+          }}>
+            <div className="me-display" style={{ fontSize: 56, lineHeight: 1, color: verdictColor, letterSpacing: "0.08em" }}>{verdict || "—"}</div>
+            <div style={{ fontSize: 11, color: TEXT_DIM, letterSpacing: "0.12em", marginTop: 4 }}>
+              {result?.go_no_go?.blocker_count ?? 0} BLOCKER{(result?.go_no_go?.blocker_count ?? 0) === 1 ? "" : "S"} · {result?.go_no_go?.advisory_count ?? 0} ADVISOR{(result?.go_no_go?.advisory_count ?? 0) === 1 ? "Y" : "IES"}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginBottom: 18 }}>
+            <PerfMetric
+              label="Density Altitude"
+              value={da != null ? `${da.toLocaleString()} ft` : "—"}
+              accent={CYAN}
+            />
+            <PerfMetric
+              label="SE Climb @ Field DA"
+              value={seRoc != null ? `${seRoc} fpm` : "—"}
+              accent={seRocCritical ? RED : seRoc != null && seRoc < 200 ? AMBER : "#40dc8c"}
+              critical={seRocCritical}
+              note={seRocCritical ? "<100 fpm: engine failure on departure is critical" : undefined}
+            />
+            <PerfMetric
+              label="SE Service Ceiling"
+              value={seCeiling != null ? `${seCeiling.toLocaleString()} ft DA` : "—"}
+              accent={seCeilingCritical ? RED : CYAN}
+              critical={seCeilingCritical}
+              note={seCeilingCritical ? "At/below current DA: cannot maintain altitude single-engine" : undefined}
+            />
+            <PerfMetric
+              label="Accelerate-Stop"
+              value={aStop != null && toRwy != null ? `${aStop.toLocaleString()} / ${toRwy.toLocaleString()} ft` : "—"}
+              accent={aStopCritical ? RED : aStopMargin != null && aStopMargin < 1.10 ? AMBER : "#40dc8c"}
+              critical={aStopCritical}
+              note={aStopMargin != null ? `margin ${aStopMargin.toFixed(2)}×` : undefined}
+            />
+            <PerfMetric
+              label="Takeoff Ground Roll"
+              value={toGround != null ? `${toGround.toLocaleString()} ft` : "—"}
+              accent={AMBER}
+            />
+            <PerfMetric
+              label="50 ft Obstacle"
+              value={dep.takeoff_over_50ft_ft != null ? `${dep.takeoff_over_50ft_ft.toLocaleString()} ft` : "—"}
+              accent={AMBER}
+            />
+          </div>
+
+          {flags.length > 0 && (
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.15em", color: AMBER, fontWeight: 700, marginBottom: 8 }}>FLAGGED CONCERNS</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {flags.map((f, i) => {
+                  const isBlocker = typeof f === "string" && f.includes("⚠️");
+                  return (
+                    <div key={i} style={{
+                      background: PANEL_2,
+                      border: `1px solid ${BORDER}`,
+                      borderLeft: `3px solid ${isBlocker ? RED : AMBER}`,
+                      padding: "10px 12px",
+                      fontSize: 12.5,
+                      lineHeight: 1.5,
+                      color: TEXT,
+                      borderRadius: "0 3px 3px 0",
+                      fontWeight: 500,
+                    }}>
+                      {f}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {!result && error && (
+        <div style={{
+          background: PANEL_2,
+          border: `1px solid ${RED}`,
+          borderLeft: `3px solid ${RED}`,
+          padding: "12px 14px",
+          fontSize: 12.5,
+          lineHeight: 1.5,
+          color: TEXT,
+          borderRadius: "0 3px 3px 0",
+          marginBottom: 18,
+        }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.15em", color: RED, fontWeight: 700, marginBottom: 6 }}>
+            CALCULATION ERROR
+          </div>
+          {error}
+        </div>
+      )}
+
+      {/* HISTORY */}
+      {history.length > 0 && (
+        <div style={{ background: PANEL_2, border: `1px solid ${BORDER}`, padding: "14px 16px", borderRadius: 3 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.15em", color: TEXT_DIM, fontWeight: 700, marginBottom: 10 }}>RECENT CALCULATIONS</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {history.map((h, i) => {
+              const c = h.verdict === "GO" ? CYAN : h.verdict === "CAUTION" ? AMBER : h.verdict === "NO-GO" ? RED : TEXT_DIM;
+              return (
+                <button
+                  key={i}
+                  onClick={() => loadScenario(h)}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${BORDER}`,
+                    borderLeft: `3px solid ${c}`,
+                    padding: "8px 10px",
+                    color: TEXT,
+                    fontFamily: "JetBrains Mono, monospace",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    borderRadius: "0 3px 3px 0",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  <span>{h.summary}</span>
+                  <span style={{ color: TEXT_DIM, fontSize: 10, flexShrink: 0 }}>{h.ts}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PerfSliderRow({ label, value, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6, fontSize: 11, letterSpacing: "0.12em", color: TEXT_DIM }}>
+        <span>{label.toUpperCase()}</span>
+        <span className="me-glow-amber" style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 13, fontWeight: 700 }}>{value}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function PerfMetric({ label, value, accent, critical, note }) {
+  return (
+    <div style={{
+      background: PANEL_2,
+      border: `1px solid ${BORDER}`,
+      borderLeft: `3px solid ${accent}`,
+      padding: "10px 12px",
+      borderRadius: "0 3px 3px 0",
+    }}>
+      <div style={{ fontSize: 10, letterSpacing: "0.15em", color: TEXT_DIM, marginBottom: 4 }}>{label.toUpperCase()}</div>
+      <div className="me-display" style={{ fontSize: 22, lineHeight: 1.1, color: critical ? accent : TEXT, letterSpacing: "0.04em", fontWeight: critical ? 700 : 400 }}>{value}</div>
+      {note && (
+        <div style={{ fontSize: 10.5, color: critical ? accent : TEXT_DIM, marginTop: 4, lineHeight: 1.4, fontStyle: critical ? "normal" : "italic", fontWeight: critical ? 600 : 400 }}>{note}</div>
+      )}
+    </div>
+  );
+}
+
+// =====================================================================
 // MAIN APP
 // =====================================================================
 
@@ -4208,10 +4613,17 @@ export default function App() {
           <AircraftQuizView onBack={() => setView("aircraft")} />
         )}
         {view === "performance" && (
-          <PerformanceView onBack={() => setView("home")} onStartQuiz={() => setView("performancequiz")} />
+          <PerformanceView
+            onBack={() => setView("home")}
+            onStartQuiz={() => setView("performancequiz")}
+            onOpenCalculator={() => setView("perf-calc")}
+          />
         )}
         {view === "performancequiz" && (
           <PerformanceQuizView onBack={() => setView("performance")} />
+        )}
+        {view === "perf-calc" && (
+          <PerformanceCalculator onBack={() => setView("performance")} />
         )}
         {view === "maneuvers" && (
           <ManeuversView
