@@ -4343,7 +4343,7 @@ function ManeuverQuizView({ taskId, onBack }) {
   );
 }
 
-function OralPrepView({ onBack }) {
+function OralPrepView({ onBack, perTopicProgress, onOralTopicComplete }) {
   const [groupId, setGroupId] = useState("core-oral");
   const [activeTopicId, setActiveTopicId] = useState(null);
   const [drillTopicId, setDrillTopicId] = useState(null);
@@ -4353,11 +4353,19 @@ function OralPrepView({ onBack }) {
   const group = ORAL.groups.find((g) => g.id === groupId);
   const activeTopic = group?.topics.find((t) => t.id === activeTopicId);
 
+  function oralTopicKey(gid, tid) {
+    return `oral_${gid}__${tid}`;
+  }
+  function isTopicMastered(gid, tid) {
+    return perTopicProgress?.[oralTopicKey(gid, tid)]?.quizScore === 1.0;
+  }
+
   if (drillTopicId) {
     const drillTopic = group?.topics.find((t) => t.id === drillTopicId);
     if (drillTopic && drillTopic.quiz && drillTopic.quiz.length > 0) {
+      const drillKey = oralTopicKey(groupId, drillTopic.id);
       const topicForDrill = {
-        id: `oral-${groupId}-${drillTopic.id}`,
+        id: drillKey,
         title: drillTopic.title,
         summary: drillTopic.definition || "",
         quiz: drillTopic.quiz,
@@ -4371,7 +4379,12 @@ function OralPrepView({ onBack }) {
           <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 20, letterSpacing: "0.12em" }}>
             ORAL · 100% REQUIRED · MISSES RE-QUEUE
           </div>
-          <DrillMode topic={topicForDrill} onQuizComplete={() => {}} />
+          <DrillMode
+            topic={topicForDrill}
+            onQuizComplete={(scorePct) => {
+              if (onOralTopicComplete) onOralTopicComplete(drillKey, scorePct);
+            }}
+          />
         </div>
       );
     }
@@ -4474,11 +4487,16 @@ function OralPrepView({ onBack }) {
         )}
 
         {!isScenario && activeTopic.quiz && activeTopic.quiz.length > 0 && (
-          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <button className="me-button cyan" onClick={() => setDrillTopicId(activeTopic.id)}>
               <Target size={11} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} />
-              Drill {activeTopic.title} ({activeTopic.quiz.length} questions)
+              {isTopicMastered(groupId, activeTopic.id) ? "Drill Again" : "Drill"} {activeTopic.title} ({activeTopic.quiz.length} questions)
             </button>
+            {isTopicMastered(groupId, activeTopic.id) && (
+              <span style={{ fontSize: 11, color: "#40dc8c", letterSpacing: "0.15em", fontWeight: 700 }}>
+                ✓ MASTERED
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -4520,7 +4538,8 @@ function OralPrepView({ onBack }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {group.topics.map((topic, i) => {
               const status = scenarioStatus[topic.id];
-              const accent = status === "got" ? "#40dc8c" : status === "review" ? AMBER : (groupId === "scenarios" ? CYAN : AMBER);
+              const mastered = isTopicMastered(groupId, topic.id);
+              const accent = mastered ? "#40dc8c" : status === "got" ? "#40dc8c" : status === "review" ? AMBER : (groupId === "scenarios" ? CYAN : AMBER);
               const qCount = (topic.quiz || []).length;
               return (
                 <button
@@ -4548,7 +4567,12 @@ function OralPrepView({ onBack }) {
                     <span className="me-glow-amber" style={{ fontWeight: 700, fontSize: 14 }}>{topic.title}</span>
                   </span>
                   <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {status && (
+                    {mastered && (
+                      <span style={{ fontSize: 10, color: "#40dc8c", letterSpacing: "0.12em", fontWeight: 700 }}>
+                        ✓ MASTERED
+                      </span>
+                    )}
+                    {!mastered && status && (
                       <span style={{ fontSize: 10, color: status === "got" ? "#40dc8c" : AMBER, letterSpacing: "0.12em", fontWeight: 700 }}>
                         {status === "got" ? "✓" : "⟳"}
                       </span>
@@ -5880,10 +5904,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perTopicProgress, vmcMastery, checklistProgress, emergencyLastViewed, userId]);
 
-  // Total topic count
+  // Total topic count — includes CURRICULUM topics + ORAL topics that have quizzes
   const allTopics = useMemo(() => {
     const arr = [];
-    CURRICULUM.forEach(d => d.blocks.forEach(b => b.topics.forEach(t => arr.push(t))));
+    CURRICULUM.forEach(d => d.blocks.forEach(b => b.topics.forEach(t => arr.push({ id: t.id }))));
+    ORAL.groups.forEach(g => g.topics.forEach(t => {
+      if (t.quiz && t.quiz.length > 0) arr.push({ id: `oral_${g.id}__${t.id}` });
+    }));
     return arr;
   }, []);
 
@@ -5922,6 +5949,19 @@ export default function App() {
       ...prev,
       [activeTopic.id]: {
         ...(prev[activeTopic.id] || { studied: true }),
+        studied: true,
+        quizScore: 1.0,
+      }
+    }));
+  }
+
+  function oralTopicComplete(key, scorePct) {
+    if (!key) return;
+    if (scorePct < 1.0) return;
+    setPerTopicProgress(prev => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || { studied: true }),
         studied: true,
         quizScore: 1.0,
       }
@@ -6010,7 +6050,11 @@ export default function App() {
           <ManeuverQuizView taskId={activeManeuverId} onBack={() => setView("maneuvers")} />
         )}
         {view === "oral" && (
-          <OralPrepView onBack={() => setView("home")} />
+          <OralPrepView
+            onBack={() => setView("home")}
+            perTopicProgress={perTopicProgress}
+            onOralTopicComplete={oralTopicComplete}
+          />
         )}
         {view === "reference" && (
           <ReferenceView onBack={() => setView("home")} />
