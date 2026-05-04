@@ -31,6 +31,9 @@ function setUserIdInUrl(userId) {
 }
 
 async function saveProgressRemote(userId, progress) {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return false;
+  }
   try {
     const res = await fetch("/api/save-progress", {
       method: "POST",
@@ -2746,7 +2749,7 @@ function StyleSheet() {
   );
 }
 
-function Header({ progress, view, setView, userId, syncStatus }) {
+function Header({ progress, view, setView, userId, syncStatus, isOnline }) {
   return (
     <div className="me-panel" style={{ padding: 18, marginBottom: 16, position: "relative" }}>
       <div className="me-corner-marker me-corner-tl"></div>
@@ -2843,6 +2846,23 @@ function Header({ progress, view, setView, userId, syncStatus }) {
           {syncStatus === "offline" && "⚠ OFFLINE"}
         </span>
       </div>
+
+      {!isOnline && (
+        <div style={{
+          background: 'rgba(255, 184, 74, 0.12)',
+          border: '1px solid #ffb84a',
+          borderLeft: '3px solid #ffb84a',
+          padding: '6px 12px',
+          marginTop: 8,
+          fontSize: 10,
+          letterSpacing: '0.12em',
+          color: '#ffb84a',
+          textAlign: 'center',
+          fontFamily: 'inherit',
+        }}>
+          ⚠ OFFLINE — CHECKLISTS, EMERGENCY, SPEEDS, AND STUDY CONTENT AVAILABLE · CHANGES SYNC WHEN ONLINE
+        </div>
+      )}
     </div>
   );
 }
@@ -5854,6 +5874,18 @@ export default function App() {
   const [activeEmergencyProc, setActiveEmergencyProc] = useState(null);
   const [syncStatus, setSyncStatus] = useState("loading"); // "loading" | "synced" | "saving" | "offline"
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+
+  useEffect(() => {
+    const goOnline = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
 
   // Load progress on mount / userId change. Try remote first, fall back to localStorage.
   useEffect(() => {
@@ -5981,7 +6013,7 @@ export default function App() {
     <div className="me-app">
       <StyleSheet />
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <Header progress={progress} view={view} setView={setView} userId={userId} syncStatus={syncStatus} />
+        <Header progress={progress} view={view} setView={setView} userId={userId} syncStatus={syncStatus} isOnline={isOnline} />
         {showWelcome && (
           <div style={{
             background: "linear-gradient(90deg, rgba(93,213,230,0.15), rgba(255,184,74,0.10))",
